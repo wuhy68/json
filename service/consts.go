@@ -1,5 +1,0 @@
-package gomapper
-
-const (
-	defaultPath = "."
-)
