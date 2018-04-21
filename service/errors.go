@@ -1,6 +1,9 @@
 package goerror
 
-import "fmt"
+import (
+	"errors"
+	"fmt"
+)
 
 type ErrorData struct {
 	*ErrorData
@@ -11,13 +14,27 @@ func NewError(err error) *ErrorData {
 	return &ErrorData{error: err}
 }
 
-func (e *ErrorData) Add(newErr error) {
+func FromString(err error) *ErrorData {
+	return &ErrorData{error: err}
+}
+
+func (e *ErrorData) AddError(newErr error) {
 	prevErr := &ErrorData{
 		ErrorData: e.ErrorData,
 		error:     e.error,
 	}
 
 	e.error = newErr
+	e.ErrorData = prevErr
+}
+
+func (e *ErrorData) AddString(newErr string) {
+	prevErr := &ErrorData{
+		ErrorData: e.ErrorData,
+		error:     e.error,
+	}
+
+	e.error = errors.New(newErr)
 	e.ErrorData = prevErr
 }
 

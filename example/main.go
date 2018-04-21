@@ -8,8 +8,8 @@ import (
 func main() {
 
 	err := goerror.NewError(fmt.Errorf("erro 1"))
-	err.Add(fmt.Errorf("erro 2"))
-	err.Add(fmt.Errorf("erro 3"))
+	err.AddError(fmt.Errorf("erro 2"))
+	err.AddError(fmt.Errorf("erro 3"))
 
 	fmt.Printf("Error: %s, Cause: %s", err.Error(), err.Cause())
 }
