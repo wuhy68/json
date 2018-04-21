@@ -2,18 +2,23 @@ package main
 
 import (
 	"fmt"
+
 	"go-dropbox/service"
 
 	"github.com/labstack/gommon/log"
 )
 
 func main() {
+	access := "Bearer"
+	token := "<HERE>"
+	api := "https://api.dropboxapi.com/2"
 
-	dropbox := godropbox.NewDropbox()
+	config := godropbox.NewConfig(access, token, api)
+	dropbox := godropbox.NewDropbox(godropbox.WithConfiguration(config))
 
 	// get user information
 	log.Info("get user information")
-	if user, err := dropbox.User().GetUser(); err != nil {
+	if user, err := dropbox.User().GetUserAccount(); err != nil {
 		log.Error(err.Error())
 	} else {
 		fmt.Printf("%+v", user)

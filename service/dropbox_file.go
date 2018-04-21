@@ -1,9 +1,13 @@
 package godropbox
 
-import "github.com/joaosoft/go-error/service"
+import (
+	"github.com/joaosoft/go-error/service"
+	"github.com/joaosoft/go-manager/service"
+)
 
 type file struct {
-	*dropbox
+	client gomanager.IGateway
+	config *config
 }
 
 func (f *file) Download(file string) ([]byte, *goerror.ErrorData) {

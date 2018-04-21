@@ -1,0 +1,9 @@
+{
+  "log": {
+    "level": "info"
+  },
+  "authorization": {
+    "access": "Bearer",
+    "token": "<HERE>"
+  }
+}
