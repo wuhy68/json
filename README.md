@@ -1,7 +1,12 @@
-# go-error
-[![Build Status](https://travis-ci.org/joaosoft/go-error.svg?branch=master)](https://travis-ci.org/joaosoft/go-error) | [![codecov](https://codecov.io/gh/joaosoft/go-error/branch/master/graph/badge.svg)](https://codecov.io/gh/joaosoft/go-error) | [![Go Report Card](https://goreportcard.com/badge/github.com/joaosoft/go-error)](https://goreportcard.com/report/github.com/joaosoft/go-error) | [![GoDoc](https://godoc.org/github.com/joaosoft/go-error?status.svg)](https://godoc.org/github.com/joaosoft/go-error/service)
+# go-dropbox
+[![Build Status](https://travis-ci.org/joaosoft/go-dropbox.svg?branch=master)](https://travis-ci.org/joaosoft/go-dropbox) | [![codecov](https://codecov.io/gh/joaosoft/go-dropbox/branch/master/graph/badge.svg)](https://codecov.io/gh/joaosoft/go-dropbox) | [![Go Report Card](https://goreportcard.com/badge/github.com/joaosoft/go-dropbox)](https://goreportcard.com/report/github.com/joaosoft/go-dropbox) | [![GoDoc](https://godoc.org/github.com/joaosoft/go-dropbox?status.svg)](https://godoc.org/github.com/joaosoft/go-dropbox/service)
 
-Error manager with error and caused by structure.
+A simple dropbox v2 client.
+
+## Support for 
+* Get account information
+* Create/Delete folders
+* Upload/Download files
 
 ###### If i miss something or you have something interesting, please be part of this project. Let me know! My contact is at the end.
 
@@ -15,22 +20,18 @@ Project dependencies are managed using Dep. Read more about [Dep](https://github
 
 >### Go
 ```
-go get github.com/joaosoft/go-error/service
+go get github.com/joaosoft/go-dropbox/service
 ```
 
 ## Usage 
-This examples are available in the project at [go-error/example](https://github.com/joaosoft/go-error/tree/master/example)
+This examples are available in the project at [go-dropbox/example](https://github.com/joaosoft/go-dropbox/tree/master/example)
 ```go
-err := goerror.NewError(fmt.Errorf("erro 1"))
-err.Add(fmt.Errorf("erro 2"))
-err.Add(fmt.Errorf("erro 3"))
 
-fmt.Printf("Error: %s, Cause: %s", err.Error(), err.Cause())
 ```
 
 ##### Result:
 ```javascript
-Error: erro 3, Cause: 'erro 3', caused by 'erro 2', caused by 'erro 2'
+
 ```
 
 ## Known issues

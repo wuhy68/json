@@ -2,14 +2,35 @@ package main
 
 import (
 	"fmt"
-	"go-error/service"
+	"go-dropbox/service"
+
+	"github.com/labstack/gommon/log"
 )
 
 func main() {
 
-	err := goerror.NewError(fmt.Errorf("erro 1"))
-	err.AddError(fmt.Errorf("erro 2"))
-	err.AddError(fmt.Errorf("erro 3"))
+	dropbox := godropbox.NewDropbox()
 
-	fmt.Printf("Error: %s, Cause: %s", err.Error(), err.Cause())
+	// get user information
+	log.Info("get user information")
+	if user, err := dropbox.User().GetUser(); err != nil {
+		log.Error(err.Error())
+	} else {
+		fmt.Printf("%+v", user)
+	}
+
+	// upload a file
+	log.Info("upload a file")
+	if err := dropbox.File().Upload("teste.txt", []byte("teste")); err != nil {
+		log.Error(err.Error())
+	}
+
+	// download the uploaded file
+	log.Info("download the uploaded file")
+	if file, err := dropbox.File().Download("teste.jpg"); err != nil {
+		log.Error(err.Error())
+	} else {
+		fmt.Println(file)
+	}
+
 }
