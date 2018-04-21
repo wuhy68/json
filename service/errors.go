@@ -14,8 +14,8 @@ func NewError(err error) *ErrorData {
 	return &ErrorData{error: err}
 }
 
-func FromString(err error) *ErrorData {
-	return &ErrorData{error: err}
+func FromString(err string) *ErrorData {
+	return &ErrorData{error: errors.New(err)}
 }
 
 func (e *ErrorData) AddError(newErr error) {
