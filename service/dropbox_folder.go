@@ -58,13 +58,18 @@ func (f *folder) List(path string) (*listFolderResponse, *goerror.ErrorData) {
 	if path == "/" {
 		path = ""
 	}
-	body := listFolderRequest{
+	body, err := json.Marshal(listFolderRequest{
 		Path:                            path,
 		Recursive:                       false,
 		IncludeMediaInfo:                false,
 		IncludeDeleted:                  false,
 		IncludeHasExplicitSharedMembers: false,
 		IncludeMountedFolders:           true,
+	})
+	if err != nil {
+		newErr := goerror.NewError(err)
+		log.Error("error marshal bodyArgs").ToErrorData(newErr)
+		return nil, newErr
 	}
 
 	headers := gomanager.Headers{
@@ -128,9 +133,14 @@ func (f *folder) Create(path string) (*createFolderResponse, *goerror.ErrorData)
 	if path == "/" {
 		path = ""
 	}
-	body := createFolderRequest{
+	body, err := json.Marshal(createFolderRequest{
 		Path:       path,
 		AutoRename: false,
+	})
+	if err != nil {
+		newErr := goerror.NewError(err)
+		log.Error("error marshal bodyArgs").ToErrorData(newErr)
+		return nil, newErr
 	}
 
 	headers := gomanager.Headers{

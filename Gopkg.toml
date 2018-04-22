@@ -32,7 +32,3 @@
 [[constraint]]
   branch = "master"
   name = "github.com/joaosoft/go-manager"
-
-[[constraint]]
-  name = "github.com/labstack/gommon"
-  version = "0.2.4"

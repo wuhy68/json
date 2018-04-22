@@ -56,7 +56,7 @@ type uploadFileResponse struct {
 
 func (f *file) Upload(path string, file []byte) (*uploadFileResponse, *goerror.ErrorData) {
 	var err error
-	var body []byte
+	var bodyArgs []byte
 	args := uploadFileRequest{
 		Path:       path,
 		Mode:       writeModeOverwrite,
@@ -64,20 +64,25 @@ func (f *file) Upload(path string, file []byte) (*uploadFileResponse, *goerror.E
 		Mute:       false,
 	}
 
-	if body, err = json.Marshal(args); err != nil {
+	if bodyArgs, err = json.Marshal(args); err != nil {
 		newErr := goerror.NewError(err)
-		log.Error("error converting upload input body").ToErrorData(newErr)
+		log.Error("error converting upload input bodyArgs").ToErrorData(newErr)
 		return nil, newErr
 	}
 
 	headers := gomanager.Headers{
 		"Authorization":   {fmt.Sprintf("%s %s", f.config.Authorization.Access, f.config.Authorization.Token)},
 		"Content-Type":    {"application/octet-stream"},
-		"Dropbox-API-Arg": {string(body)},
+		"Dropbox-API-Arg": {string(bodyArgs)},
 	}
 
 	dropboxResponse := &uploadFileResponse{}
-	if status, response, err := f.client.Request(http.MethodPost, f.config.Hosts.Content, "/files/upload", headers, string(file)); err != nil {
+	if err != nil {
+		newErr := goerror.NewError(err)
+		log.Error("error marshal bodyArgs").ToErrorData(newErr)
+		return nil, newErr
+	}
+	if status, response, err := f.client.Request(http.MethodPost, f.config.Hosts.Content, "/files/upload", headers, file); err != nil {
 		newErr := goerror.NewError(err)
 		log.WithField("response", response).Error("error uploading file").ToErrorData(newErr)
 		return nil, newErr
@@ -107,23 +112,23 @@ type downloadFileRequest struct {
 
 func (f *file) Download(path string) ([]byte, *goerror.ErrorData) {
 	var err error
-	var body []byte
+	var bodyArgs []byte
 	args := downloadFileRequest{
 		Path: path,
 	}
 
-	if body, err = json.Marshal(args); err != nil {
+	if bodyArgs, err = json.Marshal(args); err != nil {
 		newErr := goerror.NewError(err)
-		log.Error("error converting download input body").ToErrorData(newErr)
+		log.Error("error converting download input bodyArgs").ToErrorData(newErr)
 		return nil, newErr
 	}
 
 	headers := gomanager.Headers{
 		"Authorization":   {fmt.Sprintf("%s %s", f.config.Authorization.Access, f.config.Authorization.Token)},
-		"Dropbox-API-Arg": {string(body)},
+		"Dropbox-API-Arg": {string(bodyArgs)},
 	}
 
-	if status, response, err := f.client.Request(http.MethodPost, f.config.Hosts.Content, "/files/download", headers, nil); err != nil {
+	if status, response, err := f.client.Request(http.MethodPost, f.config.Hosts.Content, "/files/download", headers, []byte("")); err != nil {
 		newErr := goerror.NewError(err)
 		log.WithField("response", response).Error("error downloading file").ToErrorData(newErr)
 		return nil, newErr
@@ -178,8 +183,13 @@ func (f *file) Delete(path string) (*deleteFileResponse, *goerror.ErrorData) {
 	if path == "/" {
 		path = ""
 	}
-	body := deleteFileRequest{
+	body, err := json.Marshal(deleteFileRequest{
 		Path: path,
+	})
+	if err != nil {
+		newErr := goerror.NewError(err)
+		log.Error("error marshal bodyArgs").ToErrorData(newErr)
+		return nil, newErr
 	}
 
 	headers := gomanager.Headers{
