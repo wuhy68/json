@@ -11,6 +11,7 @@ type appConfig struct {
 	GoDropbox goDropbox `json:"godropbox"`
 }
 
+// goDropbox ...
 type goDropbox struct {
 	Log struct {
 		Level string `json:"level"`
