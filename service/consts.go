@@ -2,6 +2,5 @@ package godropbox
 
 const (
 	defaultPath = "."
-
-	PATH_KEY = "path"
+	path_key    = "path"
 )
