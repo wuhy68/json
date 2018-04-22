@@ -9,7 +9,7 @@ import (
 
 type dropbox struct {
 	client gomanager.IGateway
-	config *appConfig
+	config *goDropbox
 	pm     *gomanager.GoManager
 
 	// usage ...
@@ -28,7 +28,7 @@ func NewDropbox(options ...goDropboxOption) *dropbox {
 		log.Error(err.Error())
 	} else {
 		pm.AddConfig("config_app", simpleConfig)
-		level, _ := golog.ParseLevel(appConfig.Log.Level)
+		level, _ := golog.ParseLevel(appConfig.GoDropbox.Log.Level)
 		log.Debugf("setting log level to %s", level)
 		WithLogLevel(level)
 	}
@@ -36,7 +36,7 @@ func NewDropbox(options ...goDropboxOption) *dropbox {
 	dropbox := &dropbox{
 		client: gomanager.NewSimpleGateway(),
 		pm:     pm,
-		config: appConfig,
+		config: &appConfig.GoDropbox,
 	}
 
 	dropbox.reconfigure(options...)

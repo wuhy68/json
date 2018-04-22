@@ -1,13 +1,15 @@
 {
-  "log": {
-    "level": "info"
-  },
-  "authorization": {
-    "access": "Bearer",
-    "token": "<HERE>"
-  },
-  "hosts": {
-    "api": "https://api.dropboxapi.com/2",
-    "content": "https://content.dropboxapi.com/2"
+  "godropbox": {
+    "log": {
+      "level": "info"
+    },
+    "authorization": {
+      "access": "Bearer",
+      "token": "XPTO"
+    },
+    "hosts": {
+      "api": "https://api.dropboxapi.com/2",
+      "content": "https://content.dropboxapi.com/2"
+    }
   }
 }
