@@ -11,5 +11,10 @@
       "api": "https://api.dropboxapi.com/2",
       "content": "https://content.dropboxapi.com/2"
     }
+  },
+  "gomanager": {
+    "log": {
+      "level": "info"
+    }
   }
 }

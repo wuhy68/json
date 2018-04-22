@@ -20,7 +20,7 @@ type dropbox struct {
 
 // NewDropbox ...
 func NewDropbox(options ...goDropboxOption) *dropbox {
-	pm := gomanager.NewManager(gomanager.WithLogger(log), gomanager.WithRunInBackground(false))
+	pm := gomanager.NewManager(gomanager.WithRunInBackground(false))
 
 	// load configuration file
 	appConfig := &appConfig{}

@@ -3,7 +3,8 @@ package main
 import (
 	"fmt"
 	"go-dropbox/service"
-	"github.com/joaosoft/go-log/service"
+
+	"github.com/labstack/gommon/log"
 )
 
 func main() {
