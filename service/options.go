@@ -13,7 +13,7 @@ func (godropbox *dropbox) reconfigure(options ...goDropboxOption) {
 }
 
 // WithConfiguration ...
-func WithConfiguration(config *goDropbox) goDropboxOption {
+func WithConfiguration(config *goDropboxConfig) goDropboxOption {
 	return func(godropbox *dropbox) {
 		godropbox.config = config
 	}

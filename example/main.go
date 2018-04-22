@@ -1,11 +1,9 @@
 package main
 
 import (
-	"go-dropbox/service"
-
 	"fmt"
-
-	"github.com/labstack/gommon/log"
+	"go-dropbox/service"
+	"github.com/joaosoft/go-log/service"
 )
 
 func main() {

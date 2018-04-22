@@ -12,7 +12,7 @@ import (
 
 type file struct {
 	client gomanager.IGateway
-	config *goDropbox
+	config *goDropboxConfig
 }
 
 type writeMode string
