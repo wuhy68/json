@@ -41,19 +41,19 @@
   branch = "master"
   name = "github.com/joaosoft/go-log"
   packages = ["service"]
-  revision = "146cd0cb2f3c07a6467f02963645f908e4946998"
+  revision = "5e0cf5053972ae001a8c5e7a626b812fc71725ea"
 
 [[projects]]
   branch = "master"
   name = "github.com/joaosoft/go-manager"
   packages = ["service"]
-  revision = "2a6b93b1b1a43a06fe22d0ec7f3e21f67e082196"
+  revision = "a1fe290f802c0a7d0a6c0ab294cbefc39157ebb3"
 
 [[projects]]
   branch = "master"
   name = "github.com/joaosoft/go-writer"
   packages = ["service"]
-  revision = "03b024de562bdef1b632537ae5918aa17dc3c505"
+  revision = "5916e348a3faa57e172332068979b8376c0e496a"
 
 [[projects]]
   name = "github.com/labstack/echo"
@@ -184,6 +184,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "6247caa0aab2244bc5b1f7f2e70f85676fea2e503a658477090052ee6c856d0a"
+  inputs-digest = "652c8f060f3910b86e3744ba265ed9be80bcf5c4111bd7c2660404e3cac6fef9"
   solver-name = "gps-cdcl"
   solver-version = 1

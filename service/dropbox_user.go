@@ -13,10 +13,10 @@ import (
 
 type user struct {
 	client gomanager.IGateway
-	config *config
+	config *appConfig
 }
 
-type dropboxUserResponse struct {
+type getUserResponse struct {
 	AccountID string `json:"account_id"`
 	Name      struct {
 		GivenName       string `json:"given_name"`
@@ -61,12 +61,14 @@ type dropboxUserResponse struct {
 	TeamMemberID string `json:"team_member_id"`
 }
 
-// GetUserAccount ...
-func (u *user) GetUserAccount() (*dropboxUserResponse, *goerror.ErrorData) {
-	dropboxResponse := &dropboxUserResponse{}
-	headers := gomanager.Headers{"Authorization": {fmt.Sprintf("%s %s", u.config.Authorization.Access, u.config.Authorization.Token)}}
+// Get ...
+func (u *user) Get() (*getUserResponse, *goerror.ErrorData) {
+	dropboxResponse := &getUserResponse{}
+	headers := gomanager.Headers{
+		"Authorization": {fmt.Sprintf("%s %s", u.config.Authorization.Access, u.config.Authorization.Token)},
+	}
 
-	if status, response, err := u.client.Request(http.MethodPost, u.config.Api, "/users/get_current_account", headers, nil); err != nil {
+	if status, response, err := u.client.Request(http.MethodPost, u.config.Hosts.Api, "/users/get_current_account", headers, nil); err != nil {
 		newErr := goerror.NewError(err)
 		log.Error("error getting user account").ToErrorData(newErr)
 		return nil, newErr

@@ -4,9 +4,17 @@
 A simple dropbox v2 client.
 
 ## Support for 
+> User
 * Get account information
-* Create/Delete folders
-* Upload/Download files
+
+> Files
+* Upload / Download files
+* Create / Delete files
+
+>Folders
+* List files
+* Create folders
+* Delete folders
 
 ###### If i miss something or you have something interesting, please be part of this project. Let me know! My contact is at the end.
 

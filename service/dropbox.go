@@ -9,22 +9,18 @@ import (
 
 type dropbox struct {
 	client gomanager.IGateway
-	config *config
+	config *appConfig
 	pm     *gomanager.GoManager
 
-	// usage..
-	user *user
-	file *file
+	// usage ...
+	user   *user
+	folder *folder
+	file   *file
 }
 
 // NewDropbox ...
 func NewDropbox(options ...goDropboxOption) *dropbox {
 	pm := gomanager.NewManager(gomanager.WithLogger(log), gomanager.WithRunInBackground(false))
-
-	dropbox := &dropbox{
-		client: gomanager.NewSimpleGateway(),
-		pm:     pm,
-	}
 
 	// load configuration file
 	appConfig := &appConfig{}
@@ -37,12 +33,18 @@ func NewDropbox(options ...goDropboxOption) *dropbox {
 		WithLogLevel(level)
 	}
 
+	dropbox := &dropbox{
+		client: gomanager.NewSimpleGateway(),
+		pm:     pm,
+		config: appConfig,
+	}
+
 	dropbox.reconfigure(options...)
 
 	return dropbox
 }
 
-// User ...
+// Api ...
 func (d *dropbox) User() *user {
 	if d.user == nil {
 		d.user = &user{
@@ -51,6 +53,17 @@ func (d *dropbox) User() *user {
 		}
 	}
 	return d.user
+}
+
+// Folder ...
+func (d *dropbox) Folder() *folder {
+	if d.folder == nil {
+		d.folder = &folder{
+			client: d.client,
+			config: d.config,
+		}
+	}
+	return d.folder
 }
 
 // File ...

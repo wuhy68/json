@@ -1,41 +1,69 @@
 package main
 
 import (
-	"fmt"
-
 	"go-dropbox/service"
+
+	"fmt"
 
 	"github.com/labstack/gommon/log"
 )
 
 func main() {
-	access := "Bearer"
-	token := "<HERE>"
-	api := "https://api.dropboxapi.com/2"
+	dropbox := godropbox.NewDropbox()
 
-	config := godropbox.NewConfig(access, token, api)
-	dropbox := godropbox.NewDropbox(godropbox.WithConfiguration(config))
-
-	// get user information
+	//get user information
 	log.Info("get user information")
-	if user, err := dropbox.User().GetUserAccount(); err != nil {
+	if user, err := dropbox.User().Get(); err != nil {
 		log.Error(err.Error())
 	} else {
-		fmt.Printf("%+v", user)
+		fmt.Printf("\n\nUSER: %+v \n\n", user)
 	}
 
 	// upload a file
 	log.Info("upload a file")
-	if err := dropbox.File().Upload("teste.txt", []byte("teste")); err != nil {
+	if response, err := dropbox.File().Upload("/teste.txt", []byte("teste")); err != nil {
 		log.Error(err.Error())
+	} else {
+		fmt.Printf("\n\nUPLOADED: %+v \n\n", response)
 	}
 
 	// download the uploaded file
 	log.Info("download the uploaded file")
-	if file, err := dropbox.File().Download("teste.jpg"); err != nil {
+	if response, err := dropbox.File().Download("/teste.txt"); err != nil {
 		log.Error(err.Error())
 	} else {
-		fmt.Println(file)
+		fmt.Printf("\n\nDOWNLOADED: %s \n\n", string(response))
 	}
 
+	// create folder
+	log.Info("listing folder")
+	if response, err := dropbox.Folder().Create("/bananas"); err != nil {
+		log.Error(err.Error())
+	} else {
+		fmt.Printf("\n\nCREATED FOLDER: %+v \n\n", response)
+	}
+
+	// listing folder
+	log.Info("listing folder")
+	if response, err := dropbox.Folder().List("/"); err != nil {
+		log.Error(err.Error())
+	} else {
+		fmt.Printf("\n\nLIST FOLDER: %+v \n\n", response)
+	}
+
+	// deleting the uploaded file
+	log.Info("deleting the uploaded file")
+	if response, err := dropbox.File().Delete("/teste.txt"); err != nil {
+		log.Error(err.Error())
+	} else {
+		fmt.Printf("\n\nDELETED FILE: %+v \n\n", response)
+	}
+
+	// deleting the created folder
+	log.Info("deleting the created folder")
+	if response, err := dropbox.Folder().DeleteFolder("/bananas"); err != nil {
+		log.Error(err.Error())
+	} else {
+		fmt.Printf("\n\nDELETED FOLDER: %+v \n\n", response)
+	}
 }

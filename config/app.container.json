@@ -5,5 +5,9 @@
   "authorization": {
     "access": "Bearer",
     "token": "<HERE>"
+  },
+  "hosts": {
+    "api": "https://api.dropboxapi.com/2",
+    "content": "https://content.dropboxapi.com/2"
   }
 }
