@@ -23,6 +23,13 @@ type Dropbox struct {
 func NewDropbox(options ...dropboxOption) *Dropbox {
 	pm := gomanager.NewManager(gomanager.WithRunInBackground(false))
 
+	dropbox := &Dropbox{
+		client: gomanager.NewSimpleGateway(),
+		pm:     pm,
+	}
+
+	dropbox.Reconfigure(options...)
+
 	// load configuration file
 	appConfig := &appConfig{}
 	if simpleConfig, err := gomanager.NewSimpleConfig(fmt.Sprintf("/config/app.%s.json", getEnv()), appConfig); err != nil {
@@ -31,16 +38,10 @@ func NewDropbox(options ...dropboxOption) *Dropbox {
 		pm.AddConfig("config_app", simpleConfig)
 		level, _ := golog.ParseLevel(appConfig.GoDropbox.Log.Level)
 		log.Debugf("setting log level to %s", level)
-		WithLogLevel(level)
+		log.Reconfigure(golog.WithLevel(level))
 	}
 
-	dropbox := &Dropbox{
-		client: gomanager.NewSimpleGateway(),
-		pm:     pm,
-		config: &appConfig.GoDropbox,
-	}
-
-	dropbox.Reconfigure(options...)
+	dropbox.config = &appConfig.GoDropbox
 
 	if dropbox.isLogExternal {
 		pm.Reconfigure(gomanager.WithLogger(log))
