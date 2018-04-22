@@ -13,7 +13,7 @@ import (
 
 type user struct {
 	client gomanager.IGateway
-	config *GoDropboxConfig
+	config *DropboxConfig
 }
 
 type getUserResponse struct {
