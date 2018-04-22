@@ -12,7 +12,7 @@ import (
 
 type folder struct {
 	client gomanager.IGateway
-	config *goDropboxConfig
+	config *GoDropboxConfig
 }
 
 type listFolderRequest struct {

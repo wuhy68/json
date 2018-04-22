@@ -8,11 +8,11 @@ import (
 
 // appConfig ...
 type appConfig struct {
-	GoDropbox goDropboxConfig `json:"godropbox"`
+	GoDropbox GoDropboxConfig `json:"godropbox"`
 }
 
-// goDropboxConfig ...
-type goDropboxConfig struct {
+// GoDropboxConfig ...
+type GoDropboxConfig struct {
 	Log struct {
 		Level string `json:"level"`
 	} `json:"log"`
@@ -27,7 +27,7 @@ type goDropboxConfig struct {
 }
 
 // NewConfig ...
-func NewConfig(access, token string) *goDropboxConfig {
+func NewConfig(access, token string) *GoDropboxConfig {
 	appConfig := &appConfig{}
 	if _, err := gomanager.NewSimpleConfig(fmt.Sprintf("/config/app.%s.json", getEnv()), appConfig); err != nil {
 		log.Error(err.Error())

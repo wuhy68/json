@@ -9,7 +9,7 @@ import (
 
 type Dropbox struct {
 	client gomanager.IGateway
-	config *goDropboxConfig
+	config *GoDropboxConfig
 	pm     *gomanager.GoManager
 
 	// usage ...
