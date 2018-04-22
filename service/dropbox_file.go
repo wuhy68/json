@@ -92,7 +92,7 @@ func (f *file) Upload(path string, file []byte) (*uploadFileResponse, *goerror.E
 	} else {
 		if err := json.Unmarshal(response, dropboxResponse); err != nil {
 			newErr := goerror.NewError(err)
-			log.Error("error converting dropbox response data").ToErrorData(newErr)
+			log.Error("error converting Dropbox response data").ToErrorData(newErr)
 			return nil, newErr
 		}
 		return dropboxResponse, nil
@@ -203,7 +203,7 @@ func (f *file) Delete(path string) (*deleteFileResponse, *goerror.ErrorData) {
 	} else {
 		if err := json.Unmarshal(response, dropboxResponse); err != nil {
 			newErr := goerror.NewError(err)
-			log.Error("error converting dropbox response data").ToErrorData(newErr)
+			log.Error("error converting Dropbox response data").ToErrorData(newErr)
 			return nil, newErr
 		}
 		return dropboxResponse, nil

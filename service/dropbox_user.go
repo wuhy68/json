@@ -83,7 +83,7 @@ func (u *user) Get() (*getUserResponse, *goerror.ErrorData) {
 	} else {
 		if err := json.Unmarshal(response, dropboxResponse); err != nil {
 			newErr := goerror.NewError(err)
-			log.Error("error converting dropbox user data").ToErrorData(newErr)
+			log.Error("error converting Dropbox user data").ToErrorData(newErr)
 			return nil, newErr
 		}
 		return dropboxResponse, nil

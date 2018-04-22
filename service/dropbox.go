@@ -7,7 +7,7 @@ import (
 	"github.com/joaosoft/go-manager/service"
 )
 
-type dropbox struct {
+type Dropbox struct {
 	client gomanager.IGateway
 	config *goDropboxConfig
 	pm     *gomanager.GoManager
@@ -19,7 +19,7 @@ type dropbox struct {
 }
 
 // NewDropbox ...
-func NewDropbox(options ...goDropboxOption) *dropbox {
+func NewDropbox(options ...goDropboxOption) *Dropbox {
 	pm := gomanager.NewManager(gomanager.WithRunInBackground(false))
 
 	// load configuration file
@@ -33,7 +33,7 @@ func NewDropbox(options ...goDropboxOption) *dropbox {
 		WithLogLevel(level)
 	}
 
-	dropbox := &dropbox{
+	dropbox := &Dropbox{
 		client: gomanager.NewSimpleGateway(),
 		pm:     pm,
 		config: &appConfig.GoDropbox,
@@ -45,7 +45,7 @@ func NewDropbox(options ...goDropboxOption) *dropbox {
 }
 
 // Api ...
-func (d *dropbox) User() *user {
+func (d *Dropbox) User() *user {
 	if d.user == nil {
 		d.user = &user{
 			client: d.client,
@@ -56,7 +56,7 @@ func (d *dropbox) User() *user {
 }
 
 // Folder ...
-func (d *dropbox) Folder() *folder {
+func (d *Dropbox) Folder() *folder {
 	if d.folder == nil {
 		d.folder = &folder{
 			client: d.client,
@@ -67,7 +67,7 @@ func (d *dropbox) Folder() *folder {
 }
 
 // File ...
-func (d *dropbox) File() *file {
+func (d *Dropbox) File() *file {
 	if d.file == nil {
 		d.file = &file{
 			client: d.client,
