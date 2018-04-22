@@ -66,7 +66,7 @@ func (f *file) Upload(path string, file []byte) (*uploadFileResponse, *goerror.E
 
 	if bodyArgs, err = json.Marshal(args); err != nil {
 		newErr := goerror.NewError(err)
-		log.Error("error converting upload input bodyArgs").ToErrorData(newErr)
+		log.Error("error converting upload input arguments").ToErrorData(newErr)
 		return nil, newErr
 	}
 
@@ -79,7 +79,7 @@ func (f *file) Upload(path string, file []byte) (*uploadFileResponse, *goerror.E
 	dropboxResponse := &uploadFileResponse{}
 	if err != nil {
 		newErr := goerror.NewError(err)
-		log.Error("error marshal bodyArgs").ToErrorData(newErr)
+		log.Error("error marshal arguments").ToErrorData(newErr)
 		return nil, newErr
 	}
 	if status, response, err := f.client.Request(http.MethodPost, f.config.Hosts.Content, "/files/upload", headers, file); err != nil {
@@ -119,7 +119,7 @@ func (f *file) Download(path string) ([]byte, *goerror.ErrorData) {
 
 	if bodyArgs, err = json.Marshal(args); err != nil {
 		newErr := goerror.NewError(err)
-		log.Error("error converting download input bodyArgs").ToErrorData(newErr)
+		log.Error("error converting download input arguments").ToErrorData(newErr)
 		return nil, newErr
 	}
 
@@ -188,7 +188,7 @@ func (f *file) Delete(path string) (*deleteFileResponse, *goerror.ErrorData) {
 	})
 	if err != nil {
 		newErr := goerror.NewError(err)
-		log.Error("error marshal bodyArgs").ToErrorData(newErr)
+		log.Error("error marshal arguments").ToErrorData(newErr)
 		return nil, newErr
 	}
 
