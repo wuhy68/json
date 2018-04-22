@@ -30,6 +30,10 @@ func NewDropbox(options ...dropboxOption) *Dropbox {
 
 	dropbox.Reconfigure(options...)
 
+	if dropbox.isLogExternal {
+		pm.Reconfigure(gomanager.WithLogger(log))
+	}
+
 	// load configuration file
 	appConfig := &appConfig{}
 	if simpleConfig, err := gomanager.NewSimpleConfig(fmt.Sprintf("/config/app.%s.json", getEnv()), appConfig); err != nil {
@@ -42,10 +46,6 @@ func NewDropbox(options ...dropboxOption) *Dropbox {
 	}
 
 	dropbox.config = &appConfig.GoDropbox
-
-	if dropbox.isLogExternal {
-		pm.Reconfigure(gomanager.WithLogger(log))
-	}
 
 	return dropbox
 }
