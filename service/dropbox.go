@@ -8,9 +8,10 @@ import (
 )
 
 type Dropbox struct {
-	client gomanager.IGateway
-	config *DropboxConfig
-	pm     *gomanager.Manager
+	client        gomanager.IGateway
+	config        *DropboxConfig
+	pm            *gomanager.Manager
+	isLogExternal bool
 
 	// usage ...
 	user   *user
@@ -19,7 +20,7 @@ type Dropbox struct {
 }
 
 // NewDropbox ...
-func NewDropbox(options ...goDropboxOption) *Dropbox {
+func NewDropbox(options ...dropboxOption) *Dropbox {
 	pm := gomanager.NewManager(gomanager.WithRunInBackground(false))
 
 	// load configuration file
@@ -39,7 +40,11 @@ func NewDropbox(options ...goDropboxOption) *Dropbox {
 		config: &appConfig.GoDropbox,
 	}
 
-	dropbox.reconfigure(options...)
+	dropbox.Reconfigure(options...)
+
+	if dropbox.isLogExternal {
+		pm.Reconfigure(gomanager.WithLogger(log))
+	}
 
 	return dropbox
 }
