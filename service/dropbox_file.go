@@ -79,11 +79,11 @@ func (f *file) Upload(path string, file []byte) (*uploadFileResponse, *goerror.E
 	dropboxResponse := &uploadFileResponse{}
 	if status, response, err := f.client.Request(http.MethodPost, f.config.Hosts.Content, "/files/upload", headers, string(file)); err != nil {
 		newErr := goerror.NewError(err)
-		log.Error("error uploading file").ToErrorData(newErr)
+		log.WithField("response", response).Error("error uploading file").ToErrorData(newErr)
 		return nil, newErr
 	} else if status != http.StatusOK {
 		var err error
-		log.Errorf("response status %d instead of %d", status, http.StatusOK).ToError(&err)
+		log.WithField("response", response).Errorf("response status %d instead of %d", status, http.StatusOK).ToError(&err)
 		return nil, goerror.NewError(err)
 	} else if response == nil {
 		var err error
@@ -125,11 +125,11 @@ func (f *file) Download(path string) ([]byte, *goerror.ErrorData) {
 
 	if status, response, err := f.client.Request(http.MethodPost, f.config.Hosts.Content, "/files/download", headers, nil); err != nil {
 		newErr := goerror.NewError(err)
-		log.Error("error downloading file").ToErrorData(newErr)
+		log.WithField("response", response).Error("error downloading file").ToErrorData(newErr)
 		return nil, newErr
 	} else if status != http.StatusOK {
 		var err error
-		log.WithFields(map[string]interface{}{"response": string(response)}).Errorf("response status %d instead of %d", status, http.StatusOK).ToError(&err)
+		log.WithField("response", response).WithFields(map[string]interface{}{"response": string(response)}).Errorf("response status %d instead of %d", status, http.StatusOK).ToError(&err)
 		return nil, goerror.NewError(err)
 	} else if response == nil {
 		var err error
@@ -190,11 +190,11 @@ func (f *file) Delete(path string) (*deleteFileResponse, *goerror.ErrorData) {
 	dropboxResponse := &deleteFileResponse{}
 	if status, response, err := f.client.Request(http.MethodPost, f.config.Hosts.Api, "/files/delete_v2", headers, body); err != nil {
 		newErr := goerror.NewError(err)
-		log.Error("error deleting file").ToErrorData(newErr)
+		log.WithField("response", response).Error("error deleting file").ToErrorData(newErr)
 		return nil, newErr
 	} else if status != http.StatusOK {
 		var err error
-		log.Errorf("response status %d instead of %d", status, http.StatusOK).ToError(&err)
+		log.WithField("response", response).Errorf("response status %d instead of %d", status, http.StatusOK).ToError(&err)
 		return nil, goerror.NewError(err)
 	} else if response == nil {
 		var err error

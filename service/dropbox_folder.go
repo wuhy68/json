@@ -75,11 +75,11 @@ func (f *folder) List(path string) (*listFolderResponse, *goerror.ErrorData) {
 	dropboxResponse := &listFolderResponse{}
 	if status, response, err := f.client.Request(http.MethodPost, f.config.Hosts.Api, "/files/list_folder", headers, body); err != nil {
 		newErr := goerror.NewError(err)
-		log.Error("error listing folder").ToErrorData(newErr)
+		log.WithField("response", response).Error("error listing folder").ToErrorData(newErr)
 		return nil, newErr
 	} else if status != http.StatusOK {
 		var err error
-		log.WithFields(map[string]interface{}{"response": string(response)}).Errorf("response status %d instead of %d", status, http.StatusOK).ToError(&err)
+		log.WithField("response", response).Errorf("response status %d instead of %d", status, http.StatusOK).ToError(&err)
 		return nil, goerror.NewError(err)
 	} else if response == nil {
 		var err error
@@ -141,11 +141,11 @@ func (f *folder) Create(path string) (*createFolderResponse, *goerror.ErrorData)
 	dropboxResponse := &createFolderResponse{}
 	if status, response, err := f.client.Request(http.MethodPost, f.config.Hosts.Api, "/files/create_folder_v2", headers, body); err != nil {
 		newErr := goerror.NewError(err)
-		log.Error("error creating folder").ToErrorData(newErr)
+		log.WithField("response", response).Error("error creating folder").ToErrorData(newErr)
 		return nil, newErr
 	} else if status != http.StatusOK {
 		var err error
-		log.WithFields(map[string]interface{}{"response": string(response)}).Errorf("response status %d instead of %d", status, http.StatusOK).ToError(&err)
+		log.WithField("response", response).Errorf("response status %d instead of %d", status, http.StatusOK).ToError(&err)
 		return nil, goerror.NewError(err)
 	} else if response == nil {
 		var err error

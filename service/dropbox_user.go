@@ -70,11 +70,11 @@ func (u *user) Get() (*getUserResponse, *goerror.ErrorData) {
 
 	if status, response, err := u.client.Request(http.MethodPost, u.config.Hosts.Api, "/users/get_current_account", headers, nil); err != nil {
 		newErr := goerror.NewError(err)
-		log.Error("error getting user account").ToErrorData(newErr)
+		log.WithField("response", response).Error("error getting user account").ToErrorData(newErr)
 		return nil, newErr
 	} else if status != http.StatusOK {
 		var err error
-		log.Errorf("response status %d instead of %d", status, http.StatusOK).ToError(&err)
+		log.WithField("response", response).Errorf("response status %d instead of %d", status, http.StatusOK).ToError(&err)
 		return nil, goerror.NewError(err)
 	} else if response == nil {
 		var err error

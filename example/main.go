@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"go-dropbox/service"
 
-	"github.com/labstack/gommon/log"
+	log "github.com/joaosoft/go-log/service"
 )
 
 func main() {
