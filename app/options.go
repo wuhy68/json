@@ -1,6 +1,6 @@
 package godropbox
 
-import "github.com/joaosoft/go-log/service"
+import golog "github.com/joaosoft/go-log/app"
 
 // dropboxOption ...
 type dropboxOption func(dropbox *Dropbox)

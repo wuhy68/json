@@ -2,9 +2,9 @@ package main
 
 import (
 	"fmt"
-	"go-dropbox/service"
+	"go-dropbox/app"
 
-	log "github.com/joaosoft/go-log/service"
+	log "github.com/joaosoft/go-log/app"
 )
 
 func main() {

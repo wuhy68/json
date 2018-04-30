@@ -6,8 +6,8 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/joaosoft/go-error/service"
-	"github.com/joaosoft/go-manager/service"
+	goerror "github.com/joaosoft/go-error/app"
+	gomanager "github.com/joaosoft/go-manager/app"
 )
 
 type folder struct {

@@ -3,8 +3,8 @@ package godropbox
 import (
 	"fmt"
 
-	"github.com/joaosoft/go-log/service"
-	"github.com/joaosoft/go-manager/service"
+	golog "github.com/joaosoft/go-log/app"
+	gomanager "github.com/joaosoft/go-manager/app"
 )
 
 type Dropbox struct {
