@@ -20,7 +20,7 @@ func WithConfiguration(config *DropboxConfig) DropboxOption {
 }
 
 // WithLogger ...
-func WithLogger(logger logger.ILog) DropboxOption {
+func WithLogger(logger logger.ILogger) DropboxOption {
 	return func(dropbox *Dropbox) {
 		log = logger
 		dropbox.isLogExternal = true
