@@ -1,5 +1,5 @@
 {
-  "godropbox": {
+  "dropbox": {
     "log": {
       "level": "info"
     },
@@ -12,7 +12,7 @@
       "content": "https://content.dropboxapi.com/2"
     }
   },
-  "gomanager": {
+  "manager": {
     "log": {
       "level": "info"
     }

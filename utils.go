@@ -1,4 +1,4 @@
-package godropbox
+package dropbox
 
 import (
 	"bufio"
@@ -33,7 +33,7 @@ func readFile(fileName string, obj interface{}) ([]byte, error) {
 		fileName = global[path_key].(string) + fileName
 	}
 
-	log.Infof("loading file [ %s ]", fileName)
+	log.Infof("loading File [ %s ]", fileName)
 	file, err := os.Open(fileName)
 	if err != nil {
 		return nil, err
@@ -45,7 +45,7 @@ func readFile(fileName string, obj interface{}) ([]byte, error) {
 	}
 
 	if obj != nil {
-		log.Infof("unmarshalling file [ %s ] to struct", fileName)
+		log.Infof("unmarshalling File [ %s ] to struct", fileName)
 		if err := json.Unmarshal(data, obj); err != nil {
 			return nil, err
 		}
@@ -61,7 +61,7 @@ func readFileLines(fileName string) ([]string, error) {
 		fileName = global[path_key].(string) + fileName
 	}
 
-	log.Infof("loading file [ %s ]", fileName)
+	log.Infof("loading File [ %s ]", fileName)
 	file, err := os.Open(fileName)
 	if err != nil {
 		return nil, err
@@ -85,7 +85,7 @@ func writeFile(fileName string, obj interface{}) error {
 		fileName = global[path_key].(string) + fileName
 	}
 
-	log.Infof("writing file [ %s ]", fileName)
+	log.Infof("writing File [ %s ]", fileName)
 	jsonBytes, _ := json.MarshalIndent(obj, "", "    ")
 	if err := ioutil.WriteFile(fileName, jsonBytes, 0644); err != nil {
 		return err

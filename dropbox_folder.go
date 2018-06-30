@@ -1,4 +1,4 @@
-package godropbox
+package dropbox
 
 import (
 	"encoding/json"
@@ -6,12 +6,12 @@ import (
 	"net/http"
 	"time"
 
-	goerror "github.com/joaosoft/go-error/app"
-	gomanager "github.com/joaosoft/go-manager/app"
+	errors "github.com/joaosoft/errors"
+	manager "github.com/joaosoft/manager"
 )
 
-type folder struct {
-	client gomanager.IGateway
+type Folder struct {
+	client manager.IGateway
 	config *DropboxConfig
 }
 
@@ -54,7 +54,7 @@ type listFolderResponse struct {
 	HasMore bool   `json:"has_more"`
 }
 
-func (f *folder) List(path string) (*listFolderResponse, *goerror.ErrorData) {
+func (f *Folder) List(path string) (*listFolderResponse, *errors.ErrorData) {
 	if path == "/" {
 		path = ""
 	}
@@ -67,32 +67,32 @@ func (f *folder) List(path string) (*listFolderResponse, *goerror.ErrorData) {
 		IncludeMountedFolders:           true,
 	})
 	if err != nil {
-		newErr := goerror.NewError(err)
+		newErr := errors.NewError(err)
 		log.Error("error marshal bodyArgs").ToErrorData(newErr)
 		return nil, newErr
 	}
 
-	headers := gomanager.Headers{
+	headers := manager.Headers{
 		"Authorization": {fmt.Sprintf("%s %s", f.config.Authorization.Access, f.config.Authorization.Token)},
 		"Content-Type":  {"application/json"},
 	}
 
 	dropboxResponse := &listFolderResponse{}
 	if status, response, err := f.client.Request(http.MethodPost, f.config.Hosts.Api, "/files/list_folder", headers, body); err != nil {
-		newErr := goerror.NewError(err)
-		log.WithField("response", response).Error("error listing folder").ToErrorData(newErr)
+		newErr := errors.NewError(err)
+		log.WithField("response", response).Error("error listing Folder").ToErrorData(newErr)
 		return nil, newErr
 	} else if status != http.StatusOK {
 		var err error
 		log.WithField("response", response).Errorf("response status %d instead of %d", status, http.StatusOK).ToError(&err)
-		return nil, goerror.NewError(err)
+		return nil, errors.NewError(err)
 	} else if response == nil {
 		var err error
-		log.Error("error listing folder").ToError(&err)
-		return nil, goerror.NewError(err)
+		log.Error("error listing Folder").ToError(&err)
+		return nil, errors.NewError(err)
 	} else {
 		if err := json.Unmarshal(response, dropboxResponse); err != nil {
-			newErr := goerror.NewError(err)
+			newErr := errors.NewError(err)
 			log.Error("error converting Dropbox response data").ToErrorData(newErr)
 			return nil, newErr
 		}
@@ -129,7 +129,7 @@ type createFolderResponse struct {
 	} `json:"metadata"`
 }
 
-func (f *folder) Create(path string) (*createFolderResponse, *goerror.ErrorData) {
+func (f *Folder) Create(path string) (*createFolderResponse, *errors.ErrorData) {
 	if path == "/" {
 		path = ""
 	}
@@ -138,32 +138,32 @@ func (f *folder) Create(path string) (*createFolderResponse, *goerror.ErrorData)
 		AutoRename: false,
 	})
 	if err != nil {
-		newErr := goerror.NewError(err)
+		newErr := errors.NewError(err)
 		log.Error("error marshal bodyArgs").ToErrorData(newErr)
 		return nil, newErr
 	}
 
-	headers := gomanager.Headers{
+	headers := manager.Headers{
 		"Authorization": {fmt.Sprintf("%s %s", f.config.Authorization.Access, f.config.Authorization.Token)},
 		"Content-Type":  {"application/json"},
 	}
 
 	dropboxResponse := &createFolderResponse{}
 	if status, response, err := f.client.Request(http.MethodPost, f.config.Hosts.Api, "/files/create_folder_v2", headers, body); err != nil {
-		newErr := goerror.NewError(err)
-		log.WithField("response", response).Error("error creating folder").ToErrorData(newErr)
+		newErr := errors.NewError(err)
+		log.WithField("response", response).Error("error creating Folder").ToErrorData(newErr)
 		return nil, newErr
 	} else if status != http.StatusOK {
 		var err error
 		log.WithField("response", response).Errorf("response status %d instead of %d", status, http.StatusOK).ToError(&err)
-		return nil, goerror.NewError(err)
+		return nil, errors.NewError(err)
 	} else if response == nil {
 		var err error
-		log.Error("error creating folder").ToError(&err)
-		return nil, goerror.NewError(err)
+		log.Error("error creating Folder").ToError(&err)
+		return nil, errors.NewError(err)
 	} else {
 		if err := json.Unmarshal(response, dropboxResponse); err != nil {
-			newErr := goerror.NewError(err)
+			newErr := errors.NewError(err)
 			log.Error("error converting Dropbox response data").ToErrorData(newErr)
 			return nil, newErr
 		}
@@ -173,8 +173,8 @@ func (f *folder) Create(path string) (*createFolderResponse, *goerror.ErrorData)
 	return nil, nil
 }
 
-func (f *folder) DeleteFolder(path string) (*deleteFileResponse, *goerror.ErrorData) {
-	file := file{
+func (f *Folder) DeleteFolder(path string) (*deleteFileResponse, *errors.ErrorData) {
+	file := File{
 		client: f.client,
 		config: f.config,
 	}

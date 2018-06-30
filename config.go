@@ -1,13 +1,13 @@
-package godropbox
+package dropbox
 
 import (
 	"fmt"
 
-	gomanager "github.com/joaosoft/go-manager/app")
+	gomanager "github.com/joaosoft/manager")
 
-// appConfig ...
-type appConfig struct {
-	GoDropbox DropboxConfig `json:"godropbox"`
+// AppConfig ...
+type AppConfig struct {
+	Dropbox DropboxConfig `json:"dropbox"`
 }
 
 // DropboxConfig ...
@@ -27,13 +27,13 @@ type DropboxConfig struct {
 
 // NewConfig ...
 func NewConfig(access, token string) *DropboxConfig {
-	appConfig := &appConfig{}
-	if _, err := gomanager.NewSimpleConfig(fmt.Sprintf("/config/app.%s.json", getEnv()), appConfig); err != nil {
+	appConfig := &AppConfig{}
+	if _, err := gomanager.NewSimpleConfig(fmt.Sprintf("/config/models.%s.json", getEnv()), appConfig); err != nil {
 		log.Error(err.Error())
 	}
 
-	appConfig.GoDropbox.Authorization.Access = access
-	appConfig.GoDropbox.Authorization.Token = token
+	appConfig.Dropbox.Authorization.Access = access
+	appConfig.Dropbox.Authorization.Token = token
 
-	return &appConfig.GoDropbox
+	return &appConfig.Dropbox
 }

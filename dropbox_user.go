@@ -1,4 +1,4 @@
-package godropbox
+package dropbox
 
 import (
 	"net/http"
@@ -7,12 +7,12 @@ import (
 
 	"fmt"
 
-	goerror "github.com/joaosoft/go-error/app"
-	gomanager "github.com/joaosoft/go-manager/app"
+	errors "github.com/joaosoft/errors"
+	manager "github.com/joaosoft/manager"
 )
 
-type user struct {
-	client gomanager.IGateway
+type User struct {
+	client manager.IGateway
 	config *DropboxConfig
 }
 
@@ -62,28 +62,28 @@ type getUserResponse struct {
 }
 
 // Get ...
-func (u *user) Get() (*getUserResponse, *goerror.ErrorData) {
+func (u *User) Get() (*getUserResponse, *errors.ErrorData) {
 	dropboxResponse := &getUserResponse{}
-	headers := gomanager.Headers{
+	headers := manager.Headers{
 		"Authorization": {fmt.Sprintf("%s %s", u.config.Authorization.Access, u.config.Authorization.Token)},
 	}
 
 	if status, response, err := u.client.Request(http.MethodPost, u.config.Hosts.Api, "/users/get_current_account", headers, nil); err != nil {
-		newErr := goerror.NewError(err)
-		log.WithField("response", response).Error("error getting user account").ToErrorData(newErr)
+		newErr := errors.NewError(err)
+		log.WithField("response", response).Error("error getting User account").ToErrorData(newErr)
 		return nil, newErr
 	} else if status != http.StatusOK {
 		var err error
 		log.WithField("response", response).Errorf("response status %d instead of %d", status, http.StatusOK).ToError(&err)
-		return nil, goerror.NewError(err)
+		return nil, errors.NewError(err)
 	} else if response == nil {
 		var err error
-		log.Error("error getting user account").ToError(&err)
-		return nil, goerror.NewError(err)
+		log.Error("error getting User account").ToError(&err)
+		return nil, errors.NewError(err)
 	} else {
 		if err := json.Unmarshal(response, dropboxResponse); err != nil {
-			newErr := goerror.NewError(err)
-			log.Error("error converting Dropbox user data").ToErrorData(newErr)
+			newErr := errors.NewError(err)
+			log.Error("error converting Dropbox User data").ToErrorData(newErr)
 			return nil, newErr
 		}
 		return dropboxResponse, nil

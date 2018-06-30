@@ -1,5 +1,5 @@
-# go-dropbox
-[![Build Status](https://travis-ci.org/joaosoft/go-dropbox.svg?branch=master)](https://travis-ci.org/joaosoft/go-dropbox) | [![codecov](https://codecov.io/gh/joaosoft/go-dropbox/branch/master/graph/badge.svg)](https://codecov.io/gh/joaosoft/go-dropbox) | [![Go Report Card](https://goreportcard.com/badge/github.com/joaosoft/go-dropbox)](https://goreportcard.com/report/github.com/joaosoft/go-dropbox) | [![GoDoc](https://godoc.org/github.com/joaosoft/go-dropbox?status.svg)](https://godoc.org/github.com/joaosoft/go-dropbox/app)
+# dropbox
+[![Build Status](https://travis-ci.org/joaosoft/dropbox.svg?branch=master)](https://travis-ci.org/joaosoft/dropbox) | [![codecov](https://codecov.io/gh/joaosoft/dropbox/branch/master/graph/badge.svg)](https://codecov.io/gh/joaosoft/dropbox) | [![Go Report Card](https://goreportcard.com/badge/github.com/joaosoft/dropbox)](https://goreportcard.com/report/github.com/joaosoft/dropbox) | [![GoDoc](https://godoc.org/github.com/joaosoft/dropbox?status.svg)](https://godoc.org/github.com/joaosoft/dropbox)
 
 A simple dropbox v2 client.
 
@@ -28,15 +28,15 @@ Project dependencies are managed using Dep. Read more about [Dep](https://github
 
 >### Go
 ```
-go get github.com/joaosoft/go-dropbox/app
+go get github.com/joaosoft/dropbox
 ```
 
 ## Usage 
-This examples are available in the project at [go-dropbox/example](https://github.com/joaosoft/go-dropbox/tree/master/example)
+This examples are available in the project at [dropbox/examples](https://github.com/joaosoft/dropbox/tree/master/examples)
 ```go
-import "github.com/joaosoft/go-dropbox/app"
+import "github.com/joaosoft/dropbox"
 
-dropbox := godropbox.NewDropbox()
+dropbox := dropbox.NewDropbox()
 
 //get user information
 log.Info("get user information")
