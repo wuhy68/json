@@ -18,8 +18,6 @@ func NewElastic(options ...ElasticOption) *Elastic {
 
 	elastic := &Elastic{}
 
-	elastic.Reconfigure(options...)
-
 	if elastic.isLogExternal {
 		pm.Reconfigure(manager.WithLogger(log))
 	}
@@ -36,6 +34,8 @@ func NewElastic(options ...ElasticOption) *Elastic {
 	}
 
 	elastic.config = &appConfig.Elastic
+
+	elastic.Reconfigure(options...)
 
 	return elastic
 }
