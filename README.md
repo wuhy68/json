@@ -24,6 +24,72 @@ go get github.com/joaosoft/elastic
 
 ## Usage 
 This examples are available in the project at [elastic/examples](https://github.com/joaosoft/elastic/tree/master/examples)
+
+### Templates
+#### get.example.1.template
+```
+{
+  "query": {
+    "bool": {
+      "must": {
+        "term": {
+          {{ range $key, $value := .Data }}
+             "{{ $key }}": "{{ $value }}"
+             {{ if (gt (len $.Data) 1) }}
+                 ,
+             {{ end }}
+          {{ end }}
+        }
+      }
+    }
+  }
+
+  {{ if (gt $.Size 0) }}
+  ,
+  {{ end }}
+  {{ if (gt $.From 0) }}
+  "from": {{.From}}
+  {{ end }}
+  {{ if (gt $.Size 0) }}
+  ,
+  {{ end }}
+  {{ if (gt $.Size 0) }}
+  "size": {{.Size}}
+  {{ end }}
+}
+```
+
+#### get.example.2.template
+```
+{
+  "query": {
+    "bool": {
+      "filter": {
+        "match": {
+          "ids": {
+            "query": "{{ .Data }}"
+          }
+        }
+      }
+    }
+  }
+
+  {{ if (gt $.Size 0) }}
+  ,
+  {{ end }}
+  {{ if (gt $.From 0) }}
+  "from": {{.From}}
+  {{ end }}
+  {{ if (gt $.Size 0) }}
+  ,
+  {{ end }}
+  {{ if (gt $.Size 0) }}
+  "size": {{.Size}}
+  {{ end }}
+}
+```
+
+### Code
 ```go
 import "github.com/joaosoft/elastic"
 
