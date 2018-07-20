@@ -2,6 +2,7 @@ package main
 
 import (
 	"elastic"
+
 	log "github.com/joaosoft/logger"
 )
 
@@ -9,6 +10,8 @@ func main() {
 	var data []interface{}
 
 	client := elastic.NewElastic()
+	// you can define the configuration without having a configuration file
+	//client1 := elastic.NewElastic(elastic.WithConfiguration(elastic.NewConfig("http://localhost:9200")))
 
 	d1 := elastic.TemplateData{Data: map[string]interface{}{"default_plan": true}}
 

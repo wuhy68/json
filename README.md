@@ -96,6 +96,8 @@ import "github.com/joaosoft/elastic"
 var data []interface{}
 
 client := elastic.NewClient("http://localhost:9200")
+// you can define the configuration without having a configuration file
+//client1 := elastic.NewElastic(elastic.WithConfiguration(elastic.NewConfig("http://localhost:9200")))
 
 d1 := elastic.TemplateData{Data: map[string]interface{}{"default_plan": true}}
 

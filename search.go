@@ -44,11 +44,13 @@ type Search struct {
 	document string
 	query    string
 	object   interface{}
+	method   string
 }
 
 func NewSearch(client *Elastic) *Search {
 	return &Search{
 		client: client,
+		method: http.MethodGet,
 	}
 }
 
@@ -67,6 +69,9 @@ func (e *Search) Document(document string) *Search {
 }
 
 func (e *Search) Query(query string) *Search {
+	if query != "" {
+		e.method = http.MethodPost
+	}
 	e.query = query
 	return e
 }
@@ -106,11 +111,12 @@ func (e *Search) Execute() error {
 
 	// get data from elastic
 	reader := strings.NewReader(e.query)
-	response, err := http.Post(fmt.Sprintf("%s/%s/%s/_search", e.client.config.Endpoint, e.index, e.document), "application/json", reader)
+	request, err := http.NewRequest(http.MethodPost, fmt.Sprintf("%s/%s/%s/_search", e.client.config.Endpoint, e.index, e.document), reader)
 	if err != nil {
-		return errors.NewError(err)
+		return err
 	}
 
+	response, err := http.DefaultClient.Do(request)
 	defer response.Body.Close()
 
 	// unmarshal data
