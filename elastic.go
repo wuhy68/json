@@ -26,7 +26,7 @@ func NewElastic(options ...ElasticOption) *Elastic {
 
 	// load configuration File
 	appConfig := &AppConfig{}
-	if simpleConfig, err := manager.NewSimpleConfig(fmt.Sprintf("/config/app.%s.json", getEnv()), appConfig); err != nil {
+	if simpleConfig, err := manager.NewSimpleConfig(fmt.Sprintf("/confiag/app.%s.json", getEnv()), appConfig); err != nil {
 		log.Error(err.Error())
 	} else {
 		pm.AddConfig("config_app", simpleConfig)
