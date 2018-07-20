@@ -16,11 +16,11 @@ type Elastic struct {
 func NewElastic(options ...ElasticOption) *Elastic {
 	pm := manager.NewManager(manager.WithRunInBackground(false))
 
-	dropbox := &Elastic{}
+	elastic := &Elastic{}
 
-	dropbox.Reconfigure(options...)
+	elastic.Reconfigure(options...)
 
-	if dropbox.isLogExternal {
+	if elastic.isLogExternal {
 		pm.Reconfigure(manager.WithLogger(log))
 	}
 
@@ -35,7 +35,7 @@ func NewElastic(options ...ElasticOption) *Elastic {
 		log.Reconfigure(logger.WithLevel(level))
 	}
 
-	dropbox.config = &appConfig.Elastic
+	elastic.config = &appConfig.Elastic
 
-	return dropbox
+	return elastic
 }
