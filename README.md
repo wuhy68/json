@@ -1,20 +1,11 @@
-# dropbox
-[![Build Status](https://travis-ci.org/joaosoft/dropbox.svg?branch=master)](https://travis-ci.org/joaosoft/dropbox) | [![codecov](https://codecov.io/gh/joaosoft/dropbox/branch/master/graph/badge.svg)](https://codecov.io/gh/joaosoft/dropbox) | [![Go Report Card](https://goreportcard.com/badge/github.com/joaosoft/dropbox)](https://goreportcard.com/report/github.com/joaosoft/dropbox) | [![GoDoc](https://godoc.org/github.com/joaosoft/dropbox?status.svg)](https://godoc.org/github.com/joaosoft/dropbox)
+# elastic
+[![Build Status](https://travis-ci.org/joaosoft/elastic.svg?branch=master)](https://travis-ci.org/joaosoft/elastic) | [![codecov](https://codecov.io/gh/joaosoft/elastic/branch/master/graph/badge.svg)](https://codecov.io/gh/joaosoft/elastic) | [![Go Report Card](https://goreportcard.com/badge/github.com/joaosoft/elastic)](https://goreportcard.com/report/github.com/joaosoft/elastic) | [![GoDoc](https://godoc.org/github.com/joaosoft/elastic?status.svg)](https://godoc.org/github.com/joaosoft/elastic)
 
-A simple dropbox v2 client.
+A simple elastic client.
 
 ## Support for 
-> User
-* Get account information
-
-> Files
-* Upload / Download files
-* Create / Delete files
-
->Folders
-* List files
-* Create folders
-* Delete folders
+> Search
+* Search with templates
 
 ###### If i miss something or you have something interesting, please be part of this project. Let me know! My contact is at the end.
 
@@ -28,70 +19,41 @@ Project dependencies are managed using Dep. Read more about [Dep](https://github
 
 >### Go
 ```
-go get github.com/joaosoft/dropbox
+go get github.com/joaosoft/elastic
 ```
 
 ## Usage 
-This examples are available in the project at [dropbox/examples](https://github.com/joaosoft/dropbox/tree/master/examples)
+This examples are available in the project at [elastic/examples](https://github.com/joaosoft/elastic/tree/master/examples)
 ```go
-import "github.com/joaosoft/dropbox"
+import "github.com/joaosoft/elastic"
 
-dropbox := dropbox.NewDropbox()
+var data []interface{}
 
-//get user information
-log.Info("get user information")
-if user, err := dropbox.User().Get(); err != nil {
-    log.Error(err.Error())
-} else {
-    fmt.Printf("\n\nUSER: %+v \n\n", user)
+client := elastic.NewClient("http://localhost:9200")
+
+d1 := elastic.TemplateData{Data: map[string]interface{}{"default_plan": true}}
+
+err := client.Search().
+    Index("persons").
+    Document("person").
+    Object(&data).
+    Template("/examples/templates", "get.example.1.template", &d1, false).
+    Execute()
+
+if err != nil {
+    log.Error(err)
 }
 
-// upload a file
-log.Info("upload a file")
-if response, err := dropbox.File().Upload("/teste.txt", []byte("teste")); err != nil {
-    log.Error(err.Error())
-} else {
-    fmt.Printf("\n\nUPLOADED: %+v \n\n", response)
-}
+d2 := elastic.TemplateData{Data: 123}
+err = client.Search().
+    Index("persons").
+    Document("person").
+    Object(&data).
+    Template("/examples/templates", "get.example.2.template", &d2, false).
+    Execute()
 
-// download the uploaded file
-log.Info("download the uploaded file")
-if response, err := dropbox.File().Download("/teste.txt"); err != nil {
-    log.Error(err.Error())
-} else {
-    fmt.Printf("\n\nDOWNLOADED: %s \n\n", string(response))
-}
-
-// create folder
-log.Info("listing folder")
-if response, err := dropbox.Folder().Create("/bananas"); err != nil {
-    log.Error(err.Error())
-} else {
-    fmt.Printf("\n\nCREATED FOLDER: %+v \n\n", response)
-}
-
-// listing folder
-log.Info("listing folder")
-if response, err := dropbox.Folder().List("/"); err != nil {
-    log.Error(err.Error())
-} else {
-    fmt.Printf("\n\nLIST FOLDER: %+v \n\n", response)
-}
-
-// deleting the uploaded file
-log.Info("deleting the uploaded file")
-if response, err := dropbox.File().Delete("/teste.txt"); err != nil {
-    log.Error(err.Error())
-} else {
-    fmt.Printf("\n\nDELETED FILE: %+v \n\n", response)
-}
-
-// deleting the created folder
-log.Info("deleting the created folder")
-if response, err := dropbox.Folder().DeleteFolder("/bananas"); err != nil {
-    log.Error(err.Error())
-} else {
-    fmt.Printf("\n\nDELETED FOLDER: %+v \n\n", response)
+if err != nil {
+    log.Error(err)
 }
 ```
 

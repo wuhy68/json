@@ -1,68 +1,37 @@
 package main
 
 import (
-	"fmt"
-	"dropbox/models"
-
+	"elastic"
 	log "github.com/joaosoft/logger"
 )
 
 func main() {
-	d := dropbox.NewDropbox()
+	var data []interface{}
 
-	//get user information
-	log.Info("get user information")
-	if user, err := d.User().Get(); err != nil {
-		log.Error(err.Error())
-	} else {
-		fmt.Printf("\n\nUSER: %+v \n\n", user)
+	client := elastic.NewClient("http://localhost:9200")
+
+	d1 := elastic.TemplateData{Data: map[string]interface{}{"default_plan": true}}
+
+	err := client.Search().
+		Index("persons").
+		Document("person").
+		Object(&data).
+		Template("/examples/templates", "get.example.1.template", &d1, false).
+		Execute()
+
+	if err != nil {
+		log.Error(err)
 	}
 
-	// upload a file
-	log.Info("upload a file")
-	if response, err := d.File().Upload("/teste.txt", []byte("teste")); err != nil {
-		log.Error(err.Error())
-	} else {
-		fmt.Printf("\n\nUPLOADED: %+v \n\n", response)
-	}
+	d2 := elastic.TemplateData{Data: 123}
+	err = client.Search().
+		Index("persons").
+		Document("person").
+		Object(&data).
+		Template("/examples/templates", "get.example.2.template", &d2, false).
+		Execute()
 
-	// download the uploaded file
-	log.Info("download the uploaded file")
-	if response, err := d.File().Download("/teste.txt"); err != nil {
-		log.Error(err.Error())
-	} else {
-		fmt.Printf("\n\nDOWNLOADED: %s \n\n", string(response))
-	}
-
-	// create folder
-	log.Info("listing folder")
-	if response, err := d.Folder().Create("/bananas"); err != nil {
-		log.Error(err.Error())
-	} else {
-		fmt.Printf("\n\nCREATED FOLDER: %+v \n\n", response)
-	}
-
-	// listing folder
-	log.Info("listing folder")
-	if response, err := d.Folder().List("/"); err != nil {
-		log.Error(err.Error())
-	} else {
-		fmt.Printf("\n\nLIST FOLDER: %+v \n\n", response)
-	}
-
-	// deleting the uploaded file
-	log.Info("deleting the uploaded file")
-	if response, err := d.File().Delete("/teste.txt"); err != nil {
-		log.Error(err.Error())
-	} else {
-		fmt.Printf("\n\nDELETED FILE: %+v \n\n", response)
-	}
-
-	// deleting the created folder
-	log.Info("deleting the created folder")
-	if response, err := d.Folder().DeleteFolder("/bananas"); err != nil {
-		log.Error(err.Error())
-	} else {
-		fmt.Printf("\n\nDELETED FOLDER: %+v \n\n", response)
+	if err != nil {
+		log.Error(err)
 	}
 }

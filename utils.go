@@ -1,10 +1,12 @@
-package dropbox
+package elastic
 
 import (
 	"bufio"
 	"encoding/json"
 	"io/ioutil"
 	"os"
+
+	"github.com/pkg/errors"
 )
 
 func getEnv() string {
@@ -12,7 +14,6 @@ func getEnv() string {
 	if env == "" {
 		env = "local"
 	}
-	log.Infof("environment: %s", env)
 
 	return env
 }
@@ -26,26 +27,24 @@ func exists(file string) bool {
 	return true
 }
 
-func readFile(fileName string, obj interface{}) ([]byte, error) {
+func readFile(file string, obj interface{}) ([]byte, error) {
 	var err error
 
-	if !exists(fileName) {
-		fileName = global[path_key].(string) + fileName
+	if !exists(file) {
+		return nil, errors.New("file don't exist")
 	}
 
-	log.Infof("loading File [ %s ]", fileName)
-	file, err := os.Open(fileName)
+	f, err := os.Open(file)
 	if err != nil {
 		return nil, err
 	}
 
-	data, err := ioutil.ReadAll(file)
+	data, err := ioutil.ReadAll(f)
 	if err != nil {
 		return nil, err
 	}
 
 	if obj != nil {
-		log.Infof("unmarshalling File [ %s ] to struct", fileName)
 		if err := json.Unmarshal(data, obj); err != nil {
 			return nil, err
 		}
@@ -54,21 +53,20 @@ func readFile(fileName string, obj interface{}) ([]byte, error) {
 	return data, nil
 }
 
-func readFileLines(fileName string) ([]string, error) {
+func readFileLines(file string) ([]string, error) {
 	lines := make([]string, 0)
 
-	if !exists(fileName) {
-		fileName = global[path_key].(string) + fileName
+	if !exists(file) {
+		return nil, errors.New("file don't exist")
 	}
 
-	log.Infof("loading File [ %s ]", fileName)
-	file, err := os.Open(fileName)
+	f, err := os.Open(file)
 	if err != nil {
 		return nil, err
 	}
-	defer file.Close()
+	defer f.Close()
 
-	scanner := bufio.NewScanner(file)
+	scanner := bufio.NewScanner(f)
 	for scanner.Scan() {
 		lines = append(lines, scanner.Text())
 	}
@@ -80,14 +78,13 @@ func readFileLines(fileName string) ([]string, error) {
 	return lines, nil
 }
 
-func writeFile(fileName string, obj interface{}) error {
-	if !exists(fileName) {
-		fileName = global[path_key].(string) + fileName
+func writeFile(file string, obj interface{}) error {
+	if !exists(file) {
+		return errors.New("file don't exist")
 	}
 
-	log.Infof("writing File [ %s ]", fileName)
 	jsonBytes, _ := json.MarshalIndent(obj, "", "    ")
-	if err := ioutil.WriteFile(fileName, jsonBytes, 0644); err != nil {
+	if err := ioutil.WriteFile(file, jsonBytes, 0644); err != nil {
 		return err
 	}
 

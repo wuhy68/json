@@ -1,6 +1,3 @@
-package dropbox
+package elastic
 
-const (
-	defaultPath = "."
-	path_key    = "path"
-)
+var templates = make(map[string][]byte)
