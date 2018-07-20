@@ -64,7 +64,7 @@
   branch = "master"
   name = "github.com/joaosoft/writers"
   packages = ["."]
-  revision = "c6e9863c9c957294bb3682ef598e5320b01cdc8b"
+  revision = "396b2787c537307a662dc21dd50084147f0fda22"
 
 [[projects]]
   name = "github.com/labstack/echo"
@@ -226,6 +226,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "8d4aa1f1864858a17b1b4b2d47ab27278c9e80dc96c36c087a2d5291de41e259"
+  inputs-digest = "8f51604068fdf1cd46cc1af650bac3ac343912c8560744f8ca57e185f318f759"
   solver-name = "gps-cdcl"
   solver-version = 1
