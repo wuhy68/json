@@ -8,7 +8,7 @@ import (
 func main() {
 	var data []interface{}
 
-	client := elastic.NewClient("http://localhost:9200")
+	client := elastic.NewElastic()
 
 	d1 := elastic.TemplateData{Data: map[string]interface{}{"default_plan": true}}
 

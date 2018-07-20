@@ -1,18 +1,6 @@
 {
-  "dropbox": {
-    "log": {
-      "level": "info"
-    },
-    "authorization": {
-      "access": "Bearer",
-      "token": "XPTO"
-    },
-    "hosts": {
-      "api": "https://api.dropboxapi.com/2",
-      "content": "https://content.dropboxapi.com/2"
-    }
-  },
-  "manager": {
+  "elastic": {
+    "endpoint": "http://localhost:9200",
     "log": {
       "level": "info"
     }
