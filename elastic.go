@@ -37,6 +37,10 @@ func NewElastic(options ...ElasticOption) *Elastic {
 
 	elastic.Reconfigure(options...)
 
+	if elastic.config.Endpoint == "" {
+		elastic.config.Endpoint = DefaultURL
+	}
+
 	return elastic
 }
 
