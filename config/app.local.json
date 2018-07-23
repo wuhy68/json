@@ -2,7 +2,12 @@
   "elastic": {
     "endpoint": "http://localhost:9200",
     "log": {
-      "level": "info"
+      "level": "error"
+    }
+  },
+  "manager": {
+    "log": {
+      "level": "error"
     }
   }
 }
