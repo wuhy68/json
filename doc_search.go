@@ -91,7 +91,11 @@ func (e *Search) Template(path, name string, data *TemplateData, reload bool) *S
 
 	var result bytes.Buffer
 	var err error
+	e.client.mux.RLock()
+	defer e.client.mux.RUnlock()
 	if _, found := templates[key]; !found {
+		e.client.mux.Lock()
+		defer e.client.mux.Unlock()
 		templates[key], err = ReadFile(key, nil)
 		if err != nil {
 			log.Error(err)

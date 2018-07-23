@@ -3,6 +3,8 @@ package elastic
 import (
 	"fmt"
 
+	"sync"
+
 	logger "github.com/joaosoft/logger"
 	manager "github.com/joaosoft/manager"
 )
@@ -10,6 +12,7 @@ import (
 type Elastic struct {
 	config        *ElasticConfig
 	isLogExternal bool
+	mux           sync.RWMutex
 }
 
 // NewElastic ...
