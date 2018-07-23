@@ -91,14 +91,14 @@ func (e *Search) Template(path, name string, data *TemplateData, reload bool) *S
 
 	var result bytes.Buffer
 	var err error
-	e.client.mux.RLock()
-	defer e.client.mux.RUnlock()
+
 	if _, found := templates[key]; !found {
 		e.client.mux.Lock()
 		defer e.client.mux.Unlock()
 		templates[key], err = ReadFile(key, nil)
 		if err != nil {
 			log.Error(err)
+			return e
 		}
 	}
 
@@ -107,11 +107,13 @@ func (e *Search) Template(path, name string, data *TemplateData, reload bool) *S
 	if err == nil {
 		if err := t.ExecuteTemplate(&result, name, data); err != nil {
 			log.Error(err)
+			return e
 		}
 
 		e.query = result.String()
 	} else {
 		log.Error(err)
+		return e
 	}
 
 	return e
@@ -139,13 +141,13 @@ func (e *Search) Execute() error {
 
 	request, err := http.NewRequest(e.method, fmt.Sprintf("%s/%s%s", e.client.config.Endpoint, e.index, q), reader)
 	if err != nil {
-		return err
+		return errors.NewError(err)
 	}
 
 	response, err := http.DefaultClient.Do(request)
 	if err != nil {
 		log.Error(err)
-		errors.NewError(err)
+		return errors.NewError(err)
 	}
 	defer response.Body.Close()
 
@@ -162,18 +164,19 @@ func (e *Search) Execute() error {
 		elasticResponse := SearchHit{}
 		if err := json.Unmarshal(body, &elasticResponse); err != nil {
 			log.Error(err)
-			errors.NewError(err)
+			return errors.NewError(err)
 		}
 
 		hit, err = json.Marshal(elasticResponse.Source)
 		if err != nil {
+			log.Error(err)
 			return errors.NewError(err)
 		}
 	} else {
 		elasticResponse := SearchResponse{}
 		if err := json.Unmarshal(body, &elasticResponse); err != nil {
 			log.Error(err)
-			errors.NewError(err)
+			return errors.NewError(err)
 		}
 
 		if elasticResponse.Error != nil {

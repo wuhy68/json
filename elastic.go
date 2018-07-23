@@ -12,7 +12,7 @@ import (
 type Elastic struct {
 	config        *ElasticConfig
 	isLogExternal bool
-	mux           sync.RWMutex
+	mux           sync.Mutex
 }
 
 // NewElastic ...

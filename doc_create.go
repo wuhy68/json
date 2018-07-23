@@ -75,17 +75,25 @@ func (e *Create) Execute() (string, error) {
 
 	request, err := http.NewRequest(e.method, fmt.Sprintf("%s/%s/%s%s", e.client.config.Endpoint, e.index, e.typ, query), reader)
 	if err != nil {
-		return "", err
+		return "", errors.NewError(err)
 	}
 
 	response, err := http.DefaultClient.Do(request)
+	if err != nil {
+		return "", errors.NewError(err)
+	}
 	defer response.Body.Close()
 
 	// unmarshal data
 	body, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		return "", errors.NewError(err)
+	}
 
 	elasticResponse := CreateResponse{}
-	json.Unmarshal(body, &elasticResponse)
+	if err = json.Unmarshal(body, &elasticResponse); err != nil {
+		return "", errors.NewError(err)
+	}
 
 	if !elasticResponse.Created && elasticResponse.Result != "updated" {
 		return "", errors.FromString("couldn't create the resource")
