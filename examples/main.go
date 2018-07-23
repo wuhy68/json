@@ -1,40 +1,38 @@
 package main
 
-import (
-	"elastic"
+import "time"
 
-	log "github.com/joaosoft/logger"
-)
+type person struct {
+	Name string `json:"name"`
+	Age  int    `json:"age"`
+}
 
 func main() {
-	var data []interface{}
 
-	client := elastic.NewElastic()
-	// you can define the configuration without having a configuration file
-	//client1 := elastic.NewElastic(elastic.WithConfiguration(elastic.NewConfig("http://localhost:9200")))
+	// index create with mapping
+	createIndexWithMapping()
 
-	d1 := elastic.TemplateData{Data: map[string]interface{}{"default_plan": true}}
+	// document create
+	createDocumentWithId("1")
+	createDocumentWithId("2")
+	generatedId := createDocumentWithoutId()
 
-	err := client.Search().
-		Index("persons").
-		Document("person").
-		Object(&data).
-		Template("/examples/templates", "get.example.1.template", &d1, false).
-		Execute()
+	// document update
+	updateDocumentWithId("1")
+	updateDocumentWithId("2")
 
-	if err != nil {
-		log.Error(err)
-	}
+	// document search
+	// wait elastic to index the last update...
+	<-time.After(time.Second * 2)
+	searchDocument("luis")
 
-	d2 := elastic.TemplateData{Data: 123}
-	err = client.Search().
-		Index("persons").
-		Document("person").
-		Object(&data).
-		Template("/examples/templates", "get.example.2.template", &d2, false).
-		Execute()
+	// document delete
+	deleteDocumentWithId(generatedId)
 
-	if err != nil {
-		log.Error(err)
-	}
+	// index exists
+	existsIndex("persons")
+	existsIndex("bananas	")
+
+	// index delete
+	deleteIndex()
 }

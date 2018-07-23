@@ -12,18 +12,22 @@
         }
       }
     }
-  }
+  },
+  "sort": [
+    {
+      "age": {
+        "order": "desc"
+      }
+    }
+  ]
+
+  {{ if (gt $.From 0) }}
+    ,
+    "from": {{.From}}
+  {{ end }}
 
   {{ if (gt $.Size 0) }}
-  ,
-  {{ end }}
-  {{ if (gt $.From 0) }}
-  "from": {{.From}}
-  {{ end }}
-  {{ if (gt $.Size 0) }}
-  ,
-  {{ end }}
-  {{ if (gt $.Size 0) }}
-  "size": {{.Size}}
+    ,
+  " size": {{.Size}}
   {{ end }}
 }

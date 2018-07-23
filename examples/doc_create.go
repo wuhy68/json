@@ -1,0 +1,50 @@
+package main
+
+import (
+	"elastic"
+
+	"fmt"
+
+	"strconv"
+
+	log "github.com/joaosoft/logger"
+)
+
+func createDocumentWithId(id string) {
+	client := elastic.NewElastic()
+	// you can define the configuration without having a configuration file
+	//client1 := elastic.NewElastic(elastic.WithConfiguration(elastic.NewConfig("http://localhost:9200")))
+
+	// document create with id
+	age, _ := strconv.Atoi(id)
+	id, err := client.Create().Index("persons").Type("person").Id(id).Body(person{
+		Name: "joao",
+		Age:  age + 20,
+	}).Execute()
+
+	if err != nil {
+		log.Error(err)
+	} else {
+		fmt.Printf("\ncreated a new person with id %s\n", id)
+	}
+}
+
+func createDocumentWithoutId() string {
+	client := elastic.NewElastic()
+	// you can define the configuration without having a configuration file
+	//client1 := elastic.NewElastic(elastic.WithConfiguration(elastic.NewConfig("http://localhost:9200")))
+
+	// document create without id
+	id, err := client.Create().Index("persons").Type("person").Body(person{
+		Name: "joao",
+		Age:  30,
+	}).Execute()
+
+	if err != nil {
+		log.Error(err)
+	} else {
+		fmt.Printf("\ncreated a new person with id %s\n", id)
+	}
+
+	return id
+}

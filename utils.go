@@ -9,7 +9,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-func getEnv() string {
+func GetEnv() string {
 	env := os.Getenv("env")
 	if env == "" {
 		env = "local"
@@ -18,7 +18,7 @@ func getEnv() string {
 	return env
 }
 
-func exists(file string) bool {
+func Exists(file string) bool {
 	if _, err := os.Stat(file); err != nil {
 		if os.IsNotExist(err) {
 			return false
@@ -27,10 +27,10 @@ func exists(file string) bool {
 	return true
 }
 
-func readFile(file string, obj interface{}) ([]byte, error) {
+func ReadFile(file string, obj interface{}) ([]byte, error) {
 	var err error
 
-	if !exists(file) {
+	if !Exists(file) {
 		return nil, errors.New("file don't exist")
 	}
 
@@ -53,10 +53,10 @@ func readFile(file string, obj interface{}) ([]byte, error) {
 	return data, nil
 }
 
-func readFileLines(file string) ([]string, error) {
+func ReadFileLines(file string) ([]string, error) {
 	lines := make([]string, 0)
 
-	if !exists(file) {
+	if !Exists(file) {
 		return nil, errors.New("file don't exist")
 	}
 
@@ -78,8 +78,8 @@ func readFileLines(file string) ([]string, error) {
 	return lines, nil
 }
 
-func writeFile(file string, obj interface{}) error {
-	if !exists(file) {
+func WriteFile(file string, obj interface{}) error {
+	if !Exists(file) {
 		return errors.New("file don't exist")
 	}
 
