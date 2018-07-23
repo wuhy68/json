@@ -16,10 +16,6 @@ func createScroll(id string) {
 	//client1 := elastic.NewElastic(elastic.WithConfiguration(elastic.NewConfig("http://localhost:9200")))
 
 	// document create with id
-	type person struct {
-		Name string `json:"name"`
-		Age  int    `json:"age"`
-	}
 	age, _ := strconv.Atoi(id)
 	id, err := client.Create().Index("persons").Type("person").Id(id).Body(person{
 		Name: "joao",
