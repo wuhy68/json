@@ -80,13 +80,13 @@ func (e *Search) Object(object interface{}) *Search {
 	return e
 }
 
-type TemplateData struct {
+type SearchTemplate struct {
 	Data interface{} `json:"data,omitempty"`
 	From int         `json:"from,omitempty"`
 	Size int         `json:"size,omitempty"`
 }
 
-func (e *Search) Template(path, name string, data *TemplateData, reload bool) *Search {
+func (e *Search) Template(path, name string, data *SearchTemplate, reload bool) *Search {
 	key := fmt.Sprintf("%s/%s", path, name)
 
 	var result bytes.Buffer
@@ -141,13 +141,13 @@ func (e *Search) Execute() error {
 
 	request, err := http.NewRequest(e.method, fmt.Sprintf("%s/%s%s", e.client.config.Endpoint, e.index, q), reader)
 	if err != nil {
-		return errors.NewError(err)
+		return errors.New(err)
 	}
 
 	response, err := http.DefaultClient.Do(request)
 	if err != nil {
 		log.Error(err)
-		return errors.NewError(err)
+		return errors.New(err)
 	}
 	defer response.Body.Close()
 
@@ -155,7 +155,7 @@ func (e *Search) Execute() error {
 	body, err := ioutil.ReadAll(response.Body)
 	if err != nil {
 		log.Error(err)
-		return errors.NewError(err)
+		return errors.New(err)
 	}
 
 	var hit []byte
@@ -164,23 +164,23 @@ func (e *Search) Execute() error {
 		elasticResponse := SearchHit{}
 		if err := json.Unmarshal(body, &elasticResponse); err != nil {
 			log.Error(err)
-			return errors.NewError(err)
+			return errors.New(err)
 		}
 
 		hit, err = json.Marshal(elasticResponse.Source)
 		if err != nil {
 			log.Error(err)
-			return errors.NewError(err)
+			return errors.New(err)
 		}
 	} else {
 		elasticResponse := SearchResponse{}
 		if err := json.Unmarshal(body, &elasticResponse); err != nil {
 			log.Error(err)
-			return errors.NewError(err)
+			return errors.New(err)
 		}
 
 		if elasticResponse.Error != nil {
-			return errors.FromString(fmt.Sprintf("[%s] %s", elasticResponse.Error.Type, elasticResponse.Error.Reason))
+			return errors.New(fmt.Sprintf("[%s] %s", elasticResponse.Error.Type, elasticResponse.Error.Reason))
 		}
 
 		rawHits := make([]json.RawMessage, len(elasticResponse.Hits.Hits))
@@ -190,12 +190,12 @@ func (e *Search) Execute() error {
 
 		hit, err = json.Marshal(rawHits)
 		if err != nil {
-			return errors.NewError(err)
+			return errors.New(err)
 		}
 	}
 
 	if err := json.Unmarshal(hit, e.object); err != nil {
-		return errors.NewError(err)
+		return errors.New(err)
 	}
 
 	return nil

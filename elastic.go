@@ -47,6 +47,10 @@ func NewElastic(options ...ElasticOption) *Elastic {
 	return elastic
 }
 
+func (e *Elastic) Count() *Count {
+	return NewCount(e)
+}
+
 func (e *Elastic) Create() *Create {
 	return NewCreate(e)
 }

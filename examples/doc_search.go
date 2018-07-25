@@ -17,7 +17,7 @@ func searchDocument(name string) {
 	// you can define the configuration without having a configuration file
 	//client1 := elastic.NewElastic(elastic.WithConfiguration(elastic.NewConfig("http://localhost:9200")))
 
-	d1 := elastic.TemplateData{Data: map[string]interface{}{"name": name}}
+	d1 := elastic.SearchTemplate{Data: map[string]interface{}{"name": name}}
 
 	// document search
 	dir, _ := os.Getwd()

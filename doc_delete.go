@@ -63,38 +63,38 @@ func (e *Delete) Execute() error {
 
 	request, err := http.NewRequest(e.method, fmt.Sprintf("%s/%s%s", e.client.config.Endpoint, e.index, query), nil)
 	if err != nil {
-		return errors.NewError(err)
+		return errors.New(err)
 	}
 
 	response, err := http.DefaultClient.Do(request)
 	if err != nil {
-		return errors.NewError(err)
+		return errors.New(err)
 	}
 	defer response.Body.Close()
 
 	// unmarshal data
 	body, err := ioutil.ReadAll(response.Body)
 	if err != nil {
-		return errors.NewError(err)
+		return errors.New(err)
 	}
 
 	if e.id != "" {
 		elasticResponse := DeleteHit{}
 		if err = json.Unmarshal(body, &elasticResponse); err != nil {
-			return errors.NewError(err)
+			return errors.New(err)
 		}
 
 		if !elasticResponse.Found || elasticResponse.Result != "deleted" {
-			return errors.FromString("couldn't delete the resource")
+			return errors.New("couldn't delete the resource")
 		}
 	} else {
 		elasticResponse := DeleteResponse{}
 		if err = json.Unmarshal(body, &elasticResponse); err != nil {
-			return errors.NewError(err)
+			return errors.New(err)
 		}
 
 		if !elasticResponse.Acknowledged {
-			return errors.FromString("couldn't delete the resource")
+			return errors.New("couldn't delete the resource")
 		}
 	}
 

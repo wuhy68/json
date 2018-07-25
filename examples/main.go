@@ -26,6 +26,10 @@ func main() {
 	<-time.After(time.Second * 2)
 	searchDocument("luis")
 
+	// count index documents
+	countOnIndex("luis")
+	countOnDocument("luis")
+
 	// document delete
 	deleteDocumentWithId(generatedId)
 

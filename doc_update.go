@@ -75,23 +75,23 @@ func (e *Update) Execute() (string, error) {
 
 	response, err := http.DefaultClient.Do(request)
 	if err != nil {
-		return "", errors.NewError(err)
+		return "", errors.New(err)
 	}
 	defer response.Body.Close()
 
 	// unmarshal data
 	body, err := ioutil.ReadAll(response.Body)
 	if err != nil {
-		return "", errors.NewError(err)
+		return "", errors.New(err)
 	}
 
 	elasticResponse := UpdateResponse{}
 	if err := json.Unmarshal(body, &elasticResponse); err != nil {
-		return "", errors.NewError(err)
+		return "", errors.New(err)
 	}
 
 	if elasticResponse.Result != "created" && elasticResponse.Result != "updated" {
-		return "", errors.FromString("couldn't update the resource")
+		return "", errors.New("couldn't update the resource")
 	}
 
 	return elasticResponse.ID, nil

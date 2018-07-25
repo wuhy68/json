@@ -53,7 +53,7 @@ func (e *ExistsIndex) Execute() (int, error) {
 	defer response.Body.Close()
 
 	if err != nil {
-		return response.StatusCode, errors.NewError(err)
+		return response.StatusCode, errors.New(err)
 	}
 
 	return response.StatusCode, nil
