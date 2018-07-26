@@ -11,9 +11,6 @@ import (
 )
 
 func countOnIndex(name string) int64 {
-	client := elastic.NewElastic()
-	// you can define the configuration without having a configuration file
-	//client1 := elastic.NewElastic(elastic.WithConfiguration(elastic.NewConfig("http://localhost:9200")))
 
 	d1 := elastic.CountTemplate{Data: map[string]interface{}{"name": name}}
 
@@ -21,7 +18,7 @@ func countOnIndex(name string) int64 {
 	dir, _ := os.Getwd()
 	count, err := client.Count().
 		Index("persons").
-		Template(dir+"/examples/templates", "get.example.1.template", &d1, false).
+		Template(dir+"/examples/templates", "get.example.count.template", &d1, false).
 		Execute()
 
 	if err != nil {
@@ -34,9 +31,6 @@ func countOnIndex(name string) int64 {
 }
 
 func countOnDocument(name string) int64 {
-	client := elastic.NewElastic()
-	// you can define the configuration without having a configuration file
-	//client1 := elastic.NewElastic(elastic.WithConfiguration(elastic.NewConfig("http://localhost:9200")))
 
 	d1 := elastic.CountTemplate{Data: map[string]interface{}{"name": name}}
 
@@ -45,7 +39,7 @@ func countOnDocument(name string) int64 {
 	count, err := client.Count().
 		Index("persons").
 		Type("person").
-		Template(dir+"/examples/templates", "get.example.1.template", &d1, false).
+		Template(dir+"/examples/templates", "get.example.count.template", &d1, false).
 		Execute()
 
 	if err != nil {

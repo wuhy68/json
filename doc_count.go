@@ -14,7 +14,7 @@ import (
 )
 
 type CountResponse struct {
-	count int64 `json:"count"`
+	Count int64 `json:"count"`
 }
 
 type Count struct {
@@ -125,5 +125,5 @@ func (e *Count) Execute() (int64, error) {
 		return 0, errors.New(err)
 	}
 
-	return elasticResponse.count, nil
+	return elasticResponse.Count, nil
 }

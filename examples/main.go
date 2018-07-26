@@ -1,11 +1,19 @@
 package main
 
-import "time"
+import (
+	"elastic"
+	"time"
+)
 
 type person struct {
 	Name string `json:"name"`
 	Age  int    `json:"age"`
 }
+
+var client = elastic.NewElastic()
+
+// you can define the configuration without having a configuration file
+//client1 := elastic.NewElastic(elastic.WithConfiguration(elastic.NewConfig("http://localhost:9200")))
 
 func main() {
 

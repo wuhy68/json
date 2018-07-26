@@ -13,10 +13,6 @@ import (
 func searchDocument(name string) {
 	var data []person
 
-	client := elastic.NewElastic()
-	// you can define the configuration without having a configuration file
-	//client1 := elastic.NewElastic(elastic.WithConfiguration(elastic.NewConfig("http://localhost:9200")))
-
 	d1 := elastic.SearchTemplate{Data: map[string]interface{}{"name": name}}
 
 	// document search
@@ -25,7 +21,7 @@ func searchDocument(name string) {
 		Index("persons").
 		Type("person").
 		Object(&data).
-		Template(dir+"/examples/templates", "get.example.1.template", &d1, false).
+		Template(dir+"/examples/templates", "get.example.search.template", &d1, false).
 		Execute()
 
 	if err != nil {

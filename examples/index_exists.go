@@ -1,7 +1,6 @@
 package main
 
 import (
-	"elastic"
 	"fmt"
 
 	"net/http"
@@ -10,9 +9,6 @@ import (
 )
 
 func existsIndex(index string) {
-	client := elastic.NewElastic()
-	// you can define the configuration without having a configuration file
-	//client1 := elastic.NewElastic(elastic.WithConfiguration(elastic.NewConfig("http://localhost:9200")))
 
 	status, err := client.ExistsIndex().Index(index).Execute()
 

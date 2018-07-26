@@ -153,7 +153,7 @@ err := client.Search().
     Index("persons").
     Type("person").
     Object(&data).
-    Template(dir+"/examples/templates", "get.example.1.template", &d1, false).
+    Template(dir+"/examples/templates", get.example.search.template, &d1, false).
     Execute()
 
 if err != nil {

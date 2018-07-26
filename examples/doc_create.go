@@ -1,8 +1,6 @@
 package main
 
 import (
-	"elastic"
-
 	"fmt"
 
 	"strconv"
@@ -11,9 +9,6 @@ import (
 )
 
 func createDocumentWithId(id string) {
-	client := elastic.NewElastic()
-	// you can define the configuration without having a configuration file
-	//client1 := elastic.NewElastic(elastic.WithConfiguration(elastic.NewConfig("http://localhost:9200")))
 
 	// document create with id
 	age, _ := strconv.Atoi(id)
@@ -30,9 +25,6 @@ func createDocumentWithId(id string) {
 }
 
 func createDocumentWithoutId() string {
-	client := elastic.NewElastic()
-	// you can define the configuration without having a configuration file
-	//client1 := elastic.NewElastic(elastic.WithConfiguration(elastic.NewConfig("http://localhost:9200")))
 
 	// document create without id
 	id, err := client.Create().Index("persons").Type("person").Body(person{
