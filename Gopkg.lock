@@ -52,19 +52,19 @@
   branch = "master"
   name = "github.com/joaosoft/logger"
   packages = ["."]
-  revision = "ac1eb19f94cbeff2fb525880b1d496973f91702b"
+  revision = "5ed81168ee3bd702a9fa77be2bb1d896af637582"
 
 [[projects]]
   branch = "master"
   name = "github.com/joaosoft/manager"
   packages = ["."]
-  revision = "da4684f0700b07261bc66c1262243463a3cd06cb"
+  revision = "b5b22f6ddf205257bfa165134dd4aa01d1760662"
 
 [[projects]]
   branch = "master"
   name = "github.com/joaosoft/writers"
   packages = ["."]
-  revision = "1bf8fc39ed07431e08f868eb80edbb65ceb33514"
+  revision = "ac09d2935fa7e36fadd1d108d06bacd3cbe412fc"
 
 [[projects]]
   name = "github.com/labstack/echo"
@@ -226,6 +226,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "8f51604068fdf1cd46cc1af650bac3ac343912c8560744f8ca57e185f318f759"
+  inputs-digest = "352f53a01848db35c9bda48af400dda48a5db6a630ff8df73c89fd9fcff252d5"
   solver-name = "gps-cdcl"
   solver-version = 1
