@@ -1,8 +1,17 @@
 {
-  "elastic": {
-    "endpoint": "http://localhost:9200",
+  "mailer": {
+    "host": "smtp.gmail.com",
+    "port": "587",
+    "identity": "João Ribeiro",
+    "username": "joaosoft@gmail.com",
+    "password": "?",
     "log": {
       "level": "info"
+    }
+  },
+  "manager": {
+    "log": {
+      "level": "error"
     }
   }
 }

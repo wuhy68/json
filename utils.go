@@ -1,4 +1,4 @@
-package elastic
+package mailer
 
 import (
 	"bufio"
@@ -6,7 +6,13 @@ import (
 	"io/ioutil"
 	"os"
 
+	"mime"
+	"path/filepath"
+
 	"github.com/pkg/errors"
+	"io"
+	"crypto/rand"
+	"fmt"
 )
 
 func GetEnv() string {
@@ -89,4 +95,22 @@ func WriteFile(file string, obj interface{}) error {
 	}
 
 	return nil
+}
+
+func GetMimeType(fileName string) (mimeType string) {
+	mimeType = mime.TypeByExtension(filepath.Ext(fileName))
+	if mimeType == "" {
+		mimeType = "application/octet-stream"
+	}
+
+	return mimeType
+}
+
+func RandomBoundary() string {
+	var buf [30]byte
+	_, err := io.ReadFull(rand.Reader, buf[:])
+	if err != nil {
+		panic(err)
+	}
+	return fmt.Sprintf("%x", buf[:])
 }

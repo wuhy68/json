@@ -1,37 +1,40 @@
-package elastic
+package mailer
 
 import (
+	"mailer/smtp"
+
 	logger "github.com/joaosoft/logger"
 )
 
-// ElasticOption ...
-type ElasticOption func(client *Elastic)
+// MailerOption ...
+type MailerOption func(client *Mailer)
 
 // Reconfigure ...
-func (elastic *Elastic) Reconfigure(options ...ElasticOption) {
+func (mailer *Mailer) Reconfigure(options ...MailerOption) {
 	for _, option := range options {
-		option(elastic)
+		option(mailer)
 	}
 }
 
 // WithConfiguration ...
-func WithConfiguration(config *ElasticConfig) ElasticOption {
-	return func(client *Elastic) {
+func WithConfiguration(config *MailerConfig) MailerOption {
+	return func(client *Mailer) {
 		client.config = config
+		client.auth = smtp.PlainAuth(client.config.Identity, client.config.Username, client.config.Password, client.config.Host)
 	}
 }
 
 // WithLogger ...
-func WithLogger(logger logger.ILogger) ElasticOption {
-	return func(elastic *Elastic) {
+func WithLogger(logger logger.ILogger) MailerOption {
+	return func(mailer *Mailer) {
 		log = logger
-		elastic.isLogExternal = true
+		mailer.isLogExternal = true
 	}
 }
 
 // WithLogLevel ...
-func WithLogLevel(level logger.Level) ElasticOption {
-	return func(elastic *Elastic) {
+func WithLogLevel(level logger.Level) MailerOption {
+	return func(mailer *Mailer) {
 		log.SetLevel(level)
 	}
 }

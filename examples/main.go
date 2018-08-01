@@ -1,50 +1,39 @@
 package main
 
 import (
-	"elastic"
+	"fmt"
+	"mailer"
+	"os"
 	"time"
 )
 
-type person struct {
-	Name string `json:"name"`
-	Age  int    `json:"age"`
-}
-
-var client = elastic.NewElastic()
-
-// you can define the configuration without having a configuration file
-//client1 := elastic.NewElastic(elastic.WithConfiguration(elastic.NewConfig("http://localhost:9200")))
+var client = mailer.NewMailer()
 
 func main() {
 
-	// index create with mapping
-	createIndexWithMapping()
+	dir, err := os.Getwd()
+	if err != nil {
+		fmt.Printf(err.Error())
+	}
 
-	// document create
-	createDocumentWithId("1")
-	createDocumentWithId("2")
-	generatedId := createDocumentWithoutId()
+	image, err := mailer.ReadFile(dir+"/examples/attachments/mail.png", nil)
+	failed, err := client.SendMessage().
+		From("João Ribeiro", "joaosoft@gmail.com").
+		To("joao.ribeiro@foursource.pt", "invalid", "joao.ribeiro@foursource.pt").
+		Cc("joao.ribeiro@foursource.pt", "joao.ribeiro@foursource.pt").
+		Bcc("joao.ribeiro@foursource.pt", "joao.ribeiro@foursource.pt").
+		Header("aFrom", "fake@mail.pt").
+		Subject("This is a test subject").
+		Body("Hello, you got an email!\n\n").
+		Date(time.Now()).
+		Attachment(image, true, "image_file_1.png").
+		Execute()
 
-	// document update
-	updateDocumentWithId("1")
-	updateDocumentWithId("2")
+	if err != nil {
+		fmt.Printf(err.Error())
+	}
 
-	// document search
-	// wait elastic to index the last update...
-	<-time.After(time.Second * 2)
-	searchDocument("luis")
-
-	// count index documents
-	countOnIndex("luis")
-	countOnDocument("luis")
-
-	// document delete
-	deleteDocumentWithId(generatedId)
-
-	// index exists
-	existsIndex("persons")
-	existsIndex("bananas	")
-
-	// index delete
-	deleteIndex()
+	if len(failed) > 0 {
+		fmt.Printf("\n\nFailed addresses: %+v", failed)
+	}
 }

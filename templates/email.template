@@ -1,0 +1,37 @@
+From: {{.FromName}} <{{.FromAddr}}>
+Mime-Version: {{.MimeVersion}}
+Date: {{.Date}}
+Subject: {{.Subject}}
+{{- range $key, $value := .ToAddrs }}
+To: {{$value}} {{- end }}
+{{- range $key, $value := .CcAddrs }}
+CC: {{$value}} {{- end }}
+{{- range $key, $value := .BccAddrs }}
+BCC: {{$value}} {{- end }}
+{{- range $key, $value := .Headers }}
+{{$key}}: {{$value}} {{- end }}
+Content-Type: multipart/mixed;
+	boundary="{{.BoundaryMixed}}"; charset={{ .Charset }}
+
+--{{.BoundaryMixed}}
+Content-Type: multipart/alternative;
+	boundary="{{.BoundaryAlternative}}"
+
+--{{.BoundaryAlternative}}
+Content-Type: {{.ContentType}}; charset={{.Charset}}
+
+{{ .Body }}
+--{{.BoundaryAlternative}}--
+
+{{ range $key, $value := .Attachments -}}
+--{{$.BoundaryMixed}}
+Content-Disposition: {{ if $value.Inline -}}Inline{{ else }}attachment{{- end }};
+	filename="{{ $value.FileName }}"
+{{- if not $value.Inline }}
+Content-ID: <{{ $value.FileName }}>{{- end }}
+Content-Transfer-Encoding: {{ $value.Encoding }}
+Content-Type: {{ $value.ContentType }};
+	filename="{{ $value.FileName }}"
+
+{{$value.EncodedContent}}
+{{ end }}--{{.BoundaryMixed}}--
