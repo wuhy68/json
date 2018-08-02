@@ -2,10 +2,7 @@ package mailer
 
 import (
 	"fmt"
-
 	"sync"
-
-	"mailer/smtp"
 
 	logger "github.com/joaosoft/logger"
 	manager "github.com/joaosoft/manager"
@@ -13,7 +10,7 @@ import (
 
 type Mailer struct {
 	config        *MailerConfig
-	auth          smtp.Auth
+	auth          Auth
 	isLogExternal bool
 	mux           sync.Mutex
 }
@@ -40,7 +37,7 @@ func NewMailer(options ...MailerOption) *Mailer {
 	}
 
 	mailer.config = &appConfig.Mailer
-	mailer.auth = smtp.PlainAuth(mailer.config.Identity, mailer.config.Username, mailer.config.Password, mailer.config.Host)
+	mailer.auth = PlainAuth(mailer.config.Identity, mailer.config.Username, mailer.config.Password, mailer.config.Host)
 
 	mailer.Reconfigure(options...)
 

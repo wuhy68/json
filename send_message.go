@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/base64"
 	"fmt"
-	"mailer/smtp"
 	"os"
 	"text/template"
 	"time"
@@ -135,7 +134,7 @@ func (e *SendMessageService) Execute() ([]string, error) {
 		e.Template(dir+"/templates", "email.template", false)
 	}
 
-	return smtp.SendMail(
+	return SendMail(
 		fmt.Sprintf("%s:%s", e.mailer.config.Host, e.mailer.config.Port),
 		e.mailer.auth,
 		e.message.FromAddr,
