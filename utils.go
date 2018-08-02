@@ -9,10 +9,10 @@ import (
 	"mime"
 	"path/filepath"
 
-	"github.com/pkg/errors"
-	"io"
 	"crypto/rand"
 	"fmt"
+	"github.com/pkg/errors"
+	"io"
 )
 
 func GetEnv() string {
