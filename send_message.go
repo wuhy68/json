@@ -29,8 +29,8 @@ func NewSendMessageService(e *Mailer) *SendMessageService {
 		message: &Message{
 			MimeVersion:         MimeVersion1,
 			Date:                time.Now().Format(time.RFC1123Z),
-			ContentType:         ContentTypePlainText,
-			Charset:             UTF8,
+			ContentType:         ContentTypeTextPlain,
+			Charset:             CharsetUTF8,
 			BoundaryMixed:       RandomBoundary(),
 			BoundaryAlternative: RandomBoundary(),
 			Headers:             make(map[string]string),
@@ -63,7 +63,8 @@ func (e *SendMessageService) Subject(subject string) *SendMessageService {
 	return e
 }
 
-func (e *SendMessageService) Body(body string) *SendMessageService {
+func (e *SendMessageService) Body(contentType ContentType, body string) *SendMessageService {
+	e.message.ContentType = contentType
 	e.message.Body = body
 	return e
 }
@@ -84,7 +85,7 @@ func (e *SendMessageService) Attachment(content []byte, inline bool, fileName st
 		Content:        content,
 		Inline:         inline,
 		FileName:       fileName,
-		Encoding:       Base64,
+		Encoding:       EncodingBase64,
 		EncodedContent: base64.StdEncoding.EncodeToString(content),
 	})
 

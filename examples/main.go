@@ -24,7 +24,7 @@ func main() {
 		Bcc("joao.ribeiro@foursource.pt", "joao.ribeiro@foursource.pt").
 		Header("aFrom", "fake@mail.pt").
 		Subject("This is a test subject").
-		Body("Hello, you got an email!\n\n").
+		Body(mailer.ContentTypeTextPlain, "Hello, you got an email!\n\n").
 		Date(time.Now()).
 		Attachment(image, true, "image_file_1.png").
 		Execute()
