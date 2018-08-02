@@ -23,9 +23,9 @@ This examples are available in the project at [mailer/examples](https://github.c
 
 ### Code
 ```go
-// create a client
 import "github.com/joaosoft/mailer"
 
+// create a client
 client := mailer.NewMailer()
 
 dir, _ := os.Getwd()
