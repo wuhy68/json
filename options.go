@@ -1,8 +1,6 @@
 package mailer
 
 import (
-	"mailer/smtp"
-
 	logger "github.com/joaosoft/logger"
 )
 
@@ -20,7 +18,7 @@ func (mailer *Mailer) Reconfigure(options ...MailerOption) {
 func WithConfiguration(config *MailerConfig) MailerOption {
 	return func(client *Mailer) {
 		client.config = config
-		client.auth = smtp.PlainAuth(client.config.Identity, client.config.Username, client.config.Password, client.config.Host)
+		client.auth = PlainAuth(client.config.Identity, client.config.Username, client.config.Password, client.config.Host)
 	}
 }
 
