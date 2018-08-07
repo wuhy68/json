@@ -2,38 +2,42 @@ package main
 
 import (
 	"fmt"
-	"mailer"
-	"os"
-	"time"
+	"reflect"
+	"validator"
 )
 
-var client = mailer.NewMailer()
+type Example struct {
+	Name     string    `validate:"value=joao, tagOne=teste"`
+	Age      int       `validate:"value=30"`
+	Street   int       `validate:"max=10"`
+	Brothers []Example `validate:"size=1"`
+}
+
+var tagOne_handler = func(name string, value reflect.Value, expected interface{}) error {
+	fmt.Printf("hello tagOne!")
+	return nil
+}
+
+func init() {
+	if err := validator.Add("tagOne", tagOne_handler); err != nil {
+		fmt.Printf("error adding tag %s", "tagOne")
+	}
+}
 
 func main() {
-
-	dir, err := os.Getwd()
-	if err != nil {
-		fmt.Printf(err.Error())
+	example := Example{
+		Name:   "joao",
+		Age:    30,
+		Street: 10,
+		Brothers: []Example{
+			Example{
+				Name:   "jessica",
+				Age:    10,
+				Street: 12,
+			},
+		},
 	}
-
-	image, err := mailer.ReadFile(dir+"/examples/attachments/mail.png", nil)
-	failed, err := client.SendMessage().
-		From("João Ribeiro", "joaosoft@gmail.com").
-		To("joao.ribeiro@foursource.pt", "invalid", "joao.ribeiro@foursource.pt").
-		Cc("joao.ribeiro@foursource.pt", "joao.ribeiro@foursource.pt").
-		Bcc("joao.ribeiro@foursource.pt", "joao.ribeiro@foursource.pt").
-		Header("aFrom", "fake@mail.pt").
-		Subject("This is a test subject").
-		Body(mailer.ContentTypeTextPlain, "Hello, you got an email!\n\n").
-		Date(time.Now()).
-		Attachment(image, true, "image_file_1.png").
-		Execute()
-
-	if err != nil {
-		fmt.Printf(err.Error())
-	}
-
-	if len(failed) > 0 {
-		fmt.Printf("\n\nFailed addresses: %+v", failed)
+	if err := validator.Validate(example); err != nil {
+		fmt.Printf("\nvalidation failed with error [%s]", err.Error())
 	}
 }

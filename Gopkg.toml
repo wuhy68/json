@@ -29,22 +29,6 @@
   branch = "master"
   name = "github.com/joaosoft/errors"
 
-[[constraint]]
-  branch = "master"
-  name = "github.com/joaosoft/logger"
-
-[[constraint]]
-  branch = "master"
-  name = "github.com/joaosoft/manager"
-
-[[constraint]]
-  name = "github.com/pkg/errors"
-  version = "0.8.0"
-
 [prune]
   go-tests = true
   unused-packages = true
-
-[[override]]
-  name = "github.com/satori/go.uuid"
-  branch = "master"

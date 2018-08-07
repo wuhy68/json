@@ -1,9 +1,15 @@
-# mailer
-[![Build Status](https://travis-ci.org/joaosoft/mailer.svg?branch=master)](https://travis-ci.org/joaosoft/mailer) | [![codecov](https://codecov.io/gh/joaosoft/mailer/branch/master/graph/badge.svg)](https://codecov.io/gh/joaosoft/mailer) | [![Go Report Card](https://goreportcard.com/badge/github.com/joaosoft/mailer)](https://goreportcard.com/report/github.com/joaosoft/mailer) | [![GoDoc](https://godoc.org/github.com/joaosoft/mailer?status.svg)](https://godoc.org/github.com/joaosoft/mailer)
+# validator
+[![Build Status](https://travis-ci.org/joaosoft/validator.svg?branch=master)](https://travis-ci.org/joaosoft/validator) | [![codecov](https://codecov.io/gh/joaosoft/validator/branch/master/graph/badge.svg)](https://codecov.io/gh/joaosoft/validator) | [![Go Report Card](https://goreportcard.com/badge/github.com/joaosoft/validator)](https://goreportcard.com/report/github.com/joaosoft/validator) | [![GoDoc](https://godoc.org/github.com/joaosoft/validator?status.svg)](https://godoc.org/github.com/joaosoft/validator)
 
-A simple and fast SMTP email client.
+A simple struct validator by tags.
 
 ###### If i miss something or you have something interesting, please be part of this project. Let me know! My contact is at the end.
+
+## With support for
+* value
+* size
+* min 
+* max 
 
 ## Dependecy Management 
 >### Dep
@@ -15,42 +21,52 @@ Project dependencies are managed using Dep. Read more about [Dep](https://github
 
 >### Go
 ```
-go get github.com/joaosoft/mailer
+go get github.com/joaosoft/validator
 ```
 
 ## Usage 
-This examples are available in the project at [mailer/examples](https://github.com/joaosoft/mailer/tree/master/examples)
+This examples are available in the project at [validator/examples](https://github.com/joaosoft/validator/tree/master/examples)
 
 ### Code
 ```go
-import "github.com/joaosoft/mailer"
+import "github.com/joaosoft/validator"
 
-// create a client
-client := mailer.NewMailer()
-
-dir, _ := os.Getwd()
-
-image, err := mailer.ReadFile(dir+"/examples/attachments/mail.png", nil)
-failed, err := client.SendMessage().
-    From("João Ribeiro", "joaosoft@gmail.com").
-    To("joao.ribeiro@foursource.pt", "invalid", "joao.ribeiro@foursource.pt").
-    Cc("joao.ribeiro@foursource.pt", "joao.ribeiro@foursource.pt").
-    Bcc("joao.ribeiro@foursource.pt", "joao.ribeiro@foursource.pt").
-    Header("aFrom", "fake@mail.pt").
-    Subject("This is a test subject").
-    Body(mailer.ContentTypeTextPlain, "Hello, you got an email!\n\n").
-    Date(time.Now()).
-    Attachment(image, true, "image_file_1.png").
-    Execute()
-
-
-if err != nil {
-    fmt.Printf(err.Error())
+type Example struct {
+	Name     string    `validate:"value=joao, tagOne=teste"`
+	Age      int       `validate:"value=30"`
+	Street   int       `validate:"max=10"`
+	Brothers []Example `validate:"size=1"`
 }
 
-if len(failed) > 0 {
-    fmt.Printf("\n\nFailed addresses: %+v", failed)
+var tagOne_handler = func(name string, value reflect.Value, expected interface{}) error {
+	fmt.Printf("hello tagOne!")
+	return nil
 }
+
+func init() {
+	if err := validator.Add("tagOne", tagOne_handler); err != nil {
+		fmt.Printf("error adding tag %s", "tagOne")
+	}
+}
+
+func main() {
+	example := Example{
+		Name:   "joao",
+		Age:    30,
+		Street: 10,
+		Brothers: []Example{
+			Example{
+				Name:   "jessica",
+				Age:    10,
+				Street: 12,
+			},
+		},
+	}
+	if err := validator.Validate(example); err != nil {
+		fmt.Printf("\nvalidation failed with error [%s]", err.Error())
+	}
+}
+
 ```
 
 ## Known issues
