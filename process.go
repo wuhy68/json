@@ -84,8 +84,12 @@ func doValidate(value reflect.Value, typ reflect.StructField) error {
 	validations := strings.Split(tag, ",")
 	for _, validation := range validations {
 		options := strings.Split(validation, "=")
+
 		tag := strings.TrimSpace(options[0])
-		expected := strings.TrimSpace(options[1])
+		var expected string
+		if len(options) > 1 {
+			expected = strings.TrimSpace(options[1])
+		}
 
 		if _, ok := validator.handlers[tag]; ok {
 			if err := validator.handlers[tag](typ.Name, value, expected); err != nil {
