@@ -1,40 +1,74 @@
 package validator
 
 import (
-	"reflect"
-
 	"github.com/joaosoft/errors"
 	"github.com/joaosoft/logger"
 )
 
 func NewValidator() *Validator {
+
+	preHandlers := NewDefaultPreHandlers()
+	middleHandlers := NewDefaultMiddleHandlers()
+	posHandlers := NewDefaultPosHandlers()
+
 	return &Validator{
-		tag:      "validate",
-		handlers: NewDefaultHandlers(),
-		log:      logger.NewLogDefault("validator", logger.InfoLevel),
+		tag:            "validate",
+		handlersPre:    preHandlers,
+		handlersMiddle: middleHandlers,
+		handlersPos:    posHandlers,
+		activeHandlers: loadActiveHandlers(preHandlers, middleHandlers, posHandlers),
+		log:            logger.NewLogDefault("validator", logger.InfoLevel),
 	}
 }
 
-type Validator struct {
-	tag      string
-	handlers map[string]TagHandler
-	log      logger.ILogger
-}
+func loadActiveHandlers(preHandlers map[string]PreTagHandler, middleHandlers map[string]MiddleTagHandler, posHandlers map[string]PosTagHandler) map[string]bool {
+	handlers := make(map[string]bool)
 
-type TagHandler func(name string, value reflect.Value, expected interface{}) error
-
-// Add ...
-func Add(name string, handler TagHandler) (err error) {
-	if _, ok := validator.handlers[name]; !ok {
-		validator.handlers[name] = handler
-	} else {
-		err = errors.New("the tag already exists!")
+	for key, _ := range preHandlers {
+		handlers[key] = true
 	}
 
-	return err
+	for key, _ := range middleHandlers {
+		handlers[key] = true
+	}
+
+	for key, _ := range posHandlers {
+		handlers[key] = true
+	}
+
+	return handlers
+}
+
+func (v *Validator) AddPre(name string, handler PreTagHandler) *Validator {
+	v.handlersPre[name] = handler
+	v.activeHandlers[name] = true
+
+	return validator
+}
+
+func (v *Validator) AddMiddle(name string, handler MiddleTagHandler) *Validator {
+	v.handlersMiddle[name] = handler
+	v.activeHandlers[name] = true
+
+	return validator
+}
+
+func (v *Validator) AddPos(name string, handler PosTagHandler) *Validator {
+	v.handlersPos[name] = handler
+	v.activeHandlers[name] = true
+
+	return validator
+}
+
+func (v *Validator) SetValidateAll(validateAll bool) {
+	v.validateAll = validateAll
+}
+
+func (v *Validator) SetTag(tag string) {
+	v.tag = tag
 }
 
 // Validate ...
-func Validate(obj interface{}) (err error) {
+func (v *Validator) Validate(obj interface{}) *errors.ListErr {
 	return handleValidation(obj)
 }
