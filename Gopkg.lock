@@ -7,9 +7,66 @@
   packages = ["."]
   revision = "07fdf5f64e4aedcc55f46a8f3cad3da1e702409f"
 
+[[projects]]
+  branch = "master"
+  name = "github.com/joaosoft/logger"
+  packages = ["."]
+  revision = "f197f0bea07a90b4654ea7e2b1dfbb64f784651b"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/joaosoft/writers"
+  packages = ["."]
+  revision = "ac09d2935fa7e36fadd1d108d06bacd3cbe412fc"
+
+[[projects]]
+  name = "github.com/labstack/gommon"
+  packages = [
+    "color",
+    "log"
+  ]
+  revision = "d6898124de917583f5ff5592ef931d1dfe0ddc05"
+  version = "0.2.6"
+
+[[projects]]
+  name = "github.com/mattn/go-colorable"
+  packages = ["."]
+  revision = "167de6bfdfba052fa6b2d3664c8f5272e23c9072"
+  version = "v0.0.9"
+
+[[projects]]
+  name = "github.com/mattn/go-isatty"
+  packages = ["."]
+  revision = "0360b2af4f38e8d38c7fce2a9f4e702702d73a39"
+  version = "v0.0.3"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/satori/go.uuid"
+  packages = ["."]
+  revision = "36e9d2ebbde5e3f13ab2e25625fd453271d6522e"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/valyala/bytebufferpool"
+  packages = ["."]
+  revision = "e746df99fe4a3986f4d4f79e13c1e0117ce9c2f7"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/valyala/fasttemplate"
+  packages = ["."]
+  revision = "dcecefd839c4193db0d35b88ec65b4c12d360ab0"
+
+[[projects]]
+  branch = "master"
+  name = "golang.org/x/sys"
+  packages = ["unix"]
+  revision = "2be389f392cd91df245b41638f818a1c041f0c08"
+
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "89b904e3e97d3a0043f2252eb50d8c47d79eab82ad3314b3cdcd190fddd1dc1a"
+  inputs-digest = "fee69a4ad0f2b467581f5aca90edef7db5e130a98487c0a2bc619a87600a8dd8"
   solver-name = "gps-cdcl"
   solver-version = 1
