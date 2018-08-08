@@ -87,12 +87,12 @@ func main() {
 ```go
 ERRORS: 6
 
-CODE: 1, MESAGE: Error 1
-CODE: 1, MESAGE: Error 1
-CODE: 2, MESAGE: the value [10] is diferent of the expected [30] on field [Age]
-CODE: 3, MESAGE: the length [12] is bigger then the expected [10] on field [Street]
-CODE: 4, MESAGE: the length [0] is lower then the expected [1] on field [Brothers]
-CODE: 5, MESAGE: the field [Id] shouldn't be zero
+CODE: 1, MESSAGE: Error 1
+CODE: 1, MESSAGE: Error 1
+CODE: 2, MESSAGE: the value [10] is diferent of the expected [30] on field [Age]
+CODE: 3, MESSAGE: the length [12] is bigger then the expected [10] on field [Street]
+CODE: 4, MESSAGE: the length [0] is lower then the expected [1] on field [Brothers]
+CODE: 5, MESSAGE: the field [Id] shouldn't be zero
 Process finished with exit code 0
 
 ```
