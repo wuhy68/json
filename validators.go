@@ -180,7 +180,7 @@ func (v *Validator) validate_nonzero(name string, value reflect.Value, expected 
 	}
 
 	if valueSize == 0 {
-		return errors.New("0", fmt.Sprintf("the field [%s] shouldn't be zero", name))
+		return errors.New("0", fmt.Sprintf("the value shouldn't be zero on field [%s]", name))
 	}
 
 	return nil
@@ -194,7 +194,7 @@ func (v *Validator) validate_regex(name string, value reflect.Value, expected in
 	}
 
 	if !r.MatchString(fmt.Sprintf("%+v", value)) {
-		return errors.New("0", fmt.Sprintf("the field [%s] has invalid data [%+v]", name, value))
+		return errors.New("0", fmt.Sprintf("invalid data [%s] on field [%+v] ", value, name))
 	}
 
 	return nil
