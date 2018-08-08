@@ -16,6 +16,7 @@ func (v *Validator) NewDefaultPosHandlers() map[string]PosTagHandler {
 
 func (v *Validator) pos_error(name string, value reflect.Value, expected interface{}, errs *errors.ListErr) errors.IErr {
 
+	added := make(map[string]bool)
 	for i, _ := range *errs {
 		(*errs)[i].SetCode(expected.(string))
 
@@ -25,10 +26,16 @@ func (v *Validator) pos_error(name string, value reflect.Value, expected interfa
 			} else {
 				if matched {
 					replacer := strings.NewReplacer("{", "", "}", "")
-
 					errorCode := replacer.Replace(expected.(string))
-					newErr := v.errorCodeHandler(errorCode)
-					(*errs)[i].SetError(newErr.(*errors.Err))
+
+					if _, ok := added[errorCode]; !ok {
+						newErr := v.errorCodeHandler(errorCode)
+						(*errs)[i].SetError(newErr.(*errors.Err))
+
+						added[errorCode] = true
+					} else {
+						*errs = append((*errs)[:i], (*errs)[i+1:]...)
+					}
 				}
 			}
 		}

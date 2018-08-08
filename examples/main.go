@@ -54,7 +54,7 @@ func main() {
 	if e := validator.Validate(example); e.Len() > 0 {
 		fmt.Printf("ERRORS: %d\n", e.Len())
 		for _, err := range *e {
-			fmt.Printf("\nCODE: %s, MESAGE: %s", err.GetCode(), err.GetError())
+			fmt.Printf("\nCODE: %s, MESSAGE: %s", err.GetCode(), err.GetError())
 		}
 	}
 }
