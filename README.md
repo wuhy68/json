@@ -32,10 +32,8 @@ This examples are available in the project at [validator/examples](https://githu
 
 ### Code
 ```go
-import "github.com/joaosoft/validator"
-
 type Example struct {
-	Name     string    `validate:"value=joao, dummy, error=1, max=10"`
+	Name     string    `validate:"value=joao, dummy, error={1}, max=10"`
 	Age      int       `validate:"value=30, error=2"`
 	Street   int       `validate:"max=10, error=3"`
 	Brothers []Example `validate:"size=1, error=4"`
@@ -47,7 +45,18 @@ var dummy_middle_handler = func(name string, value reflect.Value, expected inter
 }
 
 func init() {
-	validator.AddMiddle("dummy", dummy_middle_handler).SetValidateAll(true)
+	validator.AddMiddle("dummy", dummy_middle_handler).SetValidateAll(true).SetErrorCodeHandler(dummy_error_handler)
+}
+
+var errs = map[string]errors.IErr{
+	"1": errors.New("1", "Error 1"),
+	"2": errors.New("1", "Error 2"),
+	"3": errors.New("1", "Error 3"),
+	"4": errors.New("1", "Error 4"),
+	"5": errors.New("1", "Error 5"),
+}
+var dummy_error_handler = func(code string) errors.IErr {
+	return errs[code]
 }
 
 func main() {
@@ -65,13 +74,28 @@ func main() {
 			},
 		},
 	}
-	if e := validator.Validate(example); len(*e) > 0 {
-		fmt.Printf("ERRORS: %d\n", len(*e))
+	if e := validator.Validate(example); e.Len() > 0 {
+		fmt.Printf("ERRORS: %d\n", e.Len())
 		for _, err := range *e {
-			fmt.Printf("\nCODE: %s, MESAGE: %s", err.Code, err.Err)
+			fmt.Printf("\nCODE: %s, MESAGE: %s", err.GetCode(), err.GetError())
 		}
 	}
 }
+```
+
+> ##### Response:
+```go
+ERRORS: 7
+
+CODE: 1, MESAGE: Error 1
+CODE: 1, MESAGE: Error 1
+CODE: 1, MESAGE: Error 1
+CODE: 2, MESAGE: the value [10] is diferent of the expected [30] on field [Age]
+CODE: 3, MESAGE: the length [12] is bigger then the expected [10] on field [Street]
+CODE: 4, MESAGE: the length [0] is lower then the expected [1] on field [Brothers]
+CODE: 5, MESAGE: the field [Id] shouldn't be zero
+Process finished with exit code 0
+
 ```
 
 ## Known issues

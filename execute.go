@@ -9,7 +9,7 @@ import (
 )
 
 func handleValidation(obj interface{}) *errors.ListErr {
-	errs := make(errors.ListErr, 0)
+	var errs errors.ListErr
 
 	do(obj, &errs)
 
@@ -86,7 +86,7 @@ func doValidate(value reflect.Value, typ reflect.StructField, errs *errors.ListE
 
 func executeHandlers(value reflect.Value, typ reflect.StructField, validations []string, errs *errors.ListErr) errors.IErr {
 	var err errors.IErr
-	itErrs := make(errors.ListErr, 0)
+	var itErrs errors.ListErr
 
 	for _, validation := range validations {
 		options := strings.Split(validation, "=")

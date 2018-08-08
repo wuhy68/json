@@ -5,13 +5,13 @@
   branch = "master"
   name = "github.com/joaosoft/errors"
   packages = ["."]
-  revision = "555ebff2d1a6c8e7013623e9639f3a3f1cae969b"
+  revision = "cbae3ffa7a3176f8e1fc06432699f754922c560b"
 
 [[projects]]
   branch = "master"
   name = "github.com/joaosoft/logger"
   packages = ["."]
-  revision = "fa4c4ce0ff712b4b7e0950a6587ee7c5f2e334b4"
+  revision = "edd89dd7dfa181b5d173966fd7d659ab10dee5c3"
 
 [[projects]]
   branch = "master"

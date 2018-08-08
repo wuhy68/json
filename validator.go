@@ -7,33 +7,35 @@ import (
 
 func NewValidator() *Validator {
 
-	preHandlers := NewDefaultPreHandlers()
-	middleHandlers := NewDefaultMiddleHandlers()
-	posHandlers := NewDefaultPosHandlers()
-
-	return &Validator{
-		tag:            "validate",
-		handlersPre:    preHandlers,
-		handlersMiddle: middleHandlers,
-		handlersPos:    posHandlers,
-		activeHandlers: loadActiveHandlers(preHandlers, middleHandlers, posHandlers),
-		log:            logger.NewLogDefault("validator", logger.InfoLevel),
+	v := &Validator{
+		tag: "validate",
+		log: logger.NewLogDefault("validator", logger.InfoLevel),
 	}
+
+	v.init()
+
+	return v
 }
 
-func loadActiveHandlers(preHandlers map[string]PreTagHandler, middleHandlers map[string]MiddleTagHandler, posHandlers map[string]PosTagHandler) map[string]bool {
+func (v *Validator) NewActiveHandlers() map[string]bool {
 	handlers := make(map[string]bool)
 
-	for key, _ := range preHandlers {
-		handlers[key] = true
+	if v.handlersPre != nil {
+		for key, _ := range v.handlersPre {
+			handlers[key] = true
+		}
 	}
 
-	for key, _ := range middleHandlers {
-		handlers[key] = true
+	if v.handlersMiddle != nil {
+		for key, _ := range v.handlersMiddle {
+			handlers[key] = true
+		}
 	}
 
-	for key, _ := range posHandlers {
-		handlers[key] = true
+	if v.handlersPos != nil {
+		for key, _ := range v.handlersPos {
+			handlers[key] = true
+		}
 	}
 
 	return handlers
@@ -43,29 +45,39 @@ func (v *Validator) AddPre(name string, handler PreTagHandler) *Validator {
 	v.handlersPre[name] = handler
 	v.activeHandlers[name] = true
 
-	return validator
+	return v
 }
 
 func (v *Validator) AddMiddle(name string, handler MiddleTagHandler) *Validator {
 	v.handlersMiddle[name] = handler
 	v.activeHandlers[name] = true
 
-	return validator
+	return v
 }
 
 func (v *Validator) AddPos(name string, handler PosTagHandler) *Validator {
 	v.handlersPos[name] = handler
 	v.activeHandlers[name] = true
 
-	return validator
+	return v
 }
 
-func (v *Validator) SetValidateAll(validateAll bool) {
+func (v *Validator) SetErrorCodeHandler(handler ErrorCodeHandler) *Validator {
+	v.errorCodeHandler = handler
+
+	return v
+}
+
+func (v *Validator) SetValidateAll(validateAll bool) *Validator {
 	v.validateAll = validateAll
+
+	return v
 }
 
-func (v *Validator) SetTag(tag string) {
+func (v *Validator) SetTag(tag string) *Validator {
 	v.tag = tag
+
+	return v
 }
 
 // Validate ...

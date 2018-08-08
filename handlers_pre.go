@@ -1,5 +1,5 @@
 package validator
 
-func NewDefaultPreHandlers() map[string]PreTagHandler {
+func (v *Validator) NewDefaultPreHandlers() map[string]PreTagHandler {
 	return map[string]PreTagHandler{}
 }
