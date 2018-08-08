@@ -122,8 +122,8 @@ CODE: 6, MESSAGE: the value [xx] is diferent of the expected options [aa;bb;cc] 
 CODE: 7, MESSAGE: the value [99] is diferent of the expected options [11;22;33] on field [Option2]
 CODE: 8, MESSAGE: the value [zz] is diferent of the expected options [aa;bb;cc] on field [Option3]
 CODE: 9, MESSAGE: the value [44] is diferent of the expected options [11;22;33] on field [Option4]
-CODE: 10, MESSAGE: the value [kk: 22] is diferent of the expected options [aa:11;bb:22;cc:33] on field [Map1]
-CODE: 11, MESSAGE: the value [99: cc] is diferent of the expected options [11:aa;22:bb;33:cc] on field [Map2]
+CODE: 10, MESSAGE: the value [kk:22] is diferent of the expected options [aa:11;bb:22;cc:33] on field [Map1]
+CODE: 11, MESSAGE: the value [99:cc] is diferent of the expected options [11:aa;22:bb;33:cc] on field [Map2]
 ```
 
 ## Known issues
