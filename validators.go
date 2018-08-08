@@ -58,7 +58,7 @@ func (v *Validator) validate_options(name string, value reflect.Value, expected 
 
 			val, ok := optionsMap[fmt.Sprintf("%+v", key.Interface())]
 			if !ok || fmt.Sprintf("%+v", nextValue.Interface()) != fmt.Sprintf("%+v", val) {
-				invalidValue = fmt.Sprintf("%+v: %+v", key.Interface(), nextValue.Interface())
+				invalidValue = fmt.Sprintf("%+v:%+v", key.Interface(), nextValue.Interface())
 				valid = false
 				break
 			}
