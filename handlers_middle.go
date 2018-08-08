@@ -17,7 +17,7 @@ func NewDefaultMiddleHandlers() map[string]MiddleTagHandler {
 	return map[string]MiddleTagHandler{"value": middle_value, "size": middle_size, "min": middle_min, "max": middle_max, "nonzero": middle_nonzero, "regex": middle_regex}
 }
 
-func middle_value(name string, value reflect.Value, expected interface{}, err *errors.ListErr) *errors.Err {
+func middle_value(name string, value reflect.Value, expected interface{}, err *errors.ListErr) errors.IErr {
 	if fmt.Sprintf("%+v", value) != fmt.Sprintf("%+v", expected) {
 		return errors.New("0", fmt.Sprintf("the value [%+v] is diferent of the expected [%+v] on field [%s]", value, expected, name))
 	}
@@ -25,7 +25,7 @@ func middle_value(name string, value reflect.Value, expected interface{}, err *e
 	return nil
 }
 
-func middle_size(name string, value reflect.Value, expected interface{}, err *errors.ListErr) *errors.Err {
+func middle_size(name string, value reflect.Value, expected interface{}, err *errors.ListErr) errors.IErr {
 	size, e := strconv.Atoi(expected.(string))
 	if e != nil {
 		return errors.New("0", fmt.Sprintf("the size [%s] is invalid on field [%s]", expected, value))
@@ -49,7 +49,7 @@ func middle_size(name string, value reflect.Value, expected interface{}, err *er
 	return nil
 }
 
-func middle_min(name string, value reflect.Value, expected interface{}, err *errors.ListErr) *errors.Err {
+func middle_min(name string, value reflect.Value, expected interface{}, err *errors.ListErr) errors.IErr {
 	min, e := strconv.Atoi(expected.(string))
 	if e != nil {
 		return errors.New("0", fmt.Sprintf("the size [%s] is invalid on field [%s]", expected, value))
@@ -73,7 +73,7 @@ func middle_min(name string, value reflect.Value, expected interface{}, err *err
 	return nil
 }
 
-func middle_max(name string, value reflect.Value, expected interface{}, err *errors.ListErr) *errors.Err {
+func middle_max(name string, value reflect.Value, expected interface{}, err *errors.ListErr) errors.IErr {
 	max, e := strconv.Atoi(expected.(string))
 	if e != nil {
 		return errors.New("0", fmt.Sprintf("the size [%s] is invalid on field [%s]", expected, value))
@@ -97,7 +97,7 @@ func middle_max(name string, value reflect.Value, expected interface{}, err *err
 	return nil
 }
 
-func middle_nonzero(name string, value reflect.Value, expected interface{}, err *errors.ListErr) *errors.Err {
+func middle_nonzero(name string, value reflect.Value, expected interface{}, err *errors.ListErr) errors.IErr {
 	var valueSize int64
 
 	switch value.Kind() {
@@ -126,7 +126,7 @@ func middle_nonzero(name string, value reflect.Value, expected interface{}, err 
 	return nil
 }
 
-func middle_regex(name string, value reflect.Value, expected interface{}, err *errors.ListErr) *errors.Err {
+func middle_regex(name string, value reflect.Value, expected interface{}, err *errors.ListErr) errors.IErr {
 
 	r, e := regexp.Compile(expected.(string))
 	if e != nil {

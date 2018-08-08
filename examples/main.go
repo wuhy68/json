@@ -17,7 +17,7 @@ type Example struct {
 	Id       uuid.UUID `validate:"nonzero, error=5"`
 }
 
-var dummy_middle_handler = func(name string, value reflect.Value, expected interface{}, err *errors.ListErr) *errors.Err {
+var dummy_middle_handler = func(name string, value reflect.Value, expected interface{}, err *errors.ListErr) errors.IErr {
 	return errors.New("0", "dummy responding...")
 }
 

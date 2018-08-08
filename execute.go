@@ -16,7 +16,7 @@ func handleValidation(obj interface{}) *errors.ListErr {
 	return &errs
 }
 
-func do(obj interface{}, errs *errors.ListErr) *errors.Err {
+func do(obj interface{}, errs *errors.ListErr) errors.IErr {
 	types := reflect.TypeOf(obj)
 	value := reflect.ValueOf(obj)
 
@@ -72,7 +72,7 @@ func do(obj interface{}, errs *errors.ListErr) *errors.Err {
 	return nil
 }
 
-func doValidate(value reflect.Value, typ reflect.StructField, errs *errors.ListErr) *errors.Err {
+func doValidate(value reflect.Value, typ reflect.StructField, errs *errors.ListErr) errors.IErr {
 
 	tag, exists := typ.Tag.Lookup(validator.tag)
 	if !exists {
@@ -84,8 +84,8 @@ func doValidate(value reflect.Value, typ reflect.StructField, errs *errors.ListE
 	return executeHandlers(value, typ, validations, errs)
 }
 
-func executeHandlers(value reflect.Value, typ reflect.StructField, validations []string, errs *errors.ListErr) *errors.Err {
-	var err *errors.Err
+func executeHandlers(value reflect.Value, typ reflect.StructField, validations []string, errs *errors.ListErr) errors.IErr {
+	var err errors.IErr
 	itErrs := make(errors.ListErr, 0)
 
 	for _, validation := range validations {

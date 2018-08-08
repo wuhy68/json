@@ -10,7 +10,7 @@ func NewDefaultPosHandlers() map[string]PosTagHandler {
 	return map[string]PosTagHandler{"error": pos_error}
 }
 
-func pos_error(name string, value reflect.Value, expected interface{}, errs *errors.ListErr) *errors.Err {
+func pos_error(name string, value reflect.Value, expected interface{}, errs *errors.ListErr) errors.IErr {
 
 	for i, _ := range *errs {
 		(*errs)[i].Code = expected.(string)
