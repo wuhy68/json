@@ -7,6 +7,7 @@ A simple struct validator by tags.
 
 ## With support for
 * value
+* options
 * size
 * min 
 * max 
