@@ -203,8 +203,10 @@ func (v *Validator) validate_regex(name string, value reflect.Value, expected in
 		return rtnErrs
 	}
 
-	if !r.MatchString(fmt.Sprintf("%+v", value)) {
-		rtnErrs = append(rtnErrs, errors.New("0", fmt.Sprintf("invalid data [%s] on field [%+v] ", value, name)))
+	if len(fmt.Sprintf("%+v", value)) > 0 {
+		if !r.MatchString(fmt.Sprintf("%+v", value)) {
+			rtnErrs = append(rtnErrs, errors.New("0", fmt.Sprintf("invalid data [%s] on field [%+v] ", value, name)))
+		}
 	}
 
 	return rtnErrs
