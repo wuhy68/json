@@ -212,6 +212,24 @@ func (v *Validator) validate_regex(name string, value reflect.Value, expected in
 	return rtnErrs
 }
 
+func (v *Validator) validate_special(name string, value reflect.Value, expected interface{}, errs *errors.ListErr) errors.ListErr {
+
+	switch expected {
+	case RegexTagForDateDefault:
+		expected = RegexForDateDefault
+	case RegexTagForDateDDMMYYYY:
+		expected = RegexForDateDDMMYYYY
+	case RegexTagForDateYYYYMMDD:
+		expected = RegexForDateYYYYMMDD
+	case RegexTagForTimeDefault:
+		expected = RegexForTime
+	default:
+		return []errors.IErr{errors.New("0", fmt.Sprintf("invalid special [%s] on field [%+v] ", expected, name))}
+	}
+
+	return v.validate_regex(name, value, expected, errs)
+}
+
 func (v *Validator) validate_error(name string, value reflect.Value, expected interface{}, errs *errors.ListErr) errors.ListErr {
 	rtnErrs := make(errors.ListErr, 0)
 	added := make(map[string]bool)
