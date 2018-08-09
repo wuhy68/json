@@ -222,7 +222,9 @@ func (v *Validator) validate_special(name string, value reflect.Value, expected 
 	case RegexTagForDateYYYYMMDD:
 		expected = RegexForDateYYYYMMDD
 	case RegexTagForTimeDefault:
-		expected = RegexForTime
+		expected = RegexForTimeDefault
+	case RegexTagForTimeHHMMSS:
+		expected = RegexForTimeHHMMSS
 	default:
 		return []errors.IErr{errors.New("0", fmt.Sprintf("invalid special [%s] on field [%+v] ", expected, name))}
 	}
