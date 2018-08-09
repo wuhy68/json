@@ -28,6 +28,6 @@ type Validator struct {
 
 type ErrorCodeHandler func(code string) errors.IErr
 
-type PreTagHandler func(name string, value reflect.Value, expected interface{}) errors.IErr
-type MiddleTagHandler func(name string, value reflect.Value, expected interface{}, err *errors.ListErr) errors.IErr
-type PosTagHandler func(name string, value reflect.Value, expected interface{}, err *errors.ListErr) errors.IErr
+type PreTagHandler func(name string, value reflect.Value, expected interface{}) errors.ListErr
+type MiddleTagHandler func(name string, value reflect.Value, expected interface{}, err *errors.ListErr) errors.ListErr
+type PosTagHandler func(name string, value reflect.Value, expected interface{}, err *errors.ListErr) errors.ListErr

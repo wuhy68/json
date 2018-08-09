@@ -23,12 +23,19 @@ type Example struct {
 	Map2     map[int]string `validate:"options=11:aa;22:bb;33:cc, error=11"`
 }
 
-var dummy_middle_handler = func(name string, value reflect.Value, expected interface{}, err *errors.ListErr) errors.IErr {
-	return errors.New("0", "dummy responding...")
+var dummy_middle_handler = func(name string, value reflect.Value, expected interface{}, errs *errors.ListErr) errors.ListErr {
+	rtnErrs := make(errors.ListErr, 0)
+
+	rtnErrs = append(rtnErrs, errors.New("0", "dummy responding..."))
+
+	return rtnErrs
 }
 
 func init() {
-	validator.AddMiddle("dummy", dummy_middle_handler).SetValidateAll(true).SetErrorCodeHandler(dummy_error_handler)
+	validator.
+		AddMiddle("dummy", dummy_middle_handler).
+		SetValidateAll(true).
+		SetErrorCodeHandler(dummy_error_handler)
 }
 
 var errs = map[string]errors.IErr{

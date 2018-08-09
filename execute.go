@@ -43,7 +43,9 @@ func do(obj interface{}, errs *errors.ListErr) errors.IErr {
 				}
 			}
 			if err := do(nextValue.Interface(), errs); err != nil {
-				return err
+				if !validator.validateAll {
+					return err
+				}
 			}
 		}
 
@@ -51,7 +53,9 @@ func do(obj interface{}, errs *errors.ListErr) errors.IErr {
 		for i := 0; i < value.Len(); i++ {
 			nextValue := value.Index(i)
 			if err := do(nextValue.Interface(), errs); err != nil {
-				return err
+				if !validator.validateAll {
+					return err
+				}
 			}
 		}
 
@@ -59,10 +63,14 @@ func do(obj interface{}, errs *errors.ListErr) errors.IErr {
 		for _, key := range value.MapKeys() {
 			nextValue := value.MapIndex(key)
 			if err := do(key.Interface(), errs); err != nil {
-				return err
+				if !validator.validateAll {
+					return err
+				}
 			}
 			if err := do(nextValue.Interface(), errs); err != nil {
-				return err
+				if !validator.validateAll {
+					return err
+				}
 			}
 		}
 
@@ -108,23 +116,23 @@ func executeHandlers(value reflect.Value, typ reflect.StructField, validations [
 		}
 
 		if _, ok := validator.handlersPre[tag]; ok {
-			if e := validator.handlersPre[tag](typ.Name, value, expected); e != nil {
-				itErrs = append(itErrs, e)
-				err = e
+			if rtnErrs := validator.handlersPre[tag](typ.Name, value, expected); !rtnErrs.IsEmpty() {
+				itErrs = append(itErrs, rtnErrs...)
+				err = rtnErrs[0]
 			}
 		}
 
 		if _, ok := validator.handlersMiddle[tag]; ok {
-			if e := validator.handlersMiddle[tag](typ.Name, value, expected, &itErrs); e != nil {
-				itErrs = append(itErrs, e)
-				err = e
+			if rtnErrs := validator.handlersMiddle[tag](typ.Name, value, expected, &itErrs); !rtnErrs.IsEmpty() {
+				itErrs = append(itErrs, rtnErrs...)
+				err = rtnErrs[0]
 			}
 		}
 
 		if _, ok := validator.handlersPos[tag]; ok {
-			if e := validator.handlersPos[tag](typ.Name, value, expected, &itErrs); e != nil {
-				itErrs = append(itErrs, e)
-				err = e
+			if rtnErrs := validator.handlersPos[tag](typ.Name, value, expected, &itErrs); !rtnErrs.IsEmpty() {
+				itErrs = append(itErrs, rtnErrs...)
+				err = rtnErrs[0]
 			}
 		}
 	}

@@ -11,17 +11,20 @@ import (
 	"github.com/satori/go.uuid"
 )
 
-func (v *Validator) validate_value(name string, value reflect.Value, expected interface{}, err *errors.ListErr) errors.IErr {
+func (v *Validator) validate_value(name string, value reflect.Value, expected interface{}, errs *errors.ListErr) errors.ListErr {
+	rtnErrs := make(errors.ListErr, 0)
+
 	if fmt.Sprintf("%+v", value) != fmt.Sprintf("%+v", expected) {
-		return errors.New("0", fmt.Sprintf("the value [%+v] is different of the expected [%+v] on field [%s]", value, expected, name))
+		rtnErrs = append(rtnErrs, errors.New("0", fmt.Sprintf("the value [%+v] is different of the expected [%+v] on field [%s]", value, expected, name)))
 	}
 
-	return nil
+	return rtnErrs
 }
 
-func (v *Validator) validate_options(name string, value reflect.Value, expected interface{}, err *errors.ListErr) errors.IErr {
+func (v *Validator) validate_options(name string, value reflect.Value, expected interface{}, errs *errors.ListErr) errors.ListErr {
+	rtnErrs := make(errors.ListErr, 0)
+
 	options := strings.Split(expected.(string), ";")
-	var valid = true
 	var invalidValue interface{}
 
 	switch value.Kind() {
@@ -37,13 +40,14 @@ func (v *Validator) validate_options(name string, value reflect.Value, expected 
 			_, ok := optionsVal[fmt.Sprintf("%+v", nextValue.Interface())]
 			if !ok {
 				invalidValue = nextValue.Interface()
-				valid = false
-				break
+				rtnErrs = append(rtnErrs, errors.New("0", fmt.Sprintf("the value [%+v] is different of the expected options [%+v] on field [%s]", invalidValue, expected, name)))
+				if !v.validateAll {
+					break
+				}
 			}
 		}
 
 	case reflect.Map:
-		valid = true
 		optionsMap := make(map[string]interface{})
 		for _, option := range options {
 			values := strings.Split(option, ":")
@@ -59,8 +63,11 @@ func (v *Validator) validate_options(name string, value reflect.Value, expected 
 			val, ok := optionsMap[fmt.Sprintf("%+v", key.Interface())]
 			if !ok || fmt.Sprintf("%+v", nextValue.Interface()) != fmt.Sprintf("%+v", val) {
 				invalidValue = fmt.Sprintf("%+v:%+v", key.Interface(), nextValue.Interface())
-				valid = false
-				break
+				e := errors.New("0", fmt.Sprintf("the value [%+v] is different of the expected options [%+v] on field [%s]", nextValue.Interface(), expected, name))
+				rtnErrs = append(rtnErrs, e)
+				if !v.validateAll {
+					break
+				}
 			}
 		}
 
@@ -73,22 +80,19 @@ func (v *Validator) validate_options(name string, value reflect.Value, expected 
 		_, ok := optionsVal[fmt.Sprintf("%+v", value)]
 		if !ok {
 			invalidValue = value
-			valid = false
-			break
+			rtnErrs = append(rtnErrs, errors.New("0", fmt.Sprintf("the value [%+v] is different of the expected options [%+v] on field [%s]", invalidValue, expected, name)))
 		}
 	}
 
-	if !valid {
-		return errors.New("0", fmt.Sprintf("the value [%+v] is different of the expected options [%+v] on field [%s]", invalidValue, expected, name))
-	}
-
-	return nil
+	return rtnErrs
 }
 
-func (v *Validator) validate_size(name string, value reflect.Value, expected interface{}, err *errors.ListErr) errors.IErr {
+func (v *Validator) validate_size(name string, value reflect.Value, expected interface{}, errs *errors.ListErr) errors.ListErr {
+	rtnErrs := make(errors.ListErr, 0)
 	size, e := strconv.Atoi(expected.(string))
 	if e != nil {
-		return errors.New("0", fmt.Sprintf("the size [%s] is invalid on field [%s]", expected, value))
+		rtnErrs = append(rtnErrs, errors.New("0", fmt.Sprintf("the size [%s] is invalid on field [%s]", expected, value)))
+		return rtnErrs
 	}
 
 	var valueSize int64
@@ -103,16 +107,18 @@ func (v *Validator) validate_size(name string, value reflect.Value, expected int
 	}
 
 	if valueSize != int64(size) {
-		return errors.New("0", fmt.Sprintf("the length [%+v] is lower then the expected [%+v] on field [%s]", valueSize, expected, name))
+		rtnErrs = append(rtnErrs, errors.New("0", fmt.Sprintf("the length [%+v] is lower then the expected [%+v] on field [%s]", valueSize, expected, name)))
 	}
 
-	return nil
+	return rtnErrs
 }
 
-func (v *Validator) validate_min(name string, value reflect.Value, expected interface{}, err *errors.ListErr) errors.IErr {
+func (v *Validator) validate_min(name string, value reflect.Value, expected interface{}, errs *errors.ListErr) errors.ListErr {
+	rtnErrs := make(errors.ListErr, 0)
 	min, e := strconv.Atoi(expected.(string))
 	if e != nil {
-		return errors.New("0", fmt.Sprintf("the size [%s] is invalid on field [%s]", expected, value))
+		rtnErrs = append(rtnErrs, errors.New("0", fmt.Sprintf("the size [%s] is invalid on field [%s]", expected, value)))
+		return rtnErrs
 	}
 
 	var valueSize int64
@@ -127,16 +133,18 @@ func (v *Validator) validate_min(name string, value reflect.Value, expected inte
 	}
 
 	if valueSize < int64(min) {
-		return errors.New("0", fmt.Sprintf("the length [%+v] is lower then the expected [%+v] on field [%s]", valueSize, expected, name))
+		rtnErrs = append(rtnErrs, errors.New("0", fmt.Sprintf("the length [%+v] is lower then the expected [%+v] on field [%s]", valueSize, expected, name)))
 	}
 
-	return nil
+	return rtnErrs
 }
 
-func (v *Validator) validate_max(name string, value reflect.Value, expected interface{}, err *errors.ListErr) errors.IErr {
+func (v *Validator) validate_max(name string, value reflect.Value, expected interface{}, errs *errors.ListErr) errors.ListErr {
+	rtnErrs := make(errors.ListErr, 0)
 	max, e := strconv.Atoi(expected.(string))
 	if e != nil {
-		return errors.New("0", fmt.Sprintf("the size [%s] is invalid on field [%s]", expected, value))
+		rtnErrs = append(rtnErrs, errors.New("0", fmt.Sprintf("the size [%s] is invalid on field [%s]", expected, value)))
+		return rtnErrs
 	}
 
 	var valueSize int64
@@ -151,13 +159,14 @@ func (v *Validator) validate_max(name string, value reflect.Value, expected inte
 	}
 
 	if valueSize > int64(max) {
-		return errors.New("0", fmt.Sprintf("the length [%+v] is bigger then the expected [%+v] on field [%s]", valueSize, expected, name))
+		rtnErrs = append(rtnErrs, errors.New("0", fmt.Sprintf("the length [%+v] is bigger then the expected [%+v] on field [%s]", valueSize, expected, name)))
 	}
 
-	return nil
+	return rtnErrs
 }
 
-func (v *Validator) validate_nonzero(name string, value reflect.Value, expected interface{}, err *errors.ListErr) errors.IErr {
+func (v *Validator) validate_nonzero(name string, value reflect.Value, expected interface{}, errs *errors.ListErr) errors.ListErr {
+	rtnErrs := make(errors.ListErr, 0)
 	var valueSize int64
 
 	switch value.Kind() {
@@ -180,22 +189,53 @@ func (v *Validator) validate_nonzero(name string, value reflect.Value, expected 
 	}
 
 	if valueSize == 0 {
-		return errors.New("0", fmt.Sprintf("the value shouldn't be zero on field [%s]", name))
+		rtnErrs = append(rtnErrs, errors.New("0", fmt.Sprintf("the value shouldn't be zero on field [%s]", name)))
 	}
 
-	return nil
+	return rtnErrs
 }
 
-func (v *Validator) validate_regex(name string, value reflect.Value, expected interface{}, err *errors.ListErr) errors.IErr {
-
+func (v *Validator) validate_regex(name string, value reflect.Value, expected interface{}, errs *errors.ListErr) errors.ListErr {
+	rtnErrs := make(errors.ListErr, 0)
 	r, e := regexp.Compile(expected.(string))
 	if e != nil {
-		return errors.New("0", e)
+		rtnErrs = append(rtnErrs, errors.New("0", e))
+		return rtnErrs
 	}
 
 	if !r.MatchString(fmt.Sprintf("%+v", value)) {
-		return errors.New("0", fmt.Sprintf("invalid data [%s] on field [%+v] ", value, name))
+		rtnErrs = append(rtnErrs, errors.New("0", fmt.Sprintf("invalid data [%s] on field [%+v] ", value, name)))
 	}
 
-	return nil
+	return rtnErrs
+}
+
+func (v *Validator) validate_error(name string, value reflect.Value, expected interface{}, errs *errors.ListErr) errors.ListErr {
+	rtnErrs := make(errors.ListErr, 0)
+	added := make(map[string]bool)
+	for i, _ := range *errs {
+		(*errs)[i].SetCode(expected.(string))
+
+		if v.errorCodeHandler != nil {
+			if matched, err := regexp.MatchString("{[a-z0-9]+}", expected.(string)); err != nil {
+				rtnErrs = append(rtnErrs, errors.New("0", err))
+			} else {
+				if matched {
+					replacer := strings.NewReplacer("{", "", "}", "")
+					errorCode := replacer.Replace(expected.(string))
+
+					if _, ok := added[errorCode]; !ok {
+						newErr := v.errorCodeHandler(errorCode)
+						(*errs)[i].SetError(newErr.GetError())
+
+						added[errorCode] = true
+					} else {
+						*errs = append((*errs)[:i], (*errs)[i+1:]...)
+					}
+				}
+			}
+		}
+	}
+
+	return rtnErrs
 }

@@ -47,12 +47,19 @@ type Example struct {
 	Map2     map[int]string `validate:"options=11:aa;22:bb;33:cc, error=11"`
 }
 
-var dummy_middle_handler = func(name string, value reflect.Value, expected interface{}, err *errors.ListErr) errors.IErr {
-	return errors.New("0", "dummy responding...")
+var dummy_middle_handler = func(name string, value reflect.Value, expected interface{}, errs *errors.ListErr) errors.ListErr {
+	rtnErrs := make(errors.ListErr, 0)
+
+	rtnErrs = append(rtnErrs, errors.New("0", "dummy responding..."))
+
+	return rtnErrs
 }
 
 func init() {
-	validator.AddMiddle("dummy", dummy_middle_handler).SetValidateAll(true).SetErrorCodeHandler(dummy_error_handler)
+	validator.
+		AddMiddle("dummy", dummy_middle_handler).
+		SetValidateAll(true).
+		SetErrorCodeHandler(dummy_error_handler)
 }
 
 var errs = map[string]errors.IErr{
@@ -122,8 +129,8 @@ CODE: 6, MESSAGE: the value [xx] is different of the expected options [aa;bb;cc]
 CODE: 7, MESSAGE: the value [99] is different of the expected options [11;22;33] on field [Option2]
 CODE: 8, MESSAGE: the value [zz] is different of the expected options [aa;bb;cc] on field [Option3]
 CODE: 9, MESSAGE: the value [44] is different of the expected options [11;22;33] on field [Option4]
-CODE: 10, MESSAGE: the value [kk:22] is different of the expected options [aa:11;bb:22;cc:33] on field [Map1]
-CODE: 11, MESSAGE: the value [99:cc] is different of the expected options [11:aa;22:bb;33:cc] on field [Map2]
+CODE: 10, MESSAGE: the value [22] is different of the expected options [aa:11;bb:22;cc:33] on field [Map1]
+CODE: 11, MESSAGE: the value [cc] is different of the expected options [11:aa;22:bb;33:cc] on field [Map2]
 ```
 
 ## Known issues
