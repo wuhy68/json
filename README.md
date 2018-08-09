@@ -13,6 +13,7 @@ A simple struct validator by tags.
 * max 
 * nonzero (also supports uuid zero validation)
 * regex
+* special ( {YYYYMMDD}, {DDMMYYYY}, {date}, {time} )
 * error
 
 ## With methods for
