@@ -196,7 +196,13 @@ func (v *Validator) validate_nonzero(name string, value reflect.Value, expected 
 }
 
 func (v *Validator) validate_regex(name string, value reflect.Value, expected interface{}, errs *errors.ListErr) errors.ListErr {
+
 	rtnErrs := make(errors.ListErr, 0)
+
+	if fmt.Sprintf("%+v", value) == "" {
+		return rtnErrs
+	}
+
 	r, e := regexp.Compile(expected.(string))
 	if e != nil {
 		rtnErrs = append(rtnErrs, errors.New("0", e))
@@ -213,6 +219,10 @@ func (v *Validator) validate_regex(name string, value reflect.Value, expected in
 }
 
 func (v *Validator) validate_special(name string, value reflect.Value, expected interface{}, errs *errors.ListErr) errors.ListErr {
+
+	if fmt.Sprintf("%+v", value) == "" {
+		return make(errors.ListErr, 0)
+	}
 
 	switch expected {
 	case RegexTagForDateDefault:
