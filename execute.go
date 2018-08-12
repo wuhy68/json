@@ -20,8 +20,8 @@ func do(obj interface{}, errs *errors.ListErr) errors.IErr {
 	types := reflect.TypeOf(obj)
 	value := reflect.ValueOf(obj)
 
-	if value.Kind() == reflect.Ptr {
-		value = reflect.ValueOf(value).Elem()
+	if value.Kind() == reflect.Ptr && !value.IsNil() {
+		value = value.Elem()
 
 		if value.IsValid() {
 			types = value.Type()
@@ -36,7 +36,11 @@ func do(obj interface{}, errs *errors.ListErr) errors.IErr {
 			nextValue := value.Field(i)
 			nextType := types.Field(i)
 
-			if err := doValidate(nextValue, nextType, errs); err != nil {
+			if nextValue.Kind() == reflect.Ptr && !nextValue.IsNil() {
+				nextValue = nextValue.Elem()
+			}
+
+			if err := doValidate(nextValue.Interface(), nextType, errs); err != nil {
 
 				if !validator.validateAll {
 					return err
@@ -80,7 +84,7 @@ func do(obj interface{}, errs *errors.ListErr) errors.IErr {
 	return nil
 }
 
-func doValidate(value reflect.Value, typ reflect.StructField, errs *errors.ListErr) errors.IErr {
+func doValidate(value interface{}, typ reflect.StructField, errs *errors.ListErr) errors.IErr {
 
 	tag, exists := typ.Tag.Lookup(validator.tag)
 	if !exists {
@@ -89,7 +93,7 @@ func doValidate(value reflect.Value, typ reflect.StructField, errs *errors.ListE
 
 	validations := strings.Split(tag, ",")
 
-	return executeHandlers(value, typ, validations, errs)
+	return executeHandlers(reflect.ValueOf(value), typ, validations, errs)
 }
 
 func executeHandlers(value reflect.Value, typ reflect.StructField, validations []string, errs *errors.ListErr) errors.IErr {

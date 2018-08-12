@@ -14,6 +14,10 @@ import (
 func (v *Validator) validate_value(name string, value reflect.Value, expected interface{}, errs *errors.ListErr) errors.ListErr {
 	rtnErrs := make(errors.ListErr, 0)
 
+	if fmt.Sprintf("%+v", value) == "" || (value.Kind() == reflect.Ptr && value.IsNil()) {
+		return rtnErrs
+	}
+
 	if fmt.Sprintf("%+v", value) != fmt.Sprintf("%+v", expected) {
 		rtnErrs = append(rtnErrs, errors.New("0", fmt.Sprintf("the value [%+v] is different of the expected [%+v] on field [%s]", value, expected, name)))
 	}
@@ -23,6 +27,10 @@ func (v *Validator) validate_value(name string, value reflect.Value, expected in
 
 func (v *Validator) validate_options(name string, value reflect.Value, expected interface{}, errs *errors.ListErr) errors.ListErr {
 	rtnErrs := make(errors.ListErr, 0)
+
+	if fmt.Sprintf("%+v", value) == "" || (value.Kind() == reflect.Ptr && value.IsNil()) {
+		return rtnErrs
+	}
 
 	options := strings.Split(expected.(string), ";")
 	var invalidValue interface{}
@@ -199,7 +207,7 @@ func (v *Validator) validate_regex(name string, value reflect.Value, expected in
 
 	rtnErrs := make(errors.ListErr, 0)
 
-	if fmt.Sprintf("%+v", value) == "" {
+	if fmt.Sprintf("%+v", value) == "" || (value.Kind() == reflect.Ptr && value.IsNil()) {
 		return rtnErrs
 	}
 
@@ -220,7 +228,7 @@ func (v *Validator) validate_regex(name string, value reflect.Value, expected in
 
 func (v *Validator) validate_special(name string, value reflect.Value, expected interface{}, errs *errors.ListErr) errors.ListErr {
 
-	if fmt.Sprintf("%+v", value) == "" {
+	if fmt.Sprintf("%+v", value) == "" || (value.Kind() == reflect.Ptr && value.IsNil()) {
 		return make(errors.ListErr, 0)
 	}
 

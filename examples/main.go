@@ -9,6 +9,8 @@ import (
 	"github.com/satori/go.uuid"
 )
 
+type Data string
+
 type Example struct {
 	Name       string         `validate:"value=joao, dummy, error={1}, max=10"`
 	Age        int            `validate:"value=30, error=2"`
@@ -24,6 +26,8 @@ type Example struct {
 	StartTime  string         `validate:"special={time}, error=12"`
 	StartDate1 string         `validate:"special={date}, error=13"`
 	StartDate2 string         `validate:"special={YYYYMMDD}, error=14"`
+	DateString *string        `validate:"special={YYYYMMDD}, error=15"`
+	Data       *Data          `validate:"special={YYYYMMDD}, error=16"`
 }
 
 var dummy_middle_handler = func(name string, value reflect.Value, expected interface{}, errs *errors.ListErr) errors.ListErr {
@@ -56,6 +60,8 @@ var errs = map[string]errors.IErr{
 	"12": errors.New("12", "Error 12"),
 	"13": errors.New("13", "Error 13"),
 	"14": errors.New("14", "Error 14"),
+	"15": errors.New("15", "Error 15"),
+	"16": errors.New("16", "Error 16"),
 }
 var dummy_error_handler = func(code string) errors.IErr {
 	return errs[code]
@@ -63,6 +69,8 @@ var dummy_error_handler = func(code string) errors.IErr {
 
 func main() {
 	id, _ := uuid.NewV4()
+	str := "2018-12-1"
+	data := Data("2018-12-1")
 	example := Example{
 		Id:         id,
 		Name:       "joao",
@@ -77,6 +85,8 @@ func main() {
 		StartTime:  "12:01:00",
 		StartDate1: "01-12-2018",
 		StartDate2: "2018-12-1",
+		DateString: &str,
+		Data:       &data,
 		Brothers: []Example{
 			Example{
 				Name:       "jessica",
