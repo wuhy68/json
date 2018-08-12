@@ -21,7 +21,7 @@ A simple struct validator by tags.
 * AddMiddle (add a middle-validation [by default has all validations])
 * AddPos (add a post-validation [by default has error validation])
 * SetErrorCodeHandler (function to get the error when defined with error={xpto})
-* SetValidateAll (when activated, validates all object instead of stop on first error)
+* SetValidateAll (when activated, validates all object instead of stopping on the first error)
 * SetTag (set validation tag to other that you define)
 * Validate (validate the object)
 
