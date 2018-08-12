@@ -226,7 +226,7 @@ func (v *Validator) validate_special(name string, value reflect.Value, expected 
 	case RegexTagForTimeHHMMSS:
 		expected = RegexForTimeHHMMSS
 	default:
-		return []errors.IErr{errors.New("0", fmt.Sprintf("invalid special [%s] on field [%+v] ", expected, name))}
+		return []*errors.Err{errors.New("0", fmt.Sprintf("invalid special [%s] on field [%+v] ", expected, name))}
 	}
 
 	return v.validate_regex(name, value, expected, errs)
@@ -248,7 +248,7 @@ func (v *Validator) validate_error(name string, value reflect.Value, expected in
 
 					if _, ok := added[errorCode]; !ok {
 						newErr := v.errorCodeHandler(errorCode)
-						(*errs)[i].SetError(newErr.GetError())
+						(*errs)[i].SetErr(newErr.GetErr())
 
 						added[errorCode] = true
 					} else {

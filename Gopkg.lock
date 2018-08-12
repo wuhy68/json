@@ -5,13 +5,13 @@
   branch = "master"
   name = "github.com/joaosoft/errors"
   packages = ["."]
-  revision = "6d86af2f7bb639174a751a4394a349316a84d888"
+  revision = "6bc491374c807a134a35588fc95a3a412cabb14f"
 
 [[projects]]
   branch = "master"
   name = "github.com/joaosoft/logger"
   packages = ["."]
-  revision = "edd89dd7dfa181b5d173966fd7d659ab10dee5c3"
+  revision = "aff7dfeadcc11d28cb5a959c3100ef8f0ab2926f"
 
 [[projects]]
   branch = "master"
@@ -62,7 +62,7 @@
   branch = "master"
   name = "golang.org/x/sys"
   packages = ["unix"]
-  revision = "904bdc257025c7b3f43c19360ad3ab85783fad78"
+  revision = "98c5dad5d1a0e8a73845ecc8897d0bd56586511d"
 
 [solve-meta]
   analyzer-name = "dep"
