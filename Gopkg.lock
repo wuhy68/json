@@ -5,19 +5,19 @@
   branch = "master"
   name = "github.com/joaosoft/errors"
   packages = ["."]
-  revision = "6bc491374c807a134a35588fc95a3a412cabb14f"
+  revision = "35a9ecf62784a4615d1f0d68de7e8bc6029e6767"
 
 [[projects]]
   branch = "master"
   name = "github.com/joaosoft/logger"
   packages = ["."]
-  revision = "aff7dfeadcc11d28cb5a959c3100ef8f0ab2926f"
+  revision = "fc4ba6d09605b34ef99f1dd1576b8dcde8c596b0"
 
 [[projects]]
   branch = "master"
   name = "github.com/joaosoft/writers"
   packages = ["."]
-  revision = "1410d81e85d22774561ca575b0d27656ada14a97"
+  revision = "a1cd188c0e3ffca9bb227ea1fea39ed900a867a6"
 
 [[projects]]
   name = "github.com/labstack/gommon"
@@ -62,7 +62,7 @@
   branch = "master"
   name = "golang.org/x/sys"
   packages = ["unix"]
-  revision = "98c5dad5d1a0e8a73845ecc8897d0bd56586511d"
+  revision = "1c9583448a9c3aa0f9a6a5241bf73c0bd8aafded"
 
 [solve-meta]
   analyzer-name = "dep"

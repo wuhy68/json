@@ -266,7 +266,7 @@ func (v *Validator) validate_error(name string, value reflect.Value, expected in
 
 					if _, ok := added[errorCode]; !ok {
 						newErr := v.errorCodeHandler(errorCode)
-						(*errs)[i].SetErr(newErr.GetErr())
+						(*errs)[i].SetErr(newErr.(*errors.Err))
 
 						added[errorCode] = true
 					} else {

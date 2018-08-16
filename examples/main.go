@@ -45,7 +45,7 @@ func init() {
 		SetErrorCodeHandler(dummy_error_handler)
 }
 
-var errs = map[string]errors.IErr{
+var errs = map[string]error{
 	"1":  errors.New("1", "Error 1"),
 	"2":  errors.New("2", "Error 2"),
 	"3":  errors.New("3", "Error 3"),
@@ -63,7 +63,7 @@ var errs = map[string]errors.IErr{
 	"15": errors.New("15", "Error 15"),
 	"16": errors.New("16", "Error 16"),
 }
-var dummy_error_handler = func(code string) errors.IErr {
+var dummy_error_handler = func(code string) error {
 	return errs[code]
 }
 
