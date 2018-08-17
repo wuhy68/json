@@ -9,7 +9,7 @@ func NewValidator() *Validator {
 
 	v := &Validator{
 		tag: "validate",
-		log: logger.NewLogDefault("validator", logger.InfoLevel),
+		log: logger.NewLogDefault("validatorInstance", logger.InfoLevel),
 	}
 
 	v.init()

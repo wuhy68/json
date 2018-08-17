@@ -5,26 +5,26 @@ import (
 )
 
 func AddBefore(name string, handler BeforeTagHandler) *Validator {
-	return validator.AddBefore(name, handler)
+	return validatorInstance.AddBefore(name, handler)
 }
 
 func AddMiddle(name string, handler MiddleTagHandler) *Validator {
-	return validator.AddMiddle(name, handler)
+	return validatorInstance.AddMiddle(name, handler)
 }
 
 func AddAfter(name string, handler AfterTagHandler) *Validator {
-	return validator.AddAfter(name, handler)
+	return validatorInstance.AddAfter(name, handler)
 }
 
 func SetValidateAll(validate bool) {
-	validator.SetValidateAll(validate)
+	validatorInstance.SetValidateAll(validate)
 }
 
 func SetTag(tag string) {
-	validator.SetTag(tag)
+	validatorInstance.SetTag(tag)
 }
 
 // Validate ...
 func Validate(obj interface{}) *errors.ListErr {
-	return validator.Validate(obj)
+	return validatorInstance.Validate(obj)
 }

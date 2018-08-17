@@ -1,3 +1,3 @@
 package validator
 
-var validator = NewValidator()
+var validatorInstance = NewValidator()
