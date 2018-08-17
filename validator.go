@@ -20,8 +20,8 @@ func NewValidator() *Validator {
 func (v *Validator) NewActiveHandlers() map[string]bool {
 	handlers := make(map[string]bool)
 
-	if v.handlersPre != nil {
-		for key, _ := range v.handlersPre {
+	if v.handlersBefore != nil {
+		for key, _ := range v.handlersBefore {
 			handlers[key] = true
 		}
 	}
@@ -32,8 +32,8 @@ func (v *Validator) NewActiveHandlers() map[string]bool {
 		}
 	}
 
-	if v.handlersPos != nil {
-		for key, _ := range v.handlersPos {
+	if v.handlersAfter != nil {
+		for key, _ := range v.handlersAfter {
 			handlers[key] = true
 		}
 	}
@@ -41,8 +41,8 @@ func (v *Validator) NewActiveHandlers() map[string]bool {
 	return handlers
 }
 
-func (v *Validator) AddPre(name string, handler PreTagHandler) *Validator {
-	v.handlersPre[name] = handler
+func (v *Validator) AddBefore(name string, handler BeforeTagHandler) *Validator {
+	v.handlersBefore[name] = handler
 	v.activeHandlers[name] = true
 
 	return v
@@ -55,8 +55,8 @@ func (v *Validator) AddMiddle(name string, handler MiddleTagHandler) *Validator 
 	return v
 }
 
-func (v *Validator) AddPos(name string, handler PosTagHandler) *Validator {
-	v.handlersPos[name] = handler
+func (v *Validator) AddAfter(name string, handler AfterTagHandler) *Validator {
+	v.handlersAfter[name] = handler
 	v.activeHandlers[name] = true
 
 	return v

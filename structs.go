@@ -8,9 +8,9 @@ import (
 )
 
 func (v *Validator) init() {
-	v.handlersPre = v.NewDefaultPreHandlers()
+	v.handlersBefore = v.NewDefaultBeforeHandlers()
 	v.handlersMiddle = v.NewDefaultMiddleHandlers()
-	v.handlersPos = v.NewDefaultPosHandlers()
+	v.handlersAfter = v.NewDefaultPosHandlers()
 	v.activeHandlers = v.NewActiveHandlers()
 
 }
@@ -18,9 +18,9 @@ func (v *Validator) init() {
 type Validator struct {
 	tag              string
 	activeHandlers   map[string]bool
-	handlersPre      map[string]PreTagHandler
+	handlersBefore   map[string]BeforeTagHandler
 	handlersMiddle   map[string]MiddleTagHandler
-	handlersPos      map[string]PosTagHandler
+	handlersAfter    map[string]AfterTagHandler
 	errorCodeHandler ErrorCodeHandler
 	log              logger.ILogger
 	validateAll      bool
@@ -28,6 +28,6 @@ type Validator struct {
 
 type ErrorCodeHandler func(code string) error
 
-type PreTagHandler func(name string, value reflect.Value, expected interface{}) errors.ListErr
+type BeforeTagHandler func(name string, value reflect.Value, expected interface{}) errors.ListErr
 type MiddleTagHandler func(name string, value reflect.Value, expected interface{}, err *errors.ListErr) errors.ListErr
-type PosTagHandler func(name string, value reflect.Value, expected interface{}, err *errors.ListErr) errors.ListErr
+type AfterTagHandler func(name string, value reflect.Value, expected interface{}, err *errors.ListErr) errors.ListErr

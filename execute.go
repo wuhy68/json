@@ -119,8 +119,8 @@ func executeHandlers(value reflect.Value, typ reflect.StructField, validations [
 			expected = strings.TrimSpace(options[1])
 		}
 
-		if _, ok := validator.handlersPre[tag]; ok {
-			if rtnErrs := validator.handlersPre[tag](typ.Name, value, expected); !rtnErrs.IsEmpty() {
+		if _, ok := validator.handlersBefore[tag]; ok {
+			if rtnErrs := validator.handlersBefore[tag](typ.Name, value, expected); !rtnErrs.IsEmpty() {
 				itErrs = append(itErrs, rtnErrs...)
 				err = rtnErrs[0]
 			}
@@ -133,8 +133,8 @@ func executeHandlers(value reflect.Value, typ reflect.StructField, validations [
 			}
 		}
 
-		if _, ok := validator.handlersPos[tag]; ok {
-			if rtnErrs := validator.handlersPos[tag](typ.Name, value, expected, &itErrs); !rtnErrs.IsEmpty() {
+		if _, ok := validator.handlersAfter[tag]; ok {
+			if rtnErrs := validator.handlersAfter[tag](typ.Name, value, expected, &itErrs); !rtnErrs.IsEmpty() {
 				itErrs = append(itErrs, rtnErrs...)
 				err = rtnErrs[0]
 			}
