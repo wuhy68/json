@@ -3,7 +3,6 @@ package validator
 import (
 	"reflect"
 
-	"github.com/joaosoft/errors"
 	"github.com/joaosoft/logger"
 )
 
@@ -28,6 +27,6 @@ type Validator struct {
 
 type ErrorCodeHandler func(code string) error
 
-type BeforeTagHandler func(name string, value reflect.Value, expected interface{}) errors.ListErr
-type MiddleTagHandler func(name string, value reflect.Value, expected interface{}, err *errors.ListErr) errors.ListErr
-type AfterTagHandler func(name string, value reflect.Value, expected interface{}, err *errors.ListErr) errors.ListErr
+type BeforeTagHandler func(name string, value reflect.Value, expected interface{}) []error
+type MiddleTagHandler func(name string, value reflect.Value, expected interface{}, err *[]error) []error
+type AfterTagHandler func(name string, value reflect.Value, expected interface{}, err *[]error) []error

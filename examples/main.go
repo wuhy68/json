@@ -5,7 +5,8 @@ import (
 	"reflect"
 	"validator"
 
-	"github.com/joaosoft/errors"
+	"errors"
+
 	"github.com/satori/go.uuid"
 )
 
@@ -30,10 +31,11 @@ type Example struct {
 	Data       *Data          `validate:"special={YYYYMMDD}, error=16"`
 }
 
-var dummy_middle_handler = func(name string, value reflect.Value, expected interface{}, errs *errors.ListErr) errors.ListErr {
-	rtnErrs := make(errors.ListErr, 0)
+var dummy_middle_handler = func(name string, value reflect.Value, expected interface{}, errs *[]error) []error {
+	var rtnErrs []error
 
-	rtnErrs = append(rtnErrs, errors.New("0", "dummy responding..."))
+	err := errors.New("dummy responding...")
+	rtnErrs = append(rtnErrs, err)
 
 	return rtnErrs
 }
@@ -46,22 +48,22 @@ func init() {
 }
 
 var errs = map[string]error{
-	"1":  errors.New("1", "Error 1"),
-	"2":  errors.New("2", "Error 2"),
-	"3":  errors.New("3", "Error 3"),
-	"4":  errors.New("4", "Error 4"),
-	"5":  errors.New("5", "Error 5"),
-	"6":  errors.New("6", "Error 6"),
-	"7":  errors.New("7", "Error 7"),
-	"8":  errors.New("8", "Error 8"),
-	"9":  errors.New("9", "Error 9"),
-	"10": errors.New("10", "Error 10"),
-	"11": errors.New("11", "Error 11"),
-	"12": errors.New("12", "Error 12"),
-	"13": errors.New("13", "Error 13"),
-	"14": errors.New("14", "Error 14"),
-	"15": errors.New("15", "Error 15"),
-	"16": errors.New("16", "Error 16"),
+	"1":  errors.New("Error 1"),
+	"2":  errors.New("Error 2"),
+	"3":  errors.New("Error 3"),
+	"4":  errors.New("Error 4"),
+	"5":  errors.New("Error 5"),
+	"6":  errors.New("Error 6"),
+	"7":  errors.New("Error 7"),
+	"8":  errors.New("Error 8"),
+	"9":  errors.New("Error 9"),
+	"10": errors.New("Error 10"),
+	"11": errors.New("Error 11"),
+	"12": errors.New("Error 12"),
+	"13": errors.New("Error 13"),
+	"14": errors.New("Error 14"),
+	"15": errors.New("Error 15"),
+	"16": errors.New("Error 16"),
 }
 var dummy_error_handler = func(code string) error {
 	return errs[code]
@@ -104,10 +106,10 @@ func main() {
 			},
 		},
 	}
-	if e := validator.Validate(example); !e.IsEmpty() {
-		fmt.Printf("ERRORS: %d\n", e.Len())
-		for _, err := range *e {
-			fmt.Printf("\nCODE: %s, MESSAGE: %s", err.GetCode(), err.GetErr())
+	if errs := validator.Validate(example); len(errs) > 0 {
+		fmt.Printf("ERRORS: %d\n", len(errs))
+		for _, err := range errs {
+			fmt.Printf("\nERROR: %s", err)
 		}
 	}
 }
