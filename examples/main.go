@@ -28,6 +28,7 @@ type Example struct {
 	StartDate2 string         `validate:"special={YYYYMMDD}, error=14"`
 	DateString *string        `validate:"special={YYYYMMDD}, error=15"`
 	Data       *Data          `validate:"special={YYYYMMDD}, error=16"`
+	unexported string
 }
 
 var dummy_middle_handler = func(name string, value reflect.Value, expected interface{}, errs *errors.ListErr) errors.ListErr {

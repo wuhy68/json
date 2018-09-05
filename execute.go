@@ -40,6 +40,10 @@ func do(obj interface{}, errs *errors.ListErr) error {
 				nextValue = nextValue.Elem()
 			}
 
+			if !nextValue.CanInterface() {
+				continue
+			}
+
 			if err := doValidate(nextValue.Interface(), nextType, errs); err != nil {
 
 				if !validatorInstance.validateAll {
