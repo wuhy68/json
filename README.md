@@ -43,6 +43,8 @@ This examples are available in the project at [validator/examples](https://githu
 
 ### Code
 ```go
+type Data string
+
 type Example struct {
 	Name       string         `validate:"value=joao, dummy, error={1}, max=10"`
 	Age        int            `validate:"value=30, error=2"`
@@ -58,12 +60,15 @@ type Example struct {
 	StartTime  string         `validate:"special={time}, error=12"`
 	StartDate1 string         `validate:"special={date}, error=13"`
 	StartDate2 string         `validate:"special={YYYYMMDD}, error=14"`
+	DateString *string        `validate:"special={YYYYMMDD}, error=15"`
+	Data       *Data          `validate:"special={YYYYMMDD}, error=16"`
 }
 
-var dummy_middle_handler = func(name string, value reflect.Value, expected interface{}, errs *errors.ListErr) errors.ListErr {
-	rtnErrs := make(errors.ListErr, 0)
+var dummy_middle_handler = func(name string, value reflect.Value, expected interface{}, errs *[]error) []error {
+	var rtnErrs []error
 
-	rtnErrs = append(rtnErrs, errors.New("0", "dummy responding..."))
+	err := errors.New("dummy responding...")
+	rtnErrs = append(rtnErrs, err)
 
 	return rtnErrs
 }
@@ -76,20 +81,22 @@ func init() {
 }
 
 var errs = map[string]error{
-	"1":  errors.New("1", "Error 1"),
-	"2":  errors.New("2", "Error 2"),
-	"3":  errors.New("3", "Error 3"),
-	"4":  errors.New("4", "Error 4"),
-	"5":  errors.New("5", "Error 5"),
-	"6":  errors.New("6", "Error 6"),
-	"7":  errors.New("7", "Error 7"),
-	"8":  errors.New("8", "Error 8"),
-	"9":  errors.New("9", "Error 9"),
-	"10": errors.New("10", "Error 10"),
-	"11": errors.New("11", "Error 11"),
-	"12": errors.New("12", "Error 12"),
-	"13": errors.New("13", "Error 13"),
-	"14": errors.New("14", "Error 14"),
+	"1":  errors.New("Error 1"),
+	"2":  errors.New("Error 2"),
+	"3":  errors.New("Error 3"),
+	"4":  errors.New("Error 4"),
+	"5":  errors.New("Error 5"),
+	"6":  errors.New("Error 6"),
+	"7":  errors.New("Error 7"),
+	"8":  errors.New("Error 8"),
+	"9":  errors.New("Error 9"),
+	"10": errors.New("Error 10"),
+	"11": errors.New("Error 11"),
+	"12": errors.New("Error 12"),
+	"13": errors.New("Error 13"),
+	"14": errors.New("Error 14"),
+	"15": errors.New("Error 15"),
+	"16": errors.New("Error 16"),
 }
 var dummy_error_handler = func(code string) error {
 	return errs[code]
@@ -97,6 +104,8 @@ var dummy_error_handler = func(code string) error {
 
 func main() {
 	id, _ := uuid.NewV4()
+	str := "2018-12-1"
+	data := Data("2018-12-1")
 	example := Example{
 		Id:         id,
 		Name:       "joao",
@@ -111,6 +120,8 @@ func main() {
 		StartTime:  "12:01:00",
 		StartDate1: "01-12-2018",
 		StartDate2: "2018-12-1",
+		DateString: &str,
+		Data:       &data,
 		Brothers: []Example{
 			Example{
 				Name:       "jessica",
@@ -128,10 +139,10 @@ func main() {
 			},
 		},
 	}
-	if e := validator.Validate(example); !e.IsEmpty() {
-		fmt.Printf("ERRORS: %d\n", e.Len())
-		for _, err := range *e {
-			fmt.Printf("\nCODE: %s, MESSAGE: %s", err.GetCode(), err.GetError())
+	if errs := validator.Validate(example); len(errs) > 0 {
+		fmt.Printf("ERRORS: %d\n", len(errs))
+		for _, err := range errs {
+			fmt.Printf("\nERROR: %s", err)
 		}
 	}
 }
@@ -141,21 +152,21 @@ func main() {
 ```go
 ERRORS: 15
 
-CODE: 1, MESSAGE: Error 1
-CODE: 1, MESSAGE: Error 1
-CODE: 2, MESSAGE: the value [10] is different of the expected [30] on field [Age]
-CODE: 3, MESSAGE: the length [12] is bigger then the expected [10] on field [Street]
-CODE: 4, MESSAGE: the length [0] is lower then the expected [1] on field [Brothers]
-CODE: 5, MESSAGE: the value shouldn't be zero on field [Id]
-CODE: 6, MESSAGE: the value [xx] is different of the expected options [aa;bb;cc] on field [Option1]
-CODE: 7, MESSAGE: the value [99] is different of the expected options [11;22;33] on field [Option2]
-CODE: 8, MESSAGE: the value [zz] is different of the expected options [aa;bb;cc] on field [Option3]
-CODE: 9, MESSAGE: the value [44] is different of the expected options [11;22;33] on field [Option4]
-CODE: 10, MESSAGE: the value [22] is different of the expected options [aa:11;bb:22;cc:33] on field [Map1]
-CODE: 11, MESSAGE: the value [cc] is different of the expected options [11:aa;22:bb;33:cc] on field [Map2]
-CODE: 12, MESSAGE: invalid data [99:01:00] on field [StartTime] 
-CODE: 13, MESSAGE: invalid data [01-99-2018] on field [StartDate1] 
-CODE: 14, MESSAGE: invalid data [2018-99-1] on field [StartDate2] 
+ERROR: Error 1
+ERROR: Error 1
+ERROR: the value [10] is different of the expected [30] on field [Age]
+ERROR: the length [12] is bigger then the expected [10] on field [Street]
+ERROR: the length [0] is lower then the expected [1] on field [Brothers]
+ERROR: the value shouldn't be zero on field [Id]
+ERROR: the value [xx] is different of the expected options [aa;bb;cc] on field [Option1]
+ERROR: the value [99] is different of the expected options [11;22;33] on field [Option2]
+ERROR: the value [zz] is different of the expected options [aa;bb;cc] on field [Option3]
+ERROR: the value [44] is different of the expected options [11;22;33] on field [Option4]
+ERROR: the value [22] is different of the expected options [aa:11;bb:22;cc:33] on field [Map1]
+ERROR: the value [cc] is different of the expected options [11:aa;22:bb;33:cc] on field [Map2]
+ERROR: invalid data [99:01:00] on field [StartTime] 
+ERROR: invalid data [01-99-2018] on field [StartDate1] 
+ERROR: invalid data [2018-99-1] on field [StartDate2] 
 ```
 
 ## Known issues
