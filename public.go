@@ -16,12 +16,12 @@ func AddAfter(name string, handler AfterTagHandler) *Validator {
 	return validatorInstance.AddAfter(name, handler)
 }
 
-func SetValidateAll(validate bool) {
-	validatorInstance.SetValidateAll(validate)
+func SetValidateAll(validate bool) *Validator {
+	return validatorInstance.SetValidateAll(validate)
 }
 
-func SetTag(tag string) {
-	validatorInstance.SetTag(tag)
+func SetTag(tag string) *Validator {
+	return validatorInstance.SetTag(tag)
 }
 
 // Validate ...
