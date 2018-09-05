@@ -1,9 +1,5 @@
 package validator
 
-import (
-	"github.com/joaosoft/errors"
-)
-
 func AddBefore(name string, handler BeforeTagHandler) *Validator {
 	return validatorInstance.AddBefore(name, handler)
 }
@@ -16,15 +12,15 @@ func AddAfter(name string, handler AfterTagHandler) *Validator {
 	return validatorInstance.AddAfter(name, handler)
 }
 
-func SetValidateAll(validate bool) {
-	validatorInstance.SetValidateAll(validate)
+func SetValidateAll(validate bool) *Validator {
+	return validatorInstance.SetValidateAll(validate)
 }
 
-func SetTag(tag string) {
-	validatorInstance.SetTag(tag)
+func SetTag(tag string) *Validator {
+	return validatorInstance.SetTag(tag)
 }
 
 // Validate ...
-func Validate(obj interface{}) *errors.ListErr {
+func Validate(obj interface{}) []error {
 	return validatorInstance.Validate(obj)
 }

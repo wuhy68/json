@@ -4,19 +4,17 @@ import (
 	"fmt"
 	"reflect"
 	"strings"
-
-	"github.com/joaosoft/errors"
 )
 
-func handleValidation(obj interface{}) *errors.ListErr {
-	var errs errors.ListErr
+func handleValidation(obj interface{}) []error {
+	errs := make([]error, 0)
 
 	do(obj, &errs)
 
-	return &errs
+	return errs
 }
 
-func do(obj interface{}, errs *errors.ListErr) error {
+func do(obj interface{}, errs *[]error) error {
 	types := reflect.TypeOf(obj)
 	value := reflect.ValueOf(obj)
 
@@ -88,7 +86,7 @@ func do(obj interface{}, errs *errors.ListErr) error {
 	return nil
 }
 
-func doValidate(value interface{}, typ reflect.StructField, errs *errors.ListErr) error {
+func doValidate(value interface{}, typ reflect.StructField, errs *[]error) error {
 
 	tag, exists := typ.Tag.Lookup(validatorInstance.tag)
 	if !exists {
@@ -100,9 +98,9 @@ func doValidate(value interface{}, typ reflect.StructField, errs *errors.ListErr
 	return executeHandlers(reflect.ValueOf(value), typ, validations, errs)
 }
 
-func executeHandlers(value reflect.Value, typ reflect.StructField, validations []string, errs *errors.ListErr) error {
+func executeHandlers(value reflect.Value, typ reflect.StructField, validations []string, errs *[]error) error {
 	var err error
-	var itErrs errors.ListErr
+	var itErrs []error
 
 	for _, validation := range validations {
 		options := strings.Split(validation, "=")
@@ -110,7 +108,7 @@ func executeHandlers(value reflect.Value, typ reflect.StructField, validations [
 		tag := strings.TrimSpace(options[0])
 
 		if _, ok := validatorInstance.activeHandlers[tag]; !ok {
-			err := errors.New("0", fmt.Sprintf("invalid tag [%s]", tag))
+			err := fmt.Errorf("invalid tag [%s]", tag)
 			*errs = append(*errs, err)
 
 			if !validatorInstance.validateAll {
@@ -124,21 +122,21 @@ func executeHandlers(value reflect.Value, typ reflect.StructField, validations [
 		}
 
 		if _, ok := validatorInstance.handlersBefore[tag]; ok {
-			if rtnErrs := validatorInstance.handlersBefore[tag](typ.Name, value, expected); !rtnErrs.IsEmpty() {
+			if rtnErrs := validatorInstance.handlersBefore[tag](typ.Name, value, expected); len(rtnErrs) > 0 {
 				itErrs = append(itErrs, rtnErrs...)
 				err = rtnErrs[0]
 			}
 		}
 
 		if _, ok := validatorInstance.handlersMiddle[tag]; ok {
-			if rtnErrs := validatorInstance.handlersMiddle[tag](typ.Name, value, expected, &itErrs); !rtnErrs.IsEmpty() {
+			if rtnErrs := validatorInstance.handlersMiddle[tag](typ.Name, value, expected, &itErrs); len(rtnErrs) > 0 {
 				itErrs = append(itErrs, rtnErrs...)
 				err = rtnErrs[0]
 			}
 		}
 
 		if _, ok := validatorInstance.handlersAfter[tag]; ok {
-			if rtnErrs := validatorInstance.handlersAfter[tag](typ.Name, value, expected, &itErrs); !rtnErrs.IsEmpty() {
+			if rtnErrs := validatorInstance.handlersAfter[tag](typ.Name, value, expected, &itErrs); len(rtnErrs) > 0 {
 				itErrs = append(itErrs, rtnErrs...)
 				err = rtnErrs[0]
 			}
