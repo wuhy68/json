@@ -1,7 +1,6 @@
 package validator
 
 import (
-	"github.com/joaosoft/errors"
 	"github.com/joaosoft/logger"
 )
 
@@ -81,6 +80,6 @@ func (v *Validator) SetTag(tag string) *Validator {
 }
 
 // Validate ...
-func (v *Validator) Validate(obj interface{}) *errors.ListErr {
+func (v *Validator) Validate(obj interface{}) []error {
 	return handleValidation(obj)
 }
