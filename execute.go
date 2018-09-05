@@ -58,6 +58,11 @@ func do(obj interface{}, errs *[]error) error {
 	case reflect.Array, reflect.Slice:
 		for i := 0; i < value.Len(); i++ {
 			nextValue := value.Index(i)
+
+			if !nextValue.CanInterface() {
+				continue
+			}
+
 			if err := do(nextValue.Interface(), errs); err != nil {
 				if !validatorInstance.validateAll {
 					return err
@@ -68,6 +73,11 @@ func do(obj interface{}, errs *[]error) error {
 	case reflect.Map:
 		for _, key := range value.MapKeys() {
 			nextValue := value.MapIndex(key)
+
+			if !nextValue.CanInterface() {
+				continue
+			}
+
 			if err := do(key.Interface(), errs); err != nil {
 				if !validatorInstance.validateAll {
 					return err
