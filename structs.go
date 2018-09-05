@@ -30,3 +30,8 @@ type ErrorCodeHandler func(code string) error
 type BeforeTagHandler func(name string, value reflect.Value, expected interface{}) []error
 type MiddleTagHandler func(name string, value reflect.Value, expected interface{}, err *[]error) []error
 type AfterTagHandler func(name string, value reflect.Value, expected interface{}, err *[]error) []error
+
+type Error struct {
+	Code    string `json:"code"`
+	Message string `json:"message"`
+}

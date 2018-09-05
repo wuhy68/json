@@ -1,7 +1,7 @@
 # validator
 [![Build Status](https://travis-ci.org/joaosoft/validator.svg?branch=master)](https://travis-ci.org/joaosoft/validator) | [![codecov](https://codecov.io/gh/joaosoft/validator/branch/master/graph/badge.svg)](https://codecov.io/gh/joaosoft/validator) | [![Go Report Card](https://goreportcard.com/badge/github.com/joaosoft/validator)](https://goreportcard.com/report/github.com/joaosoft/validator) | [![GoDoc](https://godoc.org/github.com/joaosoft/validator?status.svg)](https://godoc.org/github.com/joaosoft/validator)
 
-A simple struct validator by tags.
+A simple struct validator by tags (exported fields only).
 
 ###### If i miss something or you have something interesting, please be part of this project. Let me know! My contact is at the end.
 
@@ -47,7 +47,7 @@ type Data string
 
 type Example struct {
 	Name       string         `validate:"value=joao, dummy, error={1}, max=10"`
-	Age        int            `validate:"value=30, error=2"`
+	Age        int            `validate:"value=30, error={99}"`
 	Street     int            `validate:"max=10, error=3"`
 	Brothers   []Example      `validate:"size=1, error=4"`
 	Id         uuid.UUID      `validate:"nonzero, error=5"`
@@ -62,6 +62,7 @@ type Example struct {
 	StartDate2 string         `validate:"special={YYYYMMDD}, error=14"`
 	DateString *string        `validate:"special={YYYYMMDD}, error=15"`
 	Data       *Data          `validate:"special={YYYYMMDD}, error=16"`
+	unexported string
 }
 
 var dummy_middle_handler = func(name string, value reflect.Value, expected interface{}, errs *[]error) []error {
@@ -99,7 +100,10 @@ var errs = map[string]error{
 	"16": errors.New("Error 16"),
 }
 var dummy_error_handler = func(code string) error {
-	return errs[code]
+	if err, ok := errs[code]; ok {
+		return err
+	}
+	return nil
 }
 
 func main() {
@@ -155,18 +159,18 @@ ERRORS: 15
 ERROR: Error 1
 ERROR: Error 1
 ERROR: the value [10] is different of the expected [30] on field [Age]
-ERROR: the length [12] is bigger then the expected [10] on field [Street]
-ERROR: the length [0] is lower then the expected [1] on field [Brothers]
-ERROR: the value shouldn't be zero on field [Id]
-ERROR: the value [xx] is different of the expected options [aa;bb;cc] on field [Option1]
-ERROR: the value [99] is different of the expected options [11;22;33] on field [Option2]
-ERROR: the value [zz] is different of the expected options [aa;bb;cc] on field [Option3]
-ERROR: the value [44] is different of the expected options [11;22;33] on field [Option4]
-ERROR: the value [22] is different of the expected options [aa:11;bb:22;cc:33] on field [Map1]
-ERROR: the value [cc] is different of the expected options [11:aa;22:bb;33:cc] on field [Map2]
-ERROR: invalid data [99:01:00] on field [StartTime] 
-ERROR: invalid data [01-99-2018] on field [StartDate1] 
-ERROR: invalid data [2018-99-1] on field [StartDate2] 
+ERROR: {"code":"3","message":"the length [12] is bigger then the expected [10] on field [Street]"}
+ERROR: {"code":"4","message":"the length [0] is lower then the expected [1] on field [Brothers]"}
+ERROR: {"code":"5","message":"the value shouldn't be zero on field [Id]"}
+ERROR: {"code":"6","message":"the value [xx] is different of the expected options [aa;bb;cc] on field [Option1]"}
+ERROR: {"code":"7","message":"the value [99] is different of the expected options [11;22;33] on field [Option2]"}
+ERROR: {"code":"8","message":"the value [zz] is different of the expected options [aa;bb;cc] on field [Option3]"}
+ERROR: {"code":"9","message":"the value [44] is different of the expected options [11;22;33] on field [Option4]"}
+ERROR: {"code":"10","message":"the value [22] is different of the expected options [aa:11;bb:22;cc:33] on field [Map1]"}
+ERROR: {"code":"11","message":"the value [cc] is different of the expected options [11:aa;22:bb;33:cc] on field [Map2]"}
+ERROR: {"code":"12","message":"invalid data [99:01:00] on field [StartTime] "}
+ERROR: {"code":"13","message":"invalid data [01-99-2018] on field [StartDate1] "}
+ERROR: {"code":"14","message":"invalid data [2018-99-1] on field [StartDate2] "}
 ```
 
 ## Known issues

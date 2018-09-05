@@ -14,7 +14,7 @@ type Data string
 
 type Example struct {
 	Name       string         `validate:"value=joao, dummy, error={1}, max=10"`
-	Age        int            `validate:"value=30, error=2"`
+	Age        int            `validate:"value=30, error={99}"`
 	Street     int            `validate:"max=10, error=3"`
 	Brothers   []Example      `validate:"size=1, error=4"`
 	Id         uuid.UUID      `validate:"nonzero, error=5"`
@@ -67,7 +67,10 @@ var errs = map[string]error{
 	"16": errors.New("Error 16"),
 }
 var dummy_error_handler = func(code string) error {
-	return errs[code]
+	if err, ok := errs[code]; ok {
+		return err
+	}
+	return nil
 }
 
 func main() {

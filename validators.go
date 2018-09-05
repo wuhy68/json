@@ -7,6 +7,9 @@ import (
 	"strconv"
 	"strings"
 
+	"encoding/json"
+	"errors"
+
 	"github.com/satori/go.uuid"
 )
 
@@ -266,7 +269,7 @@ func (v *Validator) validate_error(name string, value reflect.Value, expected in
 	added := make(map[string]bool)
 	for i, _ := range *errs {
 		if v.errorCodeHandler != nil {
-			if matched, err := regexp.MatchString("{[a-z0-9]+}", expected.(string)); err != nil {
+			if matched, err := regexp.MatchString(RegexForErrorTag, expected.(string)); err != nil {
 				rtnErrs = append(rtnErrs, err)
 			} else {
 				if matched {
@@ -275,12 +278,20 @@ func (v *Validator) validate_error(name string, value reflect.Value, expected in
 
 					if _, ok := added[errorCode]; !ok {
 						newErr := v.errorCodeHandler(errorCode)
-						(*errs)[i] = newErr
+						if newErr != nil {
+							(*errs)[i] = newErr
+						}
 
 						added[errorCode] = true
 					} else {
 						*errs = append((*errs)[:i], (*errs)[i+1:]...)
 					}
+				} else {
+					messageBytes, _ := json.Marshal(Error{
+						Code:    fmt.Sprintf("%+v", expected),
+						Message: (*errs)[i].Error(),
+					})
+					(*errs)[i] = errors.New(string(messageBytes))
 				}
 			}
 		}
