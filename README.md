@@ -6,9 +6,10 @@ A simple struct validator by tags (exported fields only).
 ###### If i miss something or you have something interesting, please be part of this project. Let me know! My contact is at the end.
 
 ## With support for
-* value
-* options
-* size
+* value (equal to)
+* not (not equal to)
+* options (one of thous)
+* size (size equal to)
 * min 
 * max 
 * nonzero (also supports uuid zero validation)

@@ -28,6 +28,21 @@ func (v *Validator) validate_value(name string, value reflect.Value, expected in
 	return rtnErrs
 }
 
+func (v *Validator) validate_not(name string, value reflect.Value, expected interface{}, errs *[]error) []error {
+	rtnErrs := make([]error, 0)
+
+	if fmt.Sprintf("%+v", value) == "" || (value.Kind() == reflect.Ptr && value.IsNil()) {
+		return rtnErrs
+	}
+
+	if fmt.Sprintf("%+v", value) == fmt.Sprintf("%+v", expected) {
+		err := fmt.Errorf("the value [%+v] should be different of the [%+v] on field [%s]", value, expected, name)
+		rtnErrs = append(rtnErrs, err)
+	}
+
+	return rtnErrs
+}
+
 func (v *Validator) validate_options(name string, value reflect.Value, expected interface{}, errs *[]error) []error {
 	rtnErrs := make([]error, 0)
 
@@ -149,9 +164,9 @@ func (v *Validator) validate_min(name string, value reflect.Value, expected inte
 	case reflect.Array, reflect.Slice, reflect.Map:
 		valueSize = int64(value.Len())
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
-		valueSize = int64(len(strings.TrimSpace(strconv.Itoa(int(value.Int())))))
+		valueSize = value.Int()
 	case reflect.Float32, reflect.Float64:
-		valueSize = int64(len(strings.TrimSpace(strconv.FormatFloat(value.Float(), 'g', 1, 64))))
+		valueSize = int64(value.Float())
 	case reflect.String:
 		valueSize = int64(len(strings.TrimSpace(value.String())))
 	case reflect.Bool:
@@ -183,9 +198,9 @@ func (v *Validator) validate_max(name string, value reflect.Value, expected inte
 	case reflect.Array, reflect.Slice, reflect.Map:
 		valueSize = int64(value.Len())
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
-		valueSize = int64(len(strings.TrimSpace(strconv.Itoa(int(value.Int())))))
+		valueSize = value.Int()
 	case reflect.Float32, reflect.Float64:
-		valueSize = int64(len(strings.TrimSpace(strconv.FormatFloat(value.Float(), 'g', 1, 64))))
+		valueSize = int64(value.Float())
 	case reflect.String:
 		valueSize = int64(len(strings.TrimSpace(value.String())))
 	case reflect.Bool:
