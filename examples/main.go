@@ -7,6 +7,8 @@ import (
 
 	"errors"
 
+	"strings"
+
 	"github.com/satori/go.uuid"
 )
 
@@ -68,7 +70,9 @@ var errs = map[string]error{
 }
 var dummy_error_handler = func(code string, name string, value reflect.Value, expected interface{}, err *[]error) error {
 	if err, ok := errs[code]; ok {
-		return err
+		if strings.Contains(err.Error(), "%s") {
+			err = fmt.Errorf(err.Error(), name)
+		}
 	}
 	return nil
 }
