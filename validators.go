@@ -197,11 +197,14 @@ func (v *Validator) validate_nonzero(name string, value reflect.Value, expected 
 				valueSize = 1
 			}
 		default:
-			valueSize = int64(value.Len())
+			valueSize = int64(len(strings.TrimSpace(value.String())))
 		}
 
+	case reflect.String:
+		valueSize = int64(len(strings.TrimSpace(value.String())))
+
 	default:
-		valueSize = int64(value.Len())
+		valueSize = int64(len(strings.TrimSpace(value.String())))
 	}
 
 	if valueSize == 0 {
