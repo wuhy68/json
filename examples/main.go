@@ -7,15 +7,19 @@ import (
 
 	"errors"
 
-	"strings"
+	"regexp"
 
 	"github.com/satori/go.uuid"
+)
+
+const (
+	RegexForMissingParm = `%\+?[a-z]`
 )
 
 type Data string
 
 type Example struct {
-	Name       string         `validate:"value=joao, dummy, error={1}, max=10"`
+	Name       string         `validate:"value=joao, dummy, error={1:a;b}, max=10"`
 	Age        int            `validate:"value=30, error={99}"`
 	Street     int            `validate:"max=10, error=3"`
 	Brothers   []Example      `validate:"size=1, error=4"`
@@ -51,28 +55,38 @@ func init() {
 }
 
 var errs = map[string]error{
-	"1":  errors.New("Error 1"),
-	"2":  errors.New("Error 2"),
-	"3":  errors.New("Error 3"),
-	"4":  errors.New("Error 4"),
-	"5":  errors.New("Error 5"),
-	"6":  errors.New("Error 6"),
-	"7":  errors.New("Error 7"),
-	"8":  errors.New("Error 8"),
-	"9":  errors.New("Error 9"),
-	"10": errors.New("Error 10"),
-	"11": errors.New("Error 11"),
-	"12": errors.New("Error 12"),
-	"13": errors.New("Error 13"),
-	"14": errors.New("Error 14"),
-	"15": errors.New("Error 15"),
-	"16": errors.New("Error 16"),
+	"1":  errors.New("error 1: a:%s, b:%s"),
+	"2":  errors.New("error 2"),
+	"3":  errors.New("error 3"),
+	"4":  errors.New("error 4"),
+	"5":  errors.New("error 5"),
+	"6":  errors.New("error 6"),
+	"7":  errors.New("error 7"),
+	"8":  errors.New("error 8"),
+	"9":  errors.New("error 9"),
+	"10": errors.New("error 10"),
+	"11": errors.New("error 11"),
+	"12": errors.New("error 12"),
+	"13": errors.New("error 13"),
+	"14": errors.New("error 14"),
+	"15": errors.New("error 15"),
+	"16": errors.New("error 16"),
 }
-var dummy_error_handler = func(code string, name string, value reflect.Value, expected interface{}, err *[]error) error {
+var dummy_error_handler = func(code string, arguments []interface{}, name string, value reflect.Value, expected interface{}, err *[]error) error {
 	if err, ok := errs[code]; ok {
-		if strings.Contains(err.Error(), "%s") {
-			err = fmt.Errorf(err.Error(), name)
+		var regx = regexp.MustCompile(RegexForMissingParm)
+		matches := regx.FindAllStringIndex(err.Error(), -1)
+
+		if len(matches) > 0 {
+
+			if len(arguments) < len(matches) {
+				arguments = append(arguments, name)
+			}
+
+			err = fmt.Errorf(err.Error(), arguments...)
 		}
+
+		return err
 	}
 	return nil
 }

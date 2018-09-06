@@ -113,8 +113,9 @@ func executeHandlers(value reflect.Value, typ reflect.StructField, validations [
 	var itErrs []error
 
 	for _, validation := range validations {
-		options := strings.Split(validation, "=")
+		var name string
 
+		options := strings.Split(validation, "=")
 		tag := strings.TrimSpace(options[0])
 
 		if _, ok := validatorInstance.activeHandlers[tag]; !ok {
@@ -131,22 +132,29 @@ func executeHandlers(value reflect.Value, typ reflect.StructField, validations [
 			expected = strings.TrimSpace(options[1])
 		}
 
+		jsonName, exists := typ.Tag.Lookup("json")
+		if exists {
+			name = jsonName
+		} else {
+			name = typ.Name
+		}
+
 		if _, ok := validatorInstance.handlersBefore[tag]; ok {
-			if rtnErrs := validatorInstance.handlersBefore[tag](typ.Name, value, expected); len(rtnErrs) > 0 {
+			if rtnErrs := validatorInstance.handlersBefore[tag](name, value, expected); len(rtnErrs) > 0 {
 				itErrs = append(itErrs, rtnErrs...)
 				err = rtnErrs[0]
 			}
 		}
 
 		if _, ok := validatorInstance.handlersMiddle[tag]; ok {
-			if rtnErrs := validatorInstance.handlersMiddle[tag](typ.Name, value, expected, &itErrs); len(rtnErrs) > 0 {
+			if rtnErrs := validatorInstance.handlersMiddle[tag](name, value, expected, &itErrs); len(rtnErrs) > 0 {
 				itErrs = append(itErrs, rtnErrs...)
 				err = rtnErrs[0]
 			}
 		}
 
 		if _, ok := validatorInstance.handlersAfter[tag]; ok {
-			if rtnErrs := validatorInstance.handlersAfter[tag](typ.Name, value, expected, &itErrs); len(rtnErrs) > 0 {
+			if rtnErrs := validatorInstance.handlersAfter[tag](name, value, expected, &itErrs); len(rtnErrs) > 0 {
 				itErrs = append(itErrs, rtnErrs...)
 				err = rtnErrs[0]
 			}

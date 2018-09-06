@@ -25,7 +25,7 @@ type Validator struct {
 	validateAll      bool
 }
 
-type ErrorCodeHandler func(code string, name string, value reflect.Value, expected interface{}, err *[]error) error
+type ErrorCodeHandler func(code string, arguments []interface{}, name string, value reflect.Value, expected interface{}, err *[]error) error
 
 type BeforeTagHandler func(name string, value reflect.Value, expected interface{}) []error
 type MiddleTagHandler func(name string, value reflect.Value, expected interface{}, err *[]error) []error

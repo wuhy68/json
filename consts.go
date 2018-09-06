@@ -15,5 +15,5 @@ const (
 	RegexForTimeDefault = RegexForTimeHHMMSS
 	RegexForTimeHHMMSS  = `^([0-9]|0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]$`
 
-	RegexForErrorTag = "{[A-Za-z0-9_-]+}"
+	RegexForErrorTag = "{[A-Za-z0-9_-]+:?([A-Za-z0-9_-];?)+}"
 )

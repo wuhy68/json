@@ -220,6 +220,7 @@ func (v *Validator) validate_max(name string, value reflect.Value, expected inte
 func (v *Validator) validate_nonzero(name string, value reflect.Value, expected interface{}, errs *[]error) []error {
 	rtnErrs := make([]error, 0)
 	var valueSize int64
+	var val string
 
 	switch value.Kind() {
 	case reflect.Array, reflect.Slice, reflect.Map:
@@ -234,9 +235,11 @@ func (v *Validator) validate_nonzero(name string, value reflect.Value, expected 
 		}
 
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
-		valueSize = int64(len(strings.TrimSpace(strconv.Itoa(int(value.Int())))))
+		val = strings.TrimSpace(strconv.Itoa(int(value.Int())))
+		valueSize = int64(len(val))
 	case reflect.Float32, reflect.Float64:
-		valueSize = int64(len(strings.TrimSpace(strconv.FormatFloat(value.Float(), 'g', 1, 64))))
+		val = strings.TrimSpace(strconv.FormatFloat(value.Float(), 'g', 1, 64))
+		valueSize = int64(len(val))
 	case reflect.String:
 		valueSize = int64(len(strings.TrimSpace(value.String())))
 	case reflect.Bool:
@@ -245,7 +248,7 @@ func (v *Validator) validate_nonzero(name string, value reflect.Value, expected 
 		valueSize = int64(len(strings.TrimSpace(value.String())))
 	}
 
-	if valueSize == 0 {
+	if valueSize == 0 || (val == "0") {
 		err := fmt.Errorf("the value shouldn't be zero on field [%s]", name)
 		rtnErrs = append(rtnErrs, err)
 	}
@@ -310,17 +313,31 @@ func (v *Validator) validate_error(name string, value reflect.Value, expected in
 			if matched, err := regexp.MatchString(RegexForErrorTag, expected.(string)); err != nil {
 				rtnErrs = append(rtnErrs, err)
 			} else {
+
 				if matched {
 					replacer := strings.NewReplacer("{", "", "}", "")
-					errorCode := replacer.Replace(expected.(string))
+					expected := replacer.Replace(expected.(string))
 
-					if _, ok := added[errorCode]; !ok {
-						newErr := v.errorCodeHandler(errorCode, name, value, expected, errs)
+					split := strings.SplitN(expected, ":", 2)
+					if len(split) == 0 {
+						rtnErrs = append(rtnErrs, fmt.Errorf("invalid tag error defined %s", expected))
+						continue
+					}
+
+					if _, ok := added[split[0]]; !ok {
+						var arguments []interface{}
+						if len(split) == 2 {
+							splitArgs := strings.Split(split[1], ";")
+							for _, arg := range splitArgs {
+								arguments = append(arguments, arg)
+							}
+						}
+						newErr := v.errorCodeHandler(split[0], arguments, name, value, expected, errs)
 						if newErr != nil {
 							(*errs)[i] = newErr
 						}
 
-						added[errorCode] = true
+						added[split[0]] = true
 					} else {
 						*errs = append((*errs)[:i], (*errs)[i+1:]...)
 					}
