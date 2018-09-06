@@ -21,7 +21,7 @@ A simple struct validator by tags (exported fields only).
 * AddBefore (add a before-validation)
 * AddMiddle (add a middle-validation [by default has all validations])
 * AddAfter (add a after-validation [by default has error validation])
-* SetErrorCodeHandler (function to get the error when defined with error={xpto})
+* SetErrorCodeHandler (function to get the error when defined with error={xpto:arg1;arg2})
 * SetValidateAll (when activated, validates all object instead of stopping on the first error)
 * SetTag (set validation tag to other that you define)
 * Validate (validate the object)
