@@ -200,11 +200,8 @@ func (v *Validator) validate_nonzero(name string, value reflect.Value, expected 
 			valueSize = int64(value.Len())
 		}
 
-	case reflect.String:
-		valueSize = int64(len(value.String()))
-
 	default:
-		valueSize = value.Int()
+		valueSize = int64(value.Len())
 	}
 
 	if valueSize == 0 {
