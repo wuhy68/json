@@ -114,6 +114,14 @@ func (v *Validator) validate_size(name string, value reflect.Value, expected int
 	switch value.Kind() {
 	case reflect.Array, reflect.Slice, reflect.Map:
 		valueSize = int64(value.Len())
+	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+		valueSize = int64(len(strings.TrimSpace(strconv.Itoa(int(value.Int())))))
+	case reflect.Float32, reflect.Float64:
+		valueSize = int64(len(strings.TrimSpace(strconv.FormatFloat(value.Float(), 'g', 1, 64))))
+	case reflect.String:
+		valueSize = int64(len(strings.TrimSpace(value.String())))
+	case reflect.Bool:
+		valueSize = int64(len(strings.TrimSpace(strconv.FormatBool(value.Bool()))))
 	default:
 		valueSize = int64(len(strings.TrimSpace(value.String())))
 	}
@@ -140,6 +148,14 @@ func (v *Validator) validate_min(name string, value reflect.Value, expected inte
 	switch value.Kind() {
 	case reflect.Array, reflect.Slice, reflect.Map:
 		valueSize = int64(value.Len())
+	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+		valueSize = int64(len(strings.TrimSpace(strconv.Itoa(int(value.Int())))))
+	case reflect.Float32, reflect.Float64:
+		valueSize = int64(len(strings.TrimSpace(strconv.FormatFloat(value.Float(), 'g', 1, 64))))
+	case reflect.String:
+		valueSize = int64(len(strings.TrimSpace(value.String())))
+	case reflect.Bool:
+		valueSize = int64(len(strings.TrimSpace(strconv.FormatBool(value.Bool()))))
 	default:
 		valueSize = int64(len(strings.TrimSpace(value.String())))
 	}
@@ -166,6 +182,14 @@ func (v *Validator) validate_max(name string, value reflect.Value, expected inte
 	switch value.Kind() {
 	case reflect.Array, reflect.Slice, reflect.Map:
 		valueSize = int64(value.Len())
+	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+		valueSize = int64(len(strings.TrimSpace(strconv.Itoa(int(value.Int())))))
+	case reflect.Float32, reflect.Float64:
+		valueSize = int64(len(strings.TrimSpace(strconv.FormatFloat(value.Float(), 'g', 1, 64))))
+	case reflect.String:
+		valueSize = int64(len(strings.TrimSpace(value.String())))
+	case reflect.Bool:
+		valueSize = int64(len(strings.TrimSpace(strconv.FormatBool(value.Bool()))))
 	default:
 		valueSize = int64(len(strings.TrimSpace(value.String())))
 	}
@@ -191,9 +215,17 @@ func (v *Validator) validate_nonzero(name string, value reflect.Value, expected 
 				valueSize = 1
 			}
 		default:
-			valueSize = int64(len(strings.TrimSpace(value.String())))
+			valueSize = int64(value.Len())
 		}
 
+	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+		valueSize = int64(len(strings.TrimSpace(strconv.Itoa(int(value.Int())))))
+	case reflect.Float32, reflect.Float64:
+		valueSize = int64(len(strings.TrimSpace(strconv.FormatFloat(value.Float(), 'g', 1, 64))))
+	case reflect.String:
+		valueSize = int64(len(strings.TrimSpace(value.String())))
+	case reflect.Bool:
+		valueSize = int64(len(strings.TrimSpace(strconv.FormatBool(value.Bool()))))
 	default:
 		valueSize = int64(len(strings.TrimSpace(value.String())))
 	}
@@ -268,7 +300,7 @@ func (v *Validator) validate_error(name string, value reflect.Value, expected in
 					errorCode := replacer.Replace(expected.(string))
 
 					if _, ok := added[errorCode]; !ok {
-						newErr := v.errorCodeHandler(errorCode)
+						newErr := v.errorCodeHandler(errorCode, name, value, expected, errs)
 						if newErr != nil {
 							(*errs)[i] = newErr
 						}

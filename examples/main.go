@@ -66,7 +66,7 @@ var errs = map[string]error{
 	"15": errors.New("Error 15"),
 	"16": errors.New("Error 16"),
 }
-var dummy_error_handler = func(code string) error {
+var dummy_error_handler = func(code string, name string, value reflect.Value, expected interface{}, err *[]error) error {
 	if err, ok := errs[code]; ok {
 		return err
 	}
