@@ -114,10 +114,8 @@ func (v *Validator) validate_size(name string, value reflect.Value, expected int
 	switch value.Kind() {
 	case reflect.Array, reflect.Slice, reflect.Map:
 		valueSize = int64(value.Len())
-	case reflect.String:
-		valueSize = int64(len(value.String()))
 	default:
-		valueSize = value.Int()
+		valueSize = int64(len(strings.TrimSpace(value.String())))
 	}
 
 	if valueSize != int64(size) {
@@ -142,10 +140,8 @@ func (v *Validator) validate_min(name string, value reflect.Value, expected inte
 	switch value.Kind() {
 	case reflect.Array, reflect.Slice, reflect.Map:
 		valueSize = int64(value.Len())
-	case reflect.String:
-		valueSize = int64(len(value.String()))
 	default:
-		valueSize = value.Int()
+		valueSize = int64(len(strings.TrimSpace(value.String())))
 	}
 
 	if valueSize < int64(min) {
@@ -170,10 +166,8 @@ func (v *Validator) validate_max(name string, value reflect.Value, expected inte
 	switch value.Kind() {
 	case reflect.Array, reflect.Slice, reflect.Map:
 		valueSize = int64(value.Len())
-	case reflect.String:
-		valueSize = int64(len(value.String()))
 	default:
-		valueSize = value.Int()
+		valueSize = int64(len(strings.TrimSpace(value.String())))
 	}
 
 	if valueSize > int64(max) {
@@ -199,9 +193,6 @@ func (v *Validator) validate_nonzero(name string, value reflect.Value, expected 
 		default:
 			valueSize = int64(len(strings.TrimSpace(value.String())))
 		}
-
-	case reflect.String:
-		valueSize = int64(len(strings.TrimSpace(value.String())))
 
 	default:
 		valueSize = int64(len(strings.TrimSpace(value.String())))
