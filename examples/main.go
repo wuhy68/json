@@ -13,7 +13,7 @@ import (
 )
 
 const (
-	RegexForMissingParm = `%\+?[a-z]`
+	RegexForMissingParms = `%\+?[a-z]`
 )
 
 type Data string
@@ -74,7 +74,7 @@ var errs = map[string]error{
 }
 var dummy_error_handler = func(code string, arguments []interface{}, name string, value reflect.Value, expected interface{}, err *[]error) error {
 	if err, ok := errs[code]; ok {
-		var regx = regexp.MustCompile(RegexForMissingParm)
+		var regx = regexp.MustCompile(RegexForMissingParms)
 		matches := regx.FindAllStringIndex(err.Error(), -1)
 
 		if len(matches) > 0 {
