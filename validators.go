@@ -28,6 +28,21 @@ func (v *Validator) validate_value(name string, value reflect.Value, expected in
 	return rtnErrs
 }
 
+func (v *Validator) validate_sanitize(name string, value reflect.Value, expected interface{}, errs *[]error) []error {
+	rtnErrs := make([]error, 0)
+
+	if fmt.Sprintf("%+v", value) == "" || (value.Kind() == reflect.Ptr && value.IsNil()) {
+		return rtnErrs
+	}
+
+	if fmt.Sprintf("%+v", value) != fmt.Sprintf("%+v", expected) {
+		err := fmt.Errorf("the value [%+v] is different of the expected [%+v] on field [%s]", value, expected, name)
+		rtnErrs = append(rtnErrs, err)
+	}
+
+	return rtnErrs
+}
+
 func (v *Validator) validate_not(name string, value reflect.Value, expected interface{}, errs *[]error) []error {
 	rtnErrs := make([]error, 0)
 
