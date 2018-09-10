@@ -20,6 +20,10 @@ func SetTag(tag string) *Validator {
 	return validatorInstance.SetTag(tag)
 }
 
+func SetSanitize(sanitize []string) *Validator {
+	return validatorInstance.SetSanitize(sanitize)
+}
+
 // Validate ...
 func Validate(obj interface{}) []error {
 	return validatorInstance.Validate(obj)

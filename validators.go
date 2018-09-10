@@ -35,8 +35,26 @@ func (v *Validator) validate_sanitize(name string, value reflect.Value, expected
 		return rtnErrs
 	}
 
-	if fmt.Sprintf("%+v", value) != fmt.Sprintf("%+v", expected) {
-		err := fmt.Errorf("the value [%+v] is different of the expected [%+v] on field [%s]", value, expected, name)
+	val := fmt.Sprintf("%+v", value)
+	split := strings.Split(expected.(string), ";")
+	invalid := make([]string, 0)
+
+	// validate expected
+	for _, str := range split {
+		if strings.Contains(val, str) {
+			invalid = append(invalid, str)
+		}
+	}
+
+	// validate global
+	for _, str := range v.sanitize {
+		if strings.Contains(val, str) {
+			invalid = append(invalid, str)
+		}
+	}
+
+	if len(invalid) > 0 {
+		err := fmt.Errorf("the value [%+v] is has invalid characters [%+v] on field [%s]", value, strings.Join(invalid, ","), name)
 		rtnErrs = append(rtnErrs, err)
 	}
 
@@ -78,6 +96,10 @@ func (v *Validator) validate_options(name string, value reflect.Value, expected 
 		for i := 0; i < value.Len(); i++ {
 			nextValue := value.Index(i)
 
+			if !nextValue.CanInterface() {
+				continue
+			}
+
 			_, ok := optionsVal[fmt.Sprintf("%+v", nextValue.Interface())]
 			if !ok {
 				invalidValue = nextValue.Interface()
@@ -101,6 +123,10 @@ func (v *Validator) validate_options(name string, value reflect.Value, expected 
 
 		for _, key := range value.MapKeys() {
 			nextValue := value.MapIndex(key)
+
+			if !nextValue.CanInterface() {
+				continue
+			}
 
 			val, ok := optionsMap[fmt.Sprintf("%+v", key.Interface())]
 			if !ok || fmt.Sprintf("%+v", nextValue.Interface()) != fmt.Sprintf("%+v", val) {
@@ -153,6 +179,9 @@ func (v *Validator) validate_size(name string, value reflect.Value, expected int
 	case reflect.Bool:
 		valueSize = int64(len(strings.TrimSpace(strconv.FormatBool(value.Bool()))))
 	default:
+		if value.Kind() == reflect.Ptr && value.IsNil() {
+			break
+		}
 		valueSize = int64(len(strings.TrimSpace(value.String())))
 	}
 
@@ -187,6 +216,9 @@ func (v *Validator) validate_min(name string, value reflect.Value, expected inte
 	case reflect.Bool:
 		valueSize = int64(len(strings.TrimSpace(strconv.FormatBool(value.Bool()))))
 	default:
+		if value.Kind() == reflect.Ptr && value.IsNil() {
+			break
+		}
 		valueSize = int64(len(strings.TrimSpace(value.String())))
 	}
 
@@ -221,6 +253,9 @@ func (v *Validator) validate_max(name string, value reflect.Value, expected inte
 	case reflect.Bool:
 		valueSize = int64(len(strings.TrimSpace(strconv.FormatBool(value.Bool()))))
 	default:
+		if value.Kind() == reflect.Ptr && value.IsNil() {
+			break
+		}
 		valueSize = int64(len(strings.TrimSpace(value.String())))
 	}
 
@@ -260,6 +295,9 @@ func (v *Validator) validate_nonzero(name string, value reflect.Value, expected 
 	case reflect.Bool:
 		valueSize = int64(len(strings.TrimSpace(strconv.FormatBool(value.Bool()))))
 	default:
+		if value.Kind() == reflect.Ptr && value.IsNil() {
+			break
+		}
 		valueSize = int64(len(strings.TrimSpace(value.String())))
 	}
 
@@ -274,6 +312,10 @@ func (v *Validator) validate_nonzero(name string, value reflect.Value, expected 
 func (v *Validator) validate_regex(name string, value reflect.Value, expected interface{}, errs *[]error) []error {
 
 	rtnErrs := make([]error, 0)
+
+	if value.Kind() == reflect.Ptr && value.IsNil() {
+		return rtnErrs
+	}
 
 	if fmt.Sprintf("%+v", value) == "" || (value.Kind() == reflect.Ptr && value.IsNil()) {
 		return rtnErrs
@@ -297,8 +339,10 @@ func (v *Validator) validate_regex(name string, value reflect.Value, expected in
 
 func (v *Validator) validate_special(name string, value reflect.Value, expected interface{}, errs *[]error) []error {
 
+	rtnErrs := make([]error, 0)
+
 	if fmt.Sprintf("%+v", value) == "" || (value.Kind() == reflect.Ptr && value.IsNil()) {
-		return make([]error, 0)
+		return rtnErrs
 	}
 
 	switch expected {
@@ -314,7 +358,8 @@ func (v *Validator) validate_special(name string, value reflect.Value, expected 
 		expected = RegexForTimeHHMMSS
 	default:
 		err := fmt.Errorf("invalid special [%s] on field [%+v] ", expected, name)
-		return []error{err}
+		rtnErrs = append(rtnErrs, err)
+		return rtnErrs
 	}
 
 	return v.validate_regex(name, value, expected, errs)

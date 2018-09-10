@@ -36,6 +36,8 @@ type Example struct {
 	DateString *string        `validate:"special={YYYYMMDD}, error=15"`
 	Data       *Data          `validate:"special={YYYYMMDD}, error=16"`
 	unexported string
+	IsNill     *string `validate:"nonzero, error=17"`
+	Sanitize   string  `validate:"sanitize=a;b;teste, error=17"`
 }
 
 var dummy_middle_handler = func(name string, value reflect.Value, expected interface{}, errs *[]error) []error {
@@ -71,6 +73,8 @@ var errs = map[string]error{
 	"14": errors.New("error 14"),
 	"15": errors.New("error 15"),
 	"16": errors.New("error 16"),
+	"17": errors.New("error 17"),
+	"18": errors.New("error 18"),
 }
 var dummy_error_handler = func(code string, arguments []interface{}, name string, value reflect.Value, expected interface{}, err *[]error) error {
 	if err, ok := errs[code]; ok {
@@ -125,6 +129,7 @@ func main() {
 				StartTime:  "99:01:00",
 				StartDate1: "01-99-2018",
 				StartDate2: "2018-99-1",
+				Sanitize:   "b teste",
 			},
 		},
 	}

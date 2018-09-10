@@ -42,7 +42,7 @@ func do(obj interface{}, errs *[]error) error {
 				continue
 			}
 
-			if err := doValidate(nextValue.Interface(), nextType, errs); err != nil {
+			if err := doValidate(nextValue, nextType, errs); err != nil {
 
 				if !validatorInstance.validateAll {
 					return err
@@ -96,7 +96,7 @@ func do(obj interface{}, errs *[]error) error {
 	return nil
 }
 
-func doValidate(value interface{}, typ reflect.StructField, errs *[]error) error {
+func doValidate(value reflect.Value, typ reflect.StructField, errs *[]error) error {
 
 	tag, exists := typ.Tag.Lookup(validatorInstance.tag)
 	if !exists {
@@ -105,7 +105,7 @@ func doValidate(value interface{}, typ reflect.StructField, errs *[]error) error
 
 	validations := strings.Split(tag, ",")
 
-	return executeHandlers(reflect.ValueOf(value), typ, validations, errs)
+	return executeHandlers(value, typ, validations, errs)
 }
 
 func executeHandlers(value reflect.Value, typ reflect.StructField, validations []string, errs *[]error) error {

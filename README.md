@@ -15,6 +15,7 @@ A simple struct validator by tags (exported fields only).
 * nonzero (also supports uuid zero validation)
 * regex
 * special ( {YYYYMMDD}, {DDMMYYYY}, {date}, {time} )
+* sanitize (invalid characters)
 * error
 
 ## With methods for
@@ -44,6 +45,11 @@ This examples are available in the project at [validator/examples](https://githu
 
 ### Code
 ```go
+
+const (
+	RegexForMissingParms = `%\+?[a-z]`
+)
+
 type Data string
 
 type Example struct {
@@ -64,6 +70,8 @@ type Example struct {
 	DateString *string        `validate:"special={YYYYMMDD}, error=15"`
 	Data       *Data          `validate:"special={YYYYMMDD}, error=16"`
 	unexported string
+	IsNill     *string `validate:"nonzero, error=17"`
+	Sanitize   string  `validate:"sanitize=a;b;teste, error=17"`
 }
 
 var dummy_middle_handler = func(name string, value reflect.Value, expected interface{}, errs *[]error) []error {
@@ -99,14 +107,23 @@ var errs = map[string]error{
 	"14": errors.New("error 14"),
 	"15": errors.New("error 15"),
 	"16": errors.New("error 16"),
+	"17": errors.New("error 17"),
+	"18": errors.New("error 18"),
 }
 var dummy_error_handler = func(code string, arguments []interface{}, name string, value reflect.Value, expected interface{}, err *[]error) error {
 	if err, ok := errs[code]; ok {
-		err = fmt.Errorf(err.Error(), arguments...)
+		var regx = regexp.MustCompile(RegexForMissingParms)
+		matches := regx.FindAllStringIndex(err.Error(), -1)
 
-		if strings.Contains(err.Error(), "%s") {
-			err = fmt.Errorf(err.Error(), name)
+		if len(matches) > 0 {
+
+			if len(arguments) < len(matches) {
+				arguments = append(arguments, name)
+			}
+
+			err = fmt.Errorf(err.Error(), arguments...)
 		}
+
 		return err
 	}
 	return nil
@@ -146,6 +163,7 @@ func main() {
 				StartTime:  "99:01:00",
 				StartDate1: "01-99-2018",
 				StartDate2: "2018-99-1",
+				Sanitize:   "b teste",
 			},
 		},
 	}
@@ -160,7 +178,7 @@ func main() {
 
 > ##### Response:
 ```go
-ERRORS: 15
+ERRORS: 18
 
 ERROR: error 1: a:a, b:b
 ERROR: error 1: a:a, b:b
@@ -177,6 +195,9 @@ ERROR: {"code":"11","message":"the value [cc] is different of the expected optio
 ERROR: {"code":"12","message":"invalid data [99:01:00] on field [StartTime] "}
 ERROR: {"code":"13","message":"invalid data [01-99-2018] on field [StartDate1] "}
 ERROR: {"code":"14","message":"invalid data [2018-99-1] on field [StartDate2] "}
+ERROR: {"code":"17","message":"the value shouldn't be zero on field [IsNill]"}
+ERROR: {"code":"17","message":"the value [b teste] is has invalid characters [b,teste] on field [Sanitize]"}
+ERROR: {"code":"17","message":"the value shouldn't be zero on field [IsNill]"}
 ```
 
 ## Known issues

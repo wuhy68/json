@@ -21,6 +21,7 @@ type Validator struct {
 	handlersMiddle   map[string]MiddleTagHandler
 	handlersAfter    map[string]AfterTagHandler
 	errorCodeHandler ErrorCodeHandler
+	sanitize         []string
 	log              logger.ILogger
 	validateAll      bool
 }
