@@ -7,9 +7,10 @@ import (
 func NewValidator() *Validator {
 
 	v := &Validator{
-		tag:      "validate",
-		sanitize: make([]string, 0),
-		log:      logger.NewLogDefault("validatorInstance", logger.InfoLevel),
+		tag:       "validate",
+		callbacks: make(map[string]CallbackHandler),
+		sanitize:  make([]string, 0),
+		log:       logger.NewLogDefault("validator", logger.InfoLevel),
 	}
 
 	v.init()
@@ -82,6 +83,12 @@ func (v *Validator) SetTag(tag string) *Validator {
 
 func (v *Validator) SetSanitize(sanitize []string) *Validator {
 	v.sanitize = sanitize
+
+	return v
+}
+
+func (v *Validator) AddCallback(name string, callback CallbackHandler) *Validator {
+	v.callbacks[name] = callback
 
 	return v
 }

@@ -134,7 +134,8 @@ func executeHandlers(value reflect.Value, typ reflect.StructField, validations [
 
 		jsonName, exists := typ.Tag.Lookup("json")
 		if exists {
-			name = jsonName
+			split := strings.SplitN(jsonName, ",", 2)
+			name = split[0]
 		} else {
 			name = typ.Name
 		}

@@ -365,6 +365,15 @@ func (v *Validator) validate_special(name string, value reflect.Value, expected 
 	return v.validate_regex(name, value, expected, errs)
 }
 
+func (v *Validator) validate_callback(name string, value reflect.Value, expected interface{}, errs *[]error) []error {
+
+	if callback, ok := v.callbacks[expected.(string)]; ok {
+		return callback(name, value, expected, errs)
+	}
+
+	return make([]error, 0)
+}
+
 func (v *Validator) validate_error(name string, value reflect.Value, expected interface{}, errs *[]error) []error {
 	rtnErrs := make([]error, 0)
 	added := make(map[string]bool)

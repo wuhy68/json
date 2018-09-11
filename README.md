@@ -16,6 +16,7 @@ A simple struct validator by tags (exported fields only).
 * regex
 * special ( {YYYYMMDD}, {DDMMYYYY}, {date}, {time} )
 * sanitize (invalid characters)
+* callbacks (add handler validations)
 * error
 
 ## With methods for
@@ -25,6 +26,8 @@ A simple struct validator by tags (exported fields only).
 * SetErrorCodeHandler (function to get the error when defined with error={xpto:arg1;arg2})
 * SetValidateAll (when activated, validates all object instead of stopping on the first error)
 * SetTag (set validation tag to other that you define)
+* SetSanitize (set sanitize strings)
+* AddCallback (set a specific callback validation)
 * Validate (validate the object)
 
 ## Dependecy Management 
@@ -45,7 +48,6 @@ This examples are available in the project at [validator/examples](https://githu
 
 ### Code
 ```go
-
 const (
 	RegexForMissingParms = `%\+?[a-z]`
 )
@@ -72,6 +74,7 @@ type Example struct {
 	unexported string
 	IsNill     *string `validate:"nonzero, error=17"`
 	Sanitize   string  `validate:"sanitize=a;b;teste, error=17"`
+	Callback   string  `validate:"callback=dummy, error=19"`
 }
 
 var dummy_middle_handler = func(name string, value reflect.Value, expected interface{}, errs *[]error) []error {
@@ -87,7 +90,8 @@ func init() {
 	validator.
 		AddMiddle("dummy", dummy_middle_handler).
 		SetValidateAll(true).
-		SetErrorCodeHandler(dummy_error_handler)
+		SetErrorCodeHandler(dummy_error_handler).
+		AddCallback("dummy", dummy_callback)
 }
 
 var errs = map[string]error{
@@ -109,6 +113,7 @@ var errs = map[string]error{
 	"16": errors.New("error 16"),
 	"17": errors.New("error 17"),
 	"18": errors.New("error 18"),
+	"19": errors.New("error 19"),
 }
 var dummy_error_handler = func(code string, arguments []interface{}, name string, value reflect.Value, expected interface{}, err *[]error) error {
 	if err, ok := errs[code]; ok {
@@ -127,6 +132,10 @@ var dummy_error_handler = func(code string, arguments []interface{}, name string
 		return err
 	}
 	return nil
+}
+
+var dummy_callback = func(name string, value reflect.Value, expected interface{}, err *[]error) []error {
+	return []error{errors.New("there's a bug here!")}
 }
 
 func main() {
@@ -178,7 +187,7 @@ func main() {
 
 > ##### Response:
 ```go
-ERRORS: 18
+ERRORS: 20
 
 ERROR: error 1: a:a, b:b
 ERROR: error 1: a:a, b:b
@@ -197,7 +206,9 @@ ERROR: {"code":"13","message":"invalid data [01-99-2018] on field [StartDate1] "
 ERROR: {"code":"14","message":"invalid data [2018-99-1] on field [StartDate2] "}
 ERROR: {"code":"17","message":"the value shouldn't be zero on field [IsNill]"}
 ERROR: {"code":"17","message":"the value [b teste] is has invalid characters [b,teste] on field [Sanitize]"}
+ERROR: {"code":"19","message":"there's a bug here!"}
 ERROR: {"code":"17","message":"the value shouldn't be zero on field [IsNill]"}
+ERROR: {"code":"19","message":"there's a bug here!"}
 ```
 
 ## Known issues

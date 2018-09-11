@@ -21,12 +21,14 @@ type Validator struct {
 	handlersMiddle   map[string]MiddleTagHandler
 	handlersAfter    map[string]AfterTagHandler
 	errorCodeHandler ErrorCodeHandler
+	callbacks        map[string]CallbackHandler
 	sanitize         []string
 	log              logger.ILogger
 	validateAll      bool
 }
 
 type ErrorCodeHandler func(code string, arguments []interface{}, name string, value reflect.Value, expected interface{}, err *[]error) error
+type CallbackHandler func(name string, value reflect.Value, expected interface{}, err *[]error) []error
 
 type BeforeTagHandler func(name string, value reflect.Value, expected interface{}) []error
 type MiddleTagHandler func(name string, value reflect.Value, expected interface{}, err *[]error) []error

@@ -38,6 +38,7 @@ type Example struct {
 	unexported string
 	IsNill     *string `validate:"nonzero, error=17"`
 	Sanitize   string  `validate:"sanitize=a;b;teste, error=17"`
+	Callback   string  `validate:"callback=dummy, error=19"`
 }
 
 var dummy_middle_handler = func(name string, value reflect.Value, expected interface{}, errs *[]error) []error {
@@ -53,7 +54,8 @@ func init() {
 	validator.
 		AddMiddle("dummy", dummy_middle_handler).
 		SetValidateAll(true).
-		SetErrorCodeHandler(dummy_error_handler)
+		SetErrorCodeHandler(dummy_error_handler).
+		AddCallback("dummy", dummy_callback)
 }
 
 var errs = map[string]error{
@@ -75,6 +77,7 @@ var errs = map[string]error{
 	"16": errors.New("error 16"),
 	"17": errors.New("error 17"),
 	"18": errors.New("error 18"),
+	"19": errors.New("error 19"),
 }
 var dummy_error_handler = func(code string, arguments []interface{}, name string, value reflect.Value, expected interface{}, err *[]error) error {
 	if err, ok := errs[code]; ok {
@@ -93,6 +96,10 @@ var dummy_error_handler = func(code string, arguments []interface{}, name string
 		return err
 	}
 	return nil
+}
+
+var dummy_callback = func(name string, value reflect.Value, expected interface{}, err *[]error) []error {
+	return []error{errors.New("there's a bug here!")}
 }
 
 func main() {
