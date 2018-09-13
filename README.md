@@ -48,6 +48,7 @@ This examples are available in the project at [validator/examples](https://githu
 
 ### Code
 ```go
+
 const (
 	RegexForMissingParms = `%\+?[a-z]`
 )
@@ -55,12 +56,12 @@ const (
 type Data string
 
 type Example struct {
-	Name       string         `validate:"value=joao, dummy, error={1:a;b}, max=10"`
-	Age        int            `validate:"value=30, error={99}"`
-	Street     int            `validate:"max=10, error=3"`
-	Brothers    []Example      `validate:"size=1, error=4"`
-	Id           uuid.UUID      `validate:"nonzero, error=5"`
-	Option1      string         `validate:"options=aa;bb;cc, error=6"`
+	Name              string         `validate:"value=joao, dummy_middle, error={1:a;b}, max=10"`
+	Age               int            `validate:"value=30, error={99}"`
+	Street            int            `validate:"max=10, error=3"`
+	Brothers          []Example      `validate:"size=1, error=4"`
+	Id                uuid.UUID      `validate:"nonzero, error=5"`
+	Option1           string         `validate:"options=aa;bb;cc, error=6"`
 	Option2           int            `validate:"options=11;22;33, error=7"`
 	Option3           []string       `validate:"options=aa;bb;cc, error=8"`
 	Option4           []int          `validate:"options=11;22;33, error=9"`
@@ -75,13 +76,13 @@ type Example struct {
 	unexported        string
 	IsNill            *string `validate:"nonzero, error=17"`
 	Sanitize          string  `validate:"sanitize=a;b;teste, error=17"`
-	Callback          string  `validate:"callback=dummy, error=19"`
+	Callback          string  `validate:"callback=dummy_callback, error=19"`
 }
 
 var dummy_middle_handler = func(name string, value reflect.Value, expected interface{}, errs *[]error) []error {
 	var rtnErrs []error
 
-	err := errors.New("dummy responding...")
+	err := errors.New("dummy middle responding...")
 	rtnErrs = append(rtnErrs, err)
 
 	return rtnErrs
@@ -89,10 +90,10 @@ var dummy_middle_handler = func(name string, value reflect.Value, expected inter
 
 func init() {
 	validator.
-		AddMiddle("dummy", dummy_middle_handler).
+		AddMiddle("dummy_middle", dummy_middle_handler).
 		SetValidateAll(true).
 		SetErrorCodeHandler(dummy_error_handler).
-		AddCallback("dummy", dummy_callback)
+		AddCallback("dummy_callback", dummy_callback)
 }
 
 var errs = map[string]error{
