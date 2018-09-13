@@ -141,21 +141,21 @@ func executeHandlers(value reflect.Value, typ reflect.StructField, validations [
 		}
 
 		if _, ok := validatorInstance.handlersBefore[tag]; ok {
-			if rtnErrs := validatorInstance.handlersBefore[tag](name, value, expected); len(rtnErrs) > 0 {
+			if rtnErrs := validatorInstance.handlersBefore[tag](name, value, expected); rtnErrs != nil && len(rtnErrs) > 0 {
 				itErrs = append(itErrs, rtnErrs...)
 				err = rtnErrs[0]
 			}
 		}
 
 		if _, ok := validatorInstance.handlersMiddle[tag]; ok {
-			if rtnErrs := validatorInstance.handlersMiddle[tag](name, value, expected, &itErrs); len(rtnErrs) > 0 {
+			if rtnErrs := validatorInstance.handlersMiddle[tag](name, value, expected, &itErrs); rtnErrs != nil && len(rtnErrs) > 0 {
 				itErrs = append(itErrs, rtnErrs...)
 				err = rtnErrs[0]
 			}
 		}
 
 		if _, ok := validatorInstance.handlersAfter[tag]; ok {
-			if rtnErrs := validatorInstance.handlersAfter[tag](name, value, expected, &itErrs); len(rtnErrs) > 0 {
+			if rtnErrs := validatorInstance.handlersAfter[tag](name, value, expected, &itErrs); rtnErrs != nil && len(rtnErrs) > 0 {
 				itErrs = append(itErrs, rtnErrs...)
 				err = rtnErrs[0]
 			}
