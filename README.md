@@ -48,7 +48,6 @@ This examples are available in the project at [validator/examples](https://githu
 
 ### Code
 ```go
-
 const (
 	RegexForMissingParms = `%\+?[a-z]`
 )
