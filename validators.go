@@ -2,7 +2,6 @@ package validator
 
 import (
 	"fmt"
-	"net/url"
 	"reflect"
 	"regexp"
 	"strconv"
@@ -349,30 +348,23 @@ func (v *Validator) validate_special(name string, value reflect.Value, expected 
 	switch expected {
 	case TagForDateDefault:
 		expected = RegexForDateDefault
-		return v.validate_regex(name, value, expected, errs)
 	case TagForDateDDMMYYYY:
 		expected = RegexForDateDDMMYYYY
-		return v.validate_regex(name, value, expected, errs)
 	case TagForDateYYYYMMDD:
 		expected = RegexForDateYYYYMMDD
-		return v.validate_regex(name, value, expected, errs)
 	case TagForTimeDefault:
 		expected = RegexForTimeDefault
-		return v.validate_regex(name, value, expected, errs)
 	case TagForTimeHHMMSS:
 		expected = RegexForTimeHHMMSS
-		return v.validate_regex(name, value, expected, errs)
 	case TagForURL:
-		if _, err := url.ParseRequestURI(value.String()); err != nil {
-			rtnErrs = append(rtnErrs, err)
-			return rtnErrs
-		}
+		expected = RegexForURL
 	default:
 		err := fmt.Errorf("invalid special [%s] on field [%+v] ", expected, name)
 		rtnErrs = append(rtnErrs, err)
 		return rtnErrs
 	}
-	return rtnErrs
+
+	return v.validate_regex(name, value, expected, errs)
 }
 
 func (v *Validator) validate_callback(name string, value reflect.Value, expected interface{}, errs *[]error) []error {

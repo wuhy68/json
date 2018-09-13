@@ -48,7 +48,6 @@ This examples are available in the project at [validator/examples](https://githu
 
 ### Code
 ```go
-
 const (
 	RegexForMissingParms = `%\+?[a-z]`
 )
@@ -160,6 +159,7 @@ func main() {
 		SpecialDate2:      "2018-12-1",
 		SpecialDateString: &str,
 		SpecialData:       &data,
+		SpecialUrl:        "xxx.xxx.teste.pt",
 		Brothers: []Example{
 			Example{
 				Name:         "jessica",
@@ -178,7 +178,6 @@ func main() {
 				SpecialUrl:   "http://www.teste.pt",
 			},
 		},
-		SpecialUrl: "xxx.xxx.teste.pt",
 	}
 	if errs := validator.Validate(example); len(errs) > 0 {
 		fmt.Printf("ERRORS: %d\n", len(errs))
@@ -205,13 +204,13 @@ ERROR: {"code":"8","message":"the value [zz] is different of the expected option
 ERROR: {"code":"9","message":"the value [44] is different of the expected options [11;22;33] on field [Option4]"}
 ERROR: {"code":"10","message":"the value [22] is different of the expected options [aa:11;bb:22;cc:33] on field [Map1]"}
 ERROR: {"code":"11","message":"the value [cc] is different of the expected options [11:aa;22:bb;33:cc] on field [Map2]"}
-ERROR: {"code":"12","message":"invalid data [99:01:00] on field [StartTime] "}
-ERROR: {"code":"13","message":"invalid data [01-99-2018] on field [StartDate1] "}
-ERROR: {"code":"14","message":"invalid data [2018-99-1] on field [StartDate2] "}
+ERROR: {"code":"12","message":"invalid data [99:01:00] on field [SpecialTime] "}
+ERROR: {"code":"13","message":"invalid data [01-99-2018] on field [SpecialDate1] "}
+ERROR: {"code":"14","message":"invalid data [2018-99-1] on field [SpecialDate2] "}
 ERROR: {"code":"17","message":"the value shouldn't be zero on field [IsNill]"}
 ERROR: {"code":"17","message":"the value [b teste] is has invalid characters [b,teste] on field [Sanitize]"}
 ERROR: {"code":"19","message":"there's a bug here!"}
-ERROR: parse xxx.xxx.teste.pt: invalid URI for request
+ERROR: invalid data [xxx.xxx.teste.pt] on field [SpecialUrl]
 ERROR: {"code":"17","message":"the value shouldn't be zero on field [IsNill]"}
 ERROR: {"code":"19","message":"there's a bug here!"}
 ```

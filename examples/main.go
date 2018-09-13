@@ -123,6 +123,7 @@ func main() {
 		SpecialDate2:      "2018-12-1",
 		SpecialDateString: &str,
 		SpecialData:       &data,
+		SpecialUrl:        "xxx.xxx.teste.pt",
 		Brothers: []Example{
 			Example{
 				Name:         "jessica",
@@ -141,7 +142,6 @@ func main() {
 				SpecialUrl:   "http://www.teste.pt",
 			},
 		},
-		SpecialUrl: "xxx.xxx.teste.pt",
 	}
 	if errs := validator.Validate(example); len(errs) > 0 {
 		fmt.Printf("ERRORS: %d\n", len(errs))
