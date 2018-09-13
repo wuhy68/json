@@ -19,26 +19,27 @@ const (
 type Data string
 
 type Example struct {
-	Name       string         `validate:"value=joao, dummy, error={1:a;b}, max=10"`
-	Age        int            `validate:"value=30, error={99}"`
-	Street     int            `validate:"max=10, error=3"`
-	Brothers   []Example      `validate:"size=1, error=4"`
-	Id         uuid.UUID      `validate:"nonzero, error=5"`
-	Option1    string         `validate:"options=aa;bb;cc, error=6"`
-	Option2    int            `validate:"options=11;22;33, error=7"`
-	Option3    []string       `validate:"options=aa;bb;cc, error=8"`
-	Option4    []int          `validate:"options=11;22;33, error=9"`
-	Map1       map[string]int `validate:"options=aa:11;bb:22;cc:33, error=10"`
-	Map2       map[int]string `validate:"options=11:aa;22:bb;33:cc, error=11"`
-	StartTime  string         `validate:"special={time}, error=12"`
-	StartDate1 string         `validate:"special={date}, error=13"`
-	StartDate2 string         `validate:"special={YYYYMMDD}, error=14"`
-	DateString *string        `validate:"special={YYYYMMDD}, error=15"`
-	Data       *Data          `validate:"special={YYYYMMDD}, error=16"`
-	unexported string
-	IsNill     *string `validate:"nonzero, error=17"`
-	Sanitize   string  `validate:"sanitize=a;b;teste, error=17"`
-	Callback   string  `validate:"callback=dummy, error=19"`
+	Name              string         `validate:"value=joao, dummy, error={1:a;b}, max=10"`
+	Age               int            `validate:"value=30, error={99}"`
+	Street            int            `validate:"max=10, error=3"`
+	Brothers          []Example      `validate:"size=1, error=4"`
+	Id                uuid.UUID      `validate:"nonzero, error=5"`
+	Option1           string         `validate:"options=aa;bb;cc, error=6"`
+	Option2           int            `validate:"options=11;22;33, error=7"`
+	Option3           []string       `validate:"options=aa;bb;cc, error=8"`
+	Option4           []int          `validate:"options=11;22;33, error=9"`
+	Map1              map[string]int `validate:"options=aa:11;bb:22;cc:33, error=10"`
+	Map2              map[int]string `validate:"options=11:aa;22:bb;33:cc, error=11"`
+	SpecialTime       string         `validate:"special=time, error=12"`
+	SpecialDate1      string         `validate:"special=date, error=13"`
+	SpecialDate2      string         `validate:"special=YYYYMMDD, error=14"`
+	SpecialDateString *string        `validate:"special=YYYYMMDD, error=15"`
+	SpecialData       *Data          `validate:"special=YYYYMMDD, error=16"`
+	SpecialUrl        string         `validate:"special=url"`
+	unexported        string
+	IsNill            *string `validate:"nonzero, error=17"`
+	Sanitize          string  `validate:"sanitize=a;b;teste, error=17"`
+	Callback          string  `validate:"callback=dummy, error=19"`
 }
 
 var dummy_middle_handler = func(name string, value reflect.Value, expected interface{}, errs *[]error) []error {
@@ -107,38 +108,40 @@ func main() {
 	str := "2018-12-1"
 	data := Data("2018-12-1")
 	example := Example{
-		Id:         id,
-		Name:       "joao",
-		Age:        30,
-		Street:     10,
-		Option1:    "aa",
-		Option2:    11,
-		Option3:    []string{"aa", "bb", "cc"},
-		Option4:    []int{11, 22, 33},
-		Map1:       map[string]int{"aa": 11, "bb": 22, "cc": 33},
-		Map2:       map[int]string{11: "aa", 22: "bb", 33: "cc"},
-		StartTime:  "12:01:00",
-		StartDate1: "01-12-2018",
-		StartDate2: "2018-12-1",
-		DateString: &str,
-		Data:       &data,
+		Id:                id,
+		Name:              "joao",
+		Age:               30,
+		Street:            10,
+		Option1:           "aa",
+		Option2:           11,
+		Option3:           []string{"aa", "bb", "cc"},
+		Option4:           []int{11, 22, 33},
+		Map1:              map[string]int{"aa": 11, "bb": 22, "cc": 33},
+		Map2:              map[int]string{11: "aa", 22: "bb", 33: "cc"},
+		SpecialTime:       "12:01:00",
+		SpecialDate1:      "01-12-2018",
+		SpecialDate2:      "2018-12-1",
+		SpecialDateString: &str,
+		SpecialData:       &data,
 		Brothers: []Example{
 			Example{
-				Name:       "jessica",
-				Age:        10,
-				Street:     12,
-				Option1:    "xx",
-				Option2:    99,
-				Option3:    []string{"aa", "zz", "cc"},
-				Option4:    []int{11, 44, 33},
-				Map1:       map[string]int{"aa": 11, "kk": 22, "cc": 33},
-				Map2:       map[int]string{11: "aa", 22: "bb", 99: "cc"},
-				StartTime:  "99:01:00",
-				StartDate1: "01-99-2018",
-				StartDate2: "2018-99-1",
-				Sanitize:   "b teste",
+				Name:         "jessica",
+				Age:          10,
+				Street:       12,
+				Option1:      "xx",
+				Option2:      99,
+				Option3:      []string{"aa", "zz", "cc"},
+				Option4:      []int{11, 44, 33},
+				Map1:         map[string]int{"aa": 11, "kk": 22, "cc": 33},
+				Map2:         map[int]string{11: "aa", 22: "bb", 99: "cc"},
+				SpecialTime:  "99:01:00",
+				SpecialDate1: "01-99-2018",
+				SpecialDate2: "2018-99-1",
+				Sanitize:     "b teste",
+				SpecialUrl:   "http://www.teste.pt",
 			},
 		},
+		SpecialUrl: "xxx.xxx.teste.pt",
 	}
 	if errs := validator.Validate(example); len(errs) > 0 {
 		fmt.Printf("ERRORS: %d\n", len(errs))
