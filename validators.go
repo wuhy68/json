@@ -295,7 +295,7 @@ func (v *Validator) validate_nonzero(name string, value reflect.Value, expected 
 	case reflect.Bool:
 		valueSize = int64(len(strings.TrimSpace(strconv.FormatBool(value.Bool()))))
 	case reflect.Struct:
-		if value.Interface() == reflect.Zero(value.Type()).Interface() {
+		if value.Interface() != reflect.Zero(value.Type()).Interface() {
 			valueSize = 1
 		}
 	default:
