@@ -271,7 +271,6 @@ func (v *Validator) validate_nonzero(name string, value reflect.Value, expected 
 	rtnErrs := make([]error, 0)
 	var valueSize int64
 	var val string
-	var isZeroValue bool
 
 	switch value.Kind() {
 	case reflect.Array, reflect.Slice, reflect.Map:
@@ -296,7 +295,9 @@ func (v *Validator) validate_nonzero(name string, value reflect.Value, expected 
 	case reflect.Bool:
 		valueSize = int64(len(strings.TrimSpace(strconv.FormatBool(value.Bool()))))
 	case reflect.Struct:
-		isZeroValue = value == reflect.Zero(value.Type())
+		if value != reflect.Zero(value.Type()) {
+			valueSize = 1
+		}
 	default:
 		if value.Kind() == reflect.Ptr && value.IsNil() {
 			break
@@ -304,7 +305,7 @@ func (v *Validator) validate_nonzero(name string, value reflect.Value, expected 
 		valueSize = int64(len(strings.TrimSpace(value.String())))
 	}
 
-	if valueSize == 0 || (val == "0") || isZeroValue {
+	if valueSize == 0 || (val == "0") {
 		err := fmt.Errorf("the value shouldn't be zero on field [%s]", name)
 		rtnErrs = append(rtnErrs, err)
 	}
