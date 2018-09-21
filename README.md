@@ -18,6 +18,7 @@ A simple struct validator by tags (exported fields only).
 * sanitize (invalid characters)
 * callbacks (add handler validations)
 * error
+* match (match between fields)
 
 ## With methods for
 * AddBefore (add a before-validation)
@@ -76,6 +77,8 @@ type Example struct {
 	IsNill            *string `validate:"nonzero, error=17"`
 	Sanitize          string  `validate:"sanitize=a;b;teste, error=17"`
 	Callback          string  `validate:"callback=dummy_callback, error=19"`
+	Password          string  `json:"password"`
+	PasswordConfirm   string  `validate:"match=password"`
 }
 
 var dummy_middle_handler = func(name string, value reflect.Value, expected interface{}, errs *[]error) []error {
@@ -160,22 +163,26 @@ func main() {
 		SpecialDateString: &str,
 		SpecialData:       &data,
 		SpecialUrl:        "xxx.xxx.teste.pt",
+		Password:          "password",
+		PasswordConfirm:   "password_errada",
 		Brothers: []Example{
 			Example{
-				Name:         "jessica",
-				Age:          10,
-				Street:       12,
-				Option1:      "xx",
-				Option2:      99,
-				Option3:      []string{"aa", "zz", "cc"},
-				Option4:      []int{11, 44, 33},
-				Map1:         map[string]int{"aa": 11, "kk": 22, "cc": 33},
-				Map2:         map[int]string{11: "aa", 22: "bb", 99: "cc"},
-				SpecialTime:  "99:01:00",
-				SpecialDate1: "01-99-2018",
-				SpecialDate2: "2018-99-1",
-				Sanitize:     "b teste",
-				SpecialUrl:   "http://www.teste.pt",
+				Name:            "jessica",
+				Age:             10,
+				Street:          12,
+				Option1:         "xx",
+				Option2:         99,
+				Option3:         []string{"aa", "zz", "cc"},
+				Option4:         []int{11, 44, 33},
+				Map1:            map[string]int{"aa": 11, "kk": 22, "cc": 33},
+				Map2:            map[int]string{11: "aa", 22: "bb", 99: "cc"},
+				SpecialTime:     "99:01:00",
+				SpecialDate1:    "01-99-2018",
+				SpecialDate2:    "2018-99-1",
+				Sanitize:        "b teste",
+				SpecialUrl:      "http://www.teste.pt",
+				Password:        "password",
+				PasswordConfirm: "password",
 			},
 		},
 	}
@@ -210,9 +217,9 @@ ERROR: {"code":"14","message":"invalid data [2018-99-1] on field [SpecialDate2] 
 ERROR: {"code":"17","message":"the value shouldn't be zero on field [IsNill]"}
 ERROR: {"code":"17","message":"the value [b teste] is has invalid characters [b,teste] on field [Sanitize]"}
 ERROR: {"code":"19","message":"there's a bug here!"}
-ERROR: invalid data [xxx.xxx.teste.pt] on field [SpecialUrl]
 ERROR: {"code":"17","message":"the value shouldn't be zero on field [IsNill]"}
 ERROR: {"code":"19","message":"there's a bug here!"}
+ERROR: the value [password_errada] is different of the expected [password] on field [PasswordConfirm]
 ```
 
 ## Known issues

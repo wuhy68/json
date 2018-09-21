@@ -429,3 +429,8 @@ func (v *Validator) validate_error(name string, value reflect.Value, expected in
 
 	return rtnErrs
 }
+
+func (v *Validator) validate_match(name string, value reflect.Value, expected interface{}, errs *[]error) []error {
+
+	return v.validate_value(name, value, expected, errs)
+}

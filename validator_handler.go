@@ -6,15 +6,21 @@ import (
 	"strings"
 )
 
-func handleValidation(obj interface{}) []error {
+func NewValidatorHandler(validator *Validator) *ValidatorHandler {
+	return &ValidatorHandler{
+		validator: validator,
+		values:    make(map[string]interface{}),
+	}
+}
+func (v *ValidatorHandler) handleValidation(obj interface{}) []error {
 	errs := make([]error, 0)
 
-	do(obj, &errs)
+	v.do(obj, &errs)
 
 	return errs
 }
 
-func do(obj interface{}, errs *[]error) error {
+func (v *ValidatorHandler) do(obj interface{}, errs *[]error) error {
 	types := reflect.TypeOf(obj)
 	value := reflect.ValueOf(obj)
 
@@ -42,14 +48,14 @@ func do(obj interface{}, errs *[]error) error {
 				continue
 			}
 
-			if err := doValidate(nextValue, nextType, errs); err != nil {
+			if err := v.doValidate(nextValue, nextType, errs); err != nil {
 
-				if !validatorInstance.validateAll {
+				if !v.validator.validateAll {
 					return err
 				}
 			}
-			if err := do(nextValue.Interface(), errs); err != nil {
-				if !validatorInstance.validateAll {
+			if err := v.do(nextValue.Interface(), errs); err != nil {
+				if !v.validator.validateAll {
 					return err
 				}
 			}
@@ -63,8 +69,8 @@ func do(obj interface{}, errs *[]error) error {
 				continue
 			}
 
-			if err := do(nextValue.Interface(), errs); err != nil {
-				if !validatorInstance.validateAll {
+			if err := v.do(nextValue.Interface(), errs); err != nil {
+				if !v.validator.validateAll {
 					return err
 				}
 			}
@@ -78,13 +84,13 @@ func do(obj interface{}, errs *[]error) error {
 				continue
 			}
 
-			if err := do(key.Interface(), errs); err != nil {
-				if !validatorInstance.validateAll {
+			if err := v.do(key.Interface(), errs); err != nil {
+				if !v.validator.validateAll {
 					return err
 				}
 			}
-			if err := do(nextValue.Interface(), errs); err != nil {
-				if !validatorInstance.validateAll {
+			if err := v.do(nextValue.Interface(), errs); err != nil {
+				if !v.validator.validateAll {
 					return err
 				}
 			}
@@ -96,19 +102,19 @@ func do(obj interface{}, errs *[]error) error {
 	return nil
 }
 
-func doValidate(value reflect.Value, typ reflect.StructField, errs *[]error) error {
+func (v *ValidatorHandler) doValidate(value reflect.Value, typ reflect.StructField, errs *[]error) error {
 
-	tag, exists := typ.Tag.Lookup(validatorInstance.tag)
+	tag, exists := typ.Tag.Lookup(v.validator.tag)
 	if !exists {
 		return nil
 	}
 
 	validations := strings.Split(tag, ",")
 
-	return executeHandlers(value, typ, validations, errs)
+	return v.executeHandlers(value, typ, validations, errs)
 }
 
-func executeHandlers(value reflect.Value, typ reflect.StructField, validations []string, errs *[]error) error {
+func (v *ValidatorHandler) executeHandlers(value reflect.Value, typ reflect.StructField, validations []string, errs *[]error) error {
 	var err error
 	var itErrs []error
 
@@ -118,16 +124,16 @@ func executeHandlers(value reflect.Value, typ reflect.StructField, validations [
 		options := strings.Split(validation, "=")
 		tag := strings.TrimSpace(options[0])
 
-		if _, ok := validatorInstance.activeHandlers[tag]; !ok {
+		if _, ok := v.validator.activeHandlers[tag]; !ok {
 			err := fmt.Errorf("invalid tag [%s]", tag)
 			*errs = append(*errs, err)
 
-			if !validatorInstance.validateAll {
+			if !v.validator.validateAll {
 				return err
 			}
 		}
 
-		var expected string
+		var expected interface{}
 		if len(options) > 1 {
 			expected = strings.TrimSpace(options[1])
 		}
@@ -140,22 +146,31 @@ func executeHandlers(value reflect.Value, typ reflect.StructField, validations [
 			name = typ.Name
 		}
 
-		if _, ok := validatorInstance.handlersBefore[tag]; ok {
-			if rtnErrs := validatorInstance.handlersBefore[tag](name, value, expected); rtnErrs != nil && len(rtnErrs) > 0 {
+		// add values to match
+		v.values[name] = value
+
+		// execute validations
+		if _, ok := v.validator.handlersBefore[tag]; ok {
+			if rtnErrs := v.validator.handlersBefore[tag](name, value, expected); rtnErrs != nil && len(rtnErrs) > 0 {
 				itErrs = append(itErrs, rtnErrs...)
 				err = rtnErrs[0]
 			}
 		}
 
-		if _, ok := validatorInstance.handlersMiddle[tag]; ok {
-			if rtnErrs := validatorInstance.handlersMiddle[tag](name, value, expected, &itErrs); rtnErrs != nil && len(rtnErrs) > 0 {
+		if _, ok := v.validator.handlersMiddle[tag]; ok {
+			if tag == "match" {
+				if expectedValue, ok := v.values[expected.(string)]; ok {
+					expected = expectedValue
+				}
+			}
+			if rtnErrs := v.validator.handlersMiddle[tag](name, value, expected, &itErrs); rtnErrs != nil && len(rtnErrs) > 0 {
 				itErrs = append(itErrs, rtnErrs...)
 				err = rtnErrs[0]
 			}
 		}
 
-		if _, ok := validatorInstance.handlersAfter[tag]; ok {
-			if rtnErrs := validatorInstance.handlersAfter[tag](name, value, expected, &itErrs); rtnErrs != nil && len(rtnErrs) > 0 {
+		if _, ok := v.validator.handlersAfter[tag]; ok {
+			if rtnErrs := v.validator.handlersAfter[tag](name, value, expected, &itErrs); rtnErrs != nil && len(rtnErrs) > 0 {
 				itErrs = append(itErrs, rtnErrs...)
 				err = rtnErrs[0]
 			}

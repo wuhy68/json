@@ -13,5 +13,6 @@ func (v *Validator) NewDefaultMiddleHandlers() map[string]MiddleTagHandler {
 		"special":  v.validate_special,
 		"sanitize": v.validate_sanitize,
 		"callback": v.validate_callback,
+		"match":    v.validate_match,
 	}
 }
