@@ -24,6 +24,10 @@ func (v *ValidatorHandler) do(obj interface{}, errs *[]error) error {
 	types := reflect.TypeOf(obj)
 	value := reflect.ValueOf(obj)
 
+	if !value.CanInterface() {
+		return nil
+	}
+
 	if value.Kind() == reflect.Ptr && !value.IsNil() {
 		value = value.Elem()
 
