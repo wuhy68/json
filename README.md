@@ -18,7 +18,8 @@ A simple struct validator by tags (exported fields only).
 * sanitize (invalid characters)
 * callbacks (add handler validations)
 * error
-* match (match between fields)
+* match (match between fields [define id=xpto])
+* if (conditional validation between fields [define id=xpto])
 
 ## With methods for
 * AddBefore (add a before-validation)
@@ -59,7 +60,7 @@ type Example struct {
 	Name              string         `validate:"value=joao, dummy_middle, error={1:a;b}, max=10"`
 	Age               int            `validate:"value=30, error={99}"`
 	Street            int            `validate:"max=10, error=3"`
-	Brothers          []Example      `validate:"size=1, error=4"`
+	Brothers          []Example2     `validate:"size=1, error=4"`
 	Id                uuid.UUID      `validate:"nonzero, error=5"`
 	Option1           string         `validate:"options=aa;bb;cc, error=6"`
 	Option2           int            `validate:"options=11;22;33, error=7"`
@@ -77,11 +78,38 @@ type Example struct {
 	IsNill            *string `validate:"nonzero, error=17"`
 	Sanitize          string  `validate:"sanitize=a;b;teste, error=17"`
 	Callback          string  `validate:"callback=dummy_callback, error=19"`
-	Password          string  `json:"password"`
+	Password          string  `json:"password" validate:"id=password"`
+	PasswordConfirm   string  `validate:"match=password"`
+	MyAge             int     `validate:"id=age"`
+	MaxMyAge          int     `validate:"if=(id=age value=30) or (id=age value=31), value=10"`
+}
+
+type Example2 struct {
+	Name              string         `validate:"value=joao, dummy_middle, error={1:a;b}, max=10"`
+	Age               int            `validate:"value=30, error={99}"`
+	Street            int            `validate:"max=10, error=3"`
+	Id                uuid.UUID      `validate:"nonzero, error=5"`
+	Option1           string         `validate:"options=aa;bb;cc, error=6"`
+	Option2           int            `validate:"options=11;22;33, error=7"`
+	Option3           []string       `validate:"options=aa;bb;cc, error=8"`
+	Option4           []int          `validate:"options=11;22;33, error=9"`
+	Map1              map[string]int `validate:"options=aa:11;bb:22;cc:33, error=10"`
+	Map2              map[int]string `validate:"options=11:aa;22:bb;33:cc, error=11"`
+	SpecialTime       string         `validate:"special=time, error=12"`
+	SpecialDate1      string         `validate:"special=date, error=13"`
+	SpecialDate2      string         `validate:"special=YYYYMMDD, error=14"`
+	SpecialDateString *string        `validate:"special=YYYYMMDD, error=15"`
+	SpecialData       *Data          `validate:"special=YYYYMMDD, error=16"`
+	SpecialUrl        string         `validate:"special=url"`
+	unexported        string
+	IsNill            *string `validate:"nonzero, error=17"`
+	Sanitize          string  `validate:"sanitize=a;b;teste, error=17"`
+	Callback          string  `validate:"callback=dummy_callback, error=19"`
+	Password          string  `json:"password" validate:"id=password"`
 	PasswordConfirm   string  `validate:"match=password"`
 }
 
-var dummy_middle_handler = func(name string, value reflect.Value, expected interface{}, errs *[]error) []error {
+var dummy_middle_handler = func(context *validator.ValidatorContext, name string, value reflect.Value, expected interface{}, errs *[]error) []error {
 	var rtnErrs []error
 
 	err := errors.New("dummy middle responding...")
@@ -119,7 +147,7 @@ var errs = map[string]error{
 	"18": errors.New("error 18"),
 	"19": errors.New("error 19"),
 }
-var dummy_error_handler = func(code string, arguments []interface{}, name string, value reflect.Value, expected interface{}, err *[]error) error {
+var dummy_error_handler = func(context *validator.ValidatorContext, code string, arguments []interface{}, name string, value reflect.Value, expected interface{}, err *[]error) error {
 	if err, ok := errs[code]; ok {
 		var regx = regexp.MustCompile(RegexForMissingParms)
 		matches := regx.FindAllStringIndex(err.Error(), -1)
@@ -138,7 +166,7 @@ var dummy_error_handler = func(code string, arguments []interface{}, name string
 	return nil
 }
 
-var dummy_callback = func(name string, value reflect.Value, expected interface{}, err *[]error) []error {
+var dummy_callback = func(context *validator.ValidatorContext, name string, value reflect.Value, expected interface{}, err *[]error) []error {
 	return []error{errors.New("there's a bug here!")}
 }
 
@@ -165,8 +193,10 @@ func main() {
 		SpecialUrl:        "xxx.xxx.teste.pt",
 		Password:          "password",
 		PasswordConfirm:   "password_errada",
-		Brothers: []Example{
-			Example{
+		MyAge:             30,
+		MaxMyAge:          30,
+		Brothers: []Example2{
+			Example2{
 				Name:            "jessica",
 				Age:             10,
 				Street:          12,
@@ -203,7 +233,6 @@ ERROR: error 1: a:a, b:b
 ERROR: error 1: a:a, b:b
 ERROR: the value [10] is different of the expected [30] on field [Age]
 ERROR: {"code":"3","message":"the length [12] is bigger then the expected [10] on field [Street]"}
-ERROR: {"code":"4","message":"the length [0] is lower then the expected [1] on field [Brothers]"}
 ERROR: {"code":"5","message":"the value shouldn't be zero on field [Id]"}
 ERROR: {"code":"6","message":"the value [xx] is different of the expected options [aa;bb;cc] on field [Option1]"}
 ERROR: {"code":"7","message":"the value [99] is different of the expected options [11;22;33] on field [Option2]"}
@@ -220,6 +249,7 @@ ERROR: {"code":"19","message":"there's a bug here!"}
 ERROR: {"code":"17","message":"the value shouldn't be zero on field [IsNill]"}
 ERROR: {"code":"19","message":"there's a bug here!"}
 ERROR: the value [password_errada] is different of the expected [password] on field [PasswordConfirm]
+ERROR: the value [30] is different of the expected [10] on field [MaxMyAge]
 ```
 
 ## Known issues

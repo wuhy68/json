@@ -13,7 +13,7 @@ import (
 	"github.com/satori/go.uuid"
 )
 
-func (v *Validator) validate_value(name string, value reflect.Value, expected interface{}, errs *[]error) []error {
+func (v *Validator) validate_value(context *ValidatorContext, name string, value reflect.Value, expected interface{}, errs *[]error) []error {
 	rtnErrs := make([]error, 0)
 
 	if fmt.Sprintf("%+v", value) == "" || (value.Kind() == reflect.Ptr && value.IsNil()) {
@@ -28,7 +28,7 @@ func (v *Validator) validate_value(name string, value reflect.Value, expected in
 	return rtnErrs
 }
 
-func (v *Validator) validate_sanitize(name string, value reflect.Value, expected interface{}, errs *[]error) []error {
+func (v *Validator) validate_sanitize(context *ValidatorContext, name string, value reflect.Value, expected interface{}, errs *[]error) []error {
 	rtnErrs := make([]error, 0)
 
 	if fmt.Sprintf("%+v", value) == "" || (value.Kind() == reflect.Ptr && value.IsNil()) {
@@ -61,7 +61,7 @@ func (v *Validator) validate_sanitize(name string, value reflect.Value, expected
 	return rtnErrs
 }
 
-func (v *Validator) validate_not(name string, value reflect.Value, expected interface{}, errs *[]error) []error {
+func (v *Validator) validate_not(context *ValidatorContext, name string, value reflect.Value, expected interface{}, errs *[]error) []error {
 	rtnErrs := make([]error, 0)
 
 	if fmt.Sprintf("%+v", value) == "" || (value.Kind() == reflect.Ptr && value.IsNil()) {
@@ -76,7 +76,7 @@ func (v *Validator) validate_not(name string, value reflect.Value, expected inte
 	return rtnErrs
 }
 
-func (v *Validator) validate_options(name string, value reflect.Value, expected interface{}, errs *[]error) []error {
+func (v *Validator) validate_options(context *ValidatorContext, name string, value reflect.Value, expected interface{}, errs *[]error) []error {
 	rtnErrs := make([]error, 0)
 
 	if fmt.Sprintf("%+v", value) == "" || (value.Kind() == reflect.Ptr && value.IsNil()) {
@@ -156,7 +156,7 @@ func (v *Validator) validate_options(name string, value reflect.Value, expected 
 	return rtnErrs
 }
 
-func (v *Validator) validate_size(name string, value reflect.Value, expected interface{}, errs *[]error) []error {
+func (v *Validator) validate_size(context *ValidatorContext, name string, value reflect.Value, expected interface{}, errs *[]error) []error {
 	rtnErrs := make([]error, 0)
 	size, e := strconv.Atoi(expected.(string))
 	if e != nil {
@@ -193,7 +193,7 @@ func (v *Validator) validate_size(name string, value reflect.Value, expected int
 	return rtnErrs
 }
 
-func (v *Validator) validate_min(name string, value reflect.Value, expected interface{}, errs *[]error) []error {
+func (v *Validator) validate_min(context *ValidatorContext, name string, value reflect.Value, expected interface{}, errs *[]error) []error {
 	rtnErrs := make([]error, 0)
 	min, e := strconv.Atoi(expected.(string))
 	if e != nil {
@@ -230,7 +230,7 @@ func (v *Validator) validate_min(name string, value reflect.Value, expected inte
 	return rtnErrs
 }
 
-func (v *Validator) validate_max(name string, value reflect.Value, expected interface{}, errs *[]error) []error {
+func (v *Validator) validate_max(context *ValidatorContext, name string, value reflect.Value, expected interface{}, errs *[]error) []error {
 	rtnErrs := make([]error, 0)
 	max, e := strconv.Atoi(expected.(string))
 	if e != nil {
@@ -267,7 +267,7 @@ func (v *Validator) validate_max(name string, value reflect.Value, expected inte
 	return rtnErrs
 }
 
-func (v *Validator) validate_nonzero(name string, value reflect.Value, expected interface{}, errs *[]error) []error {
+func (v *Validator) validate_nonzero(context *ValidatorContext, name string, value reflect.Value, expected interface{}, errs *[]error) []error {
 	rtnErrs := make([]error, 0)
 	var valueSize int64
 	var val string
@@ -313,7 +313,7 @@ func (v *Validator) validate_nonzero(name string, value reflect.Value, expected 
 	return rtnErrs
 }
 
-func (v *Validator) validate_regex(name string, value reflect.Value, expected interface{}, errs *[]error) []error {
+func (v *Validator) validate_regex(context *ValidatorContext, name string, value reflect.Value, expected interface{}, errs *[]error) []error {
 
 	rtnErrs := make([]error, 0)
 
@@ -341,7 +341,7 @@ func (v *Validator) validate_regex(name string, value reflect.Value, expected in
 	return rtnErrs
 }
 
-func (v *Validator) validate_special(name string, value reflect.Value, expected interface{}, errs *[]error) []error {
+func (v *Validator) validate_special(context *ValidatorContext, name string, value reflect.Value, expected interface{}, errs *[]error) []error {
 
 	rtnErrs := make([]error, 0)
 
@@ -368,19 +368,19 @@ func (v *Validator) validate_special(name string, value reflect.Value, expected 
 		return rtnErrs
 	}
 
-	return v.validate_regex(name, value, expected, errs)
+	return v.validate_regex(context, name, value, expected, errs)
 }
 
-func (v *Validator) validate_callback(name string, value reflect.Value, expected interface{}, errs *[]error) []error {
+func (v *Validator) validate_callback(context *ValidatorContext, name string, value reflect.Value, expected interface{}, errs *[]error) []error {
 
 	if callback, ok := v.callbacks[expected.(string)]; ok {
-		return callback(name, value, expected, errs)
+		return callback(context, name, value, expected, errs)
 	}
 
 	return make([]error, 0)
 }
 
-func (v *Validator) validate_error(name string, value reflect.Value, expected interface{}, errs *[]error) []error {
+func (v *Validator) validate_error(context *ValidatorContext, name string, value reflect.Value, expected interface{}, errs *[]error) []error {
 	rtnErrs := make([]error, 0)
 	added := make(map[string]bool)
 	for i, _ := range *errs {
@@ -407,7 +407,7 @@ func (v *Validator) validate_error(name string, value reflect.Value, expected in
 								arguments = append(arguments, arg)
 							}
 						}
-						newErr := v.errorCodeHandler(split[0], arguments, name, value, expected, errs)
+						newErr := v.errorCodeHandler(context, split[0], arguments, name, value, expected, errs)
 						if newErr != nil {
 							(*errs)[i] = newErr
 						}
@@ -430,7 +430,113 @@ func (v *Validator) validate_error(name string, value reflect.Value, expected in
 	return rtnErrs
 }
 
-func (v *Validator) validate_match(name string, value reflect.Value, expected interface{}, errs *[]error) []error {
+func (v *Validator) validate_match(context *ValidatorContext, name string, value reflect.Value, expected interface{}, errs *[]error) []error {
+	if expectedValue, ok := context.values[expected.(string)]; ok {
+		expected = expectedValue.Value
+	}
 
-	return v.validate_value(name, value, expected, errs)
+	return v.validate_value(context, name, value, expected, errs)
+}
+
+func (v *Validator) validate_id(context *ValidatorContext, name string, value reflect.Value, expected interface{}) []error {
+	return nil
+}
+
+func (v *Validator) validate_if(context *ValidatorContext, name string, value reflect.Value, expected interface{}) []error {
+	rtnErrs := make([]error, 0)
+
+	str := expected.(string)
+	var expressions []*Expression
+	var expression *Expression
+	var query string
+
+	// read conditions
+	size := len(str)
+
+	for i := 0; i < size; i++ {
+		switch str[i] {
+		case '(':
+			continue
+
+		case ')':
+			start := strings.Index(query, "id=")
+			if start == -1 {
+				return rtnErrs
+			}
+
+			end := strings.Index(query[start:], " ")
+			if end == -1 {
+				end = size - 1
+			}
+
+			id := query[start+3 : end]
+			query = query[end+1:]
+
+			if data, ok := context.values[id]; ok {
+				var errs []error
+				err := context.executeHandlers(data.Value, data.Type, strings.Split(query, " "), &errs)
+
+				// get next operator
+				var operator Operator
+				if index := strings.Index(str[i+1:], "("); index > -1 {
+					operator = Operator(strings.TrimSpace(str[i+1 : i+1+index]))
+
+					str = str[i+1+index:]
+					i = 0
+					size = len(str)
+				}
+
+				expression = &Expression{
+					Data:         data,
+					Result:       err,
+					NextOperator: operator,
+					Expected:     query,
+				}
+				expressions = append(expressions, expression)
+			}
+			query = ""
+
+		default:
+			query = fmt.Sprintf("%s%c", query, str[i])
+		}
+	}
+
+	// validate all conditions
+	var condition = ""
+	var prevOperator = NONE
+
+	for _, expr := range expressions {
+
+		if condition == "" {
+			if expr.Result == nil {
+				condition = "ok"
+			} else {
+				condition = "ko"
+			}
+		} else {
+
+			switch prevOperator {
+			case AND:
+				if expr.Result != nil {
+					condition = "ko"
+				}
+			case OR:
+				if expr.Result == nil && condition == "ko" {
+					condition = "ok"
+				}
+			case NONE:
+				if expr.Result == nil {
+					condition = "ok"
+				}
+			}
+		}
+
+		prevOperator = expr.NextOperator
+	}
+
+	if condition == "ko" {
+		return []error{ErrorSkipValidation}
+	}
+
+	return nil
 }

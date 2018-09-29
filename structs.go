@@ -27,19 +27,31 @@ type Validator struct {
 	validateAll      bool
 }
 
-type ErrorCodeHandler func(code string, arguments []interface{}, name string, value reflect.Value, expected interface{}, err *[]error) error
-type CallbackHandler func(name string, value reflect.Value, expected interface{}, err *[]error) []error
+type ErrorCodeHandler func(context *ValidatorContext, code string, arguments []interface{}, name string, value reflect.Value, expected interface{}, err *[]error) error
+type CallbackHandler func(context *ValidatorContext, name string, value reflect.Value, expected interface{}, err *[]error) []error
 
-type BeforeTagHandler func(name string, value reflect.Value, expected interface{}) []error
-type MiddleTagHandler func(name string, value reflect.Value, expected interface{}, err *[]error) []error
-type AfterTagHandler func(name string, value reflect.Value, expected interface{}, err *[]error) []error
+type BeforeTagHandler func(context *ValidatorContext, name string, value reflect.Value, expected interface{}) []error
+type MiddleTagHandler func(context *ValidatorContext, name string, value reflect.Value, expected interface{}, err *[]error) []error
+type AfterTagHandler func(context *ValidatorContext, name string, value reflect.Value, expected interface{}, err *[]error) []error
 
 type Error struct {
 	Code    string `json:"code"`
 	Message string `json:"message"`
 }
 
-type ValidatorHandler struct {
+type ValidatorContext struct {
 	validator *Validator
-	values map[string]interface{}
+	values    map[string]*Data
+}
+
+type Data struct {
+	Value reflect.Value
+	Type  reflect.StructField
+}
+
+type Expression struct {
+	Data         *Data
+	Result       error
+	Expected     string
+	NextOperator Operator
 }
