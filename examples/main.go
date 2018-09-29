@@ -42,8 +42,9 @@ type Example struct {
 	Callback          string  `validate:"callback=dummy_callback, error=19"`
 	Password          string  `json:"password" validate:"id=password"`
 	PasswordConfirm   string  `validate:"match=password"`
+	MyName            string  `validate:"id=name"`
 	MyAge             int     `validate:"id=age"`
-	MaxMyAge          int     `validate:"if=(id=age value=30) or (id=age value=31), value=10"`
+	MyValidate        int     `validate:"if=(id=age value=30) or (id=age value=31) and (id=name value=joao), value=10"`
 }
 
 type Example2 struct {
@@ -155,8 +156,9 @@ func main() {
 		SpecialUrl:        "xxx.xxx.teste.pt",
 		Password:          "password",
 		PasswordConfirm:   "password_errada",
+		MyName:            "joao",
 		MyAge:             30,
-		MaxMyAge:          30,
+		MyValidate:        30,
 		Brothers: []Example2{
 			Example2{
 				Name:            "jessica",
