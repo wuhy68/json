@@ -244,9 +244,15 @@ func (v *ValidatorContext) executeHandlers(value reflect.Value, typ reflect.Stru
 			name = typ.Name
 		}
 
+		validationData := ValidationData{
+			Name:     name,
+			Value:    value,
+			Expected: expected,
+			Errors:   &itErrs,
+		}
 		// execute validations
 		if _, ok := v.validator.handlersBefore[tag]; ok {
-			if rtnErrs := v.validator.handlersBefore[tag](v, name, value, expected); rtnErrs != nil && len(rtnErrs) > 0 {
+			if rtnErrs := v.validator.handlersBefore[tag](v, &validationData); rtnErrs != nil && len(rtnErrs) > 0 {
 
 				// skip validation
 				if rtnErrs[0] == ErrorSkipValidation {
@@ -258,14 +264,14 @@ func (v *ValidatorContext) executeHandlers(value reflect.Value, typ reflect.Stru
 		}
 
 		if _, ok := v.validator.handlersMiddle[tag]; ok {
-			if rtnErrs := v.validator.handlersMiddle[tag](v, name, value, expected, &itErrs); rtnErrs != nil && len(rtnErrs) > 0 {
+			if rtnErrs := v.validator.handlersMiddle[tag](v, &validationData); rtnErrs != nil && len(rtnErrs) > 0 {
 				itErrs = append(itErrs, rtnErrs...)
 				err = rtnErrs[0]
 			}
 		}
 
 		if _, ok := v.validator.handlersAfter[tag]; ok {
-			if rtnErrs := v.validator.handlersAfter[tag](v, name, value, expected, &itErrs); rtnErrs != nil && len(rtnErrs) > 0 {
+			if rtnErrs := v.validator.handlersAfter[tag](v, &validationData); rtnErrs != nil && len(rtnErrs) > 0 {
 				itErrs = append(itErrs, rtnErrs...)
 				err = rtnErrs[0]
 			}

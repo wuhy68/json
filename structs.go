@@ -27,12 +27,12 @@ type Validator struct {
 	validateAll      bool
 }
 
-type ErrorCodeHandler func(context *ValidatorContext, code string, arguments []interface{}, name string, value reflect.Value, expected interface{}, err *[]error) error
-type CallbackHandler func(context *ValidatorContext, name string, value reflect.Value, expected interface{}, err *[]error) []error
+type ErrorCodeHandler func(context *ValidatorContext, validationData *ValidationData) error
+type CallbackHandler func(context *ValidatorContext, validationData *ValidationData) []error
 
-type BeforeTagHandler func(context *ValidatorContext, name string, value reflect.Value, expected interface{}) []error
-type MiddleTagHandler func(context *ValidatorContext, name string, value reflect.Value, expected interface{}, err *[]error) []error
-type AfterTagHandler func(context *ValidatorContext, name string, value reflect.Value, expected interface{}, err *[]error) []error
+type BeforeTagHandler func(context *ValidatorContext, validationData *ValidationData) []error
+type MiddleTagHandler func(context *ValidatorContext, validationData *ValidationData) []error
+type AfterTagHandler func(context *ValidatorContext, validationData *ValidationData) []error
 
 type Error struct {
 	Code    string `json:"code"`
@@ -42,6 +42,21 @@ type Error struct {
 type ValidatorContext struct {
 	validator *Validator
 	values    map[string]*Data
+}
+
+type ValidationData struct {
+	Code      string
+	Arguments []interface{}
+	Name      string
+	Value     reflect.Value
+	Expected  interface{}
+	Errors    *[]error
+	ErrorData *ErrorData
+}
+
+type ErrorData struct {
+	Code      string
+	Arguments []interface{}
 }
 
 type Data struct {
