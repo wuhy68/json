@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"reflect"
 	"validator"
 
 	"errors"
@@ -73,7 +72,7 @@ type Example2 struct {
 	PasswordConfirm   string  `validate:"match=password"`
 }
 
-var dummy_middle_handler = func(context *validator.ValidatorContext, name string, value reflect.Value, expected interface{}, errs *[]error) []error {
+var dummy_middle_handler = func(context *validator.ValidatorContext, validationData *validator.ValidationData) []error {
 	var rtnErrs []error
 
 	err := errors.New("dummy middle responding...")
@@ -113,18 +112,18 @@ var errs = map[string]error{
 	"20": errors.New("error 20"),
 	"21": errors.New("error 21"),
 }
-var dummy_error_handler = func(context *validator.ValidatorContext, code string, arguments []interface{}, name string, value reflect.Value, expected interface{}, err *[]error) error {
-	if err, ok := errs[code]; ok {
+var dummy_error_handler = func(context *validator.ValidatorContext, validationData *validator.ValidationData) error {
+	if err, ok := errs[validationData.ErrorData.Code]; ok {
 		var regx = regexp.MustCompile(RegexForMissingParms)
 		matches := regx.FindAllStringIndex(err.Error(), -1)
 
 		if len(matches) > 0 {
 
-			if len(arguments) < len(matches) {
-				arguments = append(arguments, name)
+			if len(validationData.ErrorData.Arguments) < len(matches) {
+				validationData.ErrorData.Arguments = append(validationData.ErrorData.Arguments, validationData.Name)
 			}
 
-			err = fmt.Errorf(err.Error(), arguments...)
+			err = fmt.Errorf(err.Error(), validationData.ErrorData.Arguments...)
 		}
 
 		return err
@@ -132,7 +131,7 @@ var dummy_error_handler = func(context *validator.ValidatorContext, code string,
 	return nil
 }
 
-var dummy_callback = func(context *validator.ValidatorContext, name string, value reflect.Value, expected interface{}, err *[]error) []error {
+var dummy_callback = func(context *validator.ValidatorContext, validationData *validator.ValidationData) []error {
 	return []error{errors.New("there's a bug here!")}
 }
 
