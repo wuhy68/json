@@ -20,6 +20,7 @@ A simple struct validator by tags (exported fields only).
 * error
 * match (match between fields [define id=xpto])
 * if (conditional validation between fields with operators ("and", "or") [define id=xpto])
+* value=1, error={errorValue1}, max=10, error={errorMax10} (multi error handling)
 
 ## With methods for
 * AddBefore (add a before-validation)
@@ -83,6 +84,7 @@ type Example struct {
 	MyName            string  `validate:"id=name"`
 	MyAge             int     `validate:"id=age"`
 	MyValidate        int     `validate:"if=(id=age value=30) or (id=age value=31) and (id=name value=joao), value=10"`
+	DoubleValidation  int     `validate:"nonzero, error=20, min=5, error=21"`
 }
 
 type Example2 struct {
@@ -147,6 +149,8 @@ var errs = map[string]error{
 	"17": errors.New("error 17"),
 	"18": errors.New("error 18"),
 	"19": errors.New("error 19"),
+	"20": errors.New("error 20"),
+	"21": errors.New("error 21"),
 }
 var dummy_error_handler = func(context *validator.ValidatorContext, code string, arguments []interface{}, name string, value reflect.Value, expected interface{}, err *[]error) error {
 	if err, ok := errs[code]; ok {
@@ -197,6 +201,7 @@ func main() {
 		MyName:            "joao",
 		MyAge:             30,
 		MyValidate:        30,
+		DoubleValidation:  0,
 		Brothers: []Example2{
 			Example2{
 				Name:            "jessica",
@@ -229,7 +234,7 @@ func main() {
 
 > ##### Response:
 ```go
-ERRORS: 21
+ERRORS: 23
 
 ERROR: error 1: a:a, b:b
 ERROR: error 1: a:a, b:b
@@ -252,6 +257,8 @@ ERROR: {"code":"17","message":"the value shouldn't be zero on field [IsNill]"}
 ERROR: {"code":"19","message":"there's a bug here!"}
 ERROR: the value [password_errada] is different of the expected [password] on field [PasswordConfirm]
 ERROR: the value [30] is different of the expected [10] on field [MyValidate]
+ERROR: {"code":"20","message":"the value shouldn't be zero on field [DoubleValidation]"}
+ERROR: {"code":"21","message":"the length [0] is lower then the expected [5] on field [DoubleValidation]"}
 ```
 
 ## Known issues

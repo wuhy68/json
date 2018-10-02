@@ -45,6 +45,7 @@ type Example struct {
 	MyName            string  `validate:"id=name"`
 	MyAge             int     `validate:"id=age"`
 	MyValidate        int     `validate:"if=(id=age value=30) or (id=age value=31) and (id=name value=joao), value=10"`
+	DoubleValidation  int     `validate:"nonzero, error=20, min=5, error=21"`
 }
 
 type Example2 struct {
@@ -109,6 +110,8 @@ var errs = map[string]error{
 	"17": errors.New("error 17"),
 	"18": errors.New("error 18"),
 	"19": errors.New("error 19"),
+	"20": errors.New("error 20"),
+	"21": errors.New("error 21"),
 }
 var dummy_error_handler = func(context *validator.ValidatorContext, code string, arguments []interface{}, name string, value reflect.Value, expected interface{}, err *[]error) error {
 	if err, ok := errs[code]; ok {
@@ -159,6 +162,7 @@ func main() {
 		MyName:            "joao",
 		MyAge:             30,
 		MyValidate:        30,
+		DoubleValidation:  0,
 		Brothers: []Example2{
 			Example2{
 				Name:            "jessica",

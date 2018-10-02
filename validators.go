@@ -380,10 +380,20 @@ func (v *Validator) validate_callback(context *ValidatorContext, name string, va
 	return make([]error, 0)
 }
 
+type ErrorValidate struct {
+	error
+	replaced bool
+}
+
 func (v *Validator) validate_error(context *ValidatorContext, name string, value reflect.Value, expected interface{}, errs *[]error) []error {
 	rtnErrs := make([]error, 0)
 	added := make(map[string]bool)
-	for i, _ := range *errs {
+	for i, e := range *errs {
+		if value, ok := e.(ErrorValidate); ok {
+			if value.replaced {
+				continue
+			}
+		}
 		if v.errorCodeHandler != nil {
 			if matched, err := regexp.MatchString(RegexForErrorTag, expected.(string)); err != nil {
 				rtnErrs = append(rtnErrs, err)
@@ -409,7 +419,10 @@ func (v *Validator) validate_error(context *ValidatorContext, name string, value
 						}
 						newErr := v.errorCodeHandler(context, split[0], arguments, name, value, expected, errs)
 						if newErr != nil {
-							(*errs)[i] = newErr
+							(*errs)[i] = ErrorValidate{
+								error:    newErr,
+								replaced: true,
+							}
 						}
 
 						added[split[0]] = true
@@ -421,7 +434,10 @@ func (v *Validator) validate_error(context *ValidatorContext, name string, value
 						Code:    fmt.Sprintf("%+v", expected),
 						Message: (*errs)[i].Error(),
 					})
-					(*errs)[i] = errors.New(string(messageBytes))
+					(*errs)[i] = ErrorValidate{
+						error:    errors.New(string(messageBytes)),
+						replaced: true,
+					}
 				}
 			}
 		}
