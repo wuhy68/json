@@ -215,6 +215,7 @@ func (v *ValidatorContext) doValidate(value reflect.Value, typ reflect.StructFie
 func (v *ValidatorContext) executeHandlers(value reflect.Value, typ reflect.StructField, validations []string, errs *[]error) error {
 	var err error
 	var itErrs []error
+	var replacedErrors = make(map[error]bool)
 
 	for _, validation := range validations {
 		var name string
@@ -249,6 +250,7 @@ func (v *ValidatorContext) executeHandlers(value reflect.Value, typ reflect.Stru
 			Value:    value,
 			Expected: expected,
 			Errors:   &itErrs,
+			ErrorsReplaced: replacedErrors,
 		}
 		// execute validations
 		if _, ok := v.validator.handlersBefore[tag]; ok {

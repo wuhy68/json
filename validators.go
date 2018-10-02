@@ -389,10 +389,8 @@ func (v *Validator) validate_error(context *ValidatorContext, validationData *Va
 	rtnErrs := make([]error, 0)
 	added := make(map[string]bool)
 	for i, e := range *validationData.Errors {
-		if value, ok := e.(ErrorValidate); ok {
-			if value.replaced {
-				continue
-			}
+		if _, ok := validationData.ErrorsReplaced[e]; ok {
+			continue
 		}
 		if v.errorCodeHandler != nil {
 			if matched, err := regexp.MatchString(RegexForErrorTag, validationData.Expected.(string)); err != nil {
@@ -425,10 +423,8 @@ func (v *Validator) validate_error(context *ValidatorContext, validationData *Va
 
 						newErr := v.errorCodeHandler(context, validationData)
 						if newErr != nil {
-							(*validationData.Errors)[i] = ErrorValidate{
-								error:    newErr,
-								replaced: true,
-							}
+							(*validationData.Errors)[i] = newErr
+							validationData.ErrorsReplaced[newErr] = true
 						}
 
 						added[split[0]] = true
@@ -440,10 +436,9 @@ func (v *Validator) validate_error(context *ValidatorContext, validationData *Va
 						Code:    fmt.Sprintf("%+v", validationData.Expected),
 						Message: (*validationData.Errors)[i].Error(),
 					})
-					(*validationData.Errors)[i] = ErrorValidate{
-						error:    errors.New(string(messageBytes)),
-						replaced: true,
-					}
+					newErr := errors.New(string(messageBytes))
+					(*validationData.Errors)[i] = newErr
+					validationData.ErrorsReplaced[newErr] = true
 				}
 			}
 		}

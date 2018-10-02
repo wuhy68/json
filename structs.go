@@ -45,13 +45,14 @@ type ValidatorContext struct {
 }
 
 type ValidationData struct {
-	Code      string
-	Arguments []interface{}
-	Name      string
-	Value     reflect.Value
-	Expected  interface{}
-	Errors    *[]error
-	ErrorData *ErrorData
+	Code           string
+	Arguments      []interface{}
+	Name           string
+	Value          reflect.Value
+	Expected       interface{}
+	ErrorData      *ErrorData
+	Errors         *[]error
+	ErrorsReplaced map[error]bool
 }
 
 type ErrorData struct {
