@@ -8,7 +8,7 @@ A simple struct validator by tags (exported fields only).
 ## With support for
 * value (equal to)
 * not (not equal to)
-* options (one of thous)
+* options (one of the options)
 * size (size equal to)
 * min 
 * max 
