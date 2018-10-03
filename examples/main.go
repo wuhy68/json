@@ -17,6 +17,10 @@ const (
 
 type Data string
 
+type NextSet struct {
+	Set int `validate:"set=321"`
+}
+
 type Example struct {
 	Name              string         `validate:"value=joao, dummy_middle, error={1:a;b}, max=10"`
 	Age               int            `validate:"value=30, error={99}"`
@@ -45,6 +49,8 @@ type Example struct {
 	MyAge             int     `validate:"id=age"`
 	MyValidate        int     `validate:"if=(id=age value=30) or (id=age value=31) and (id=name value=joao), value=10"`
 	DoubleValidation  int     `validate:"nonzero, error=20, min=5, error=21"`
+	Set               int     `validate:"set=321"`
+	NextSet           NextSet
 }
 
 type Example2 struct {
@@ -162,6 +168,10 @@ func main() {
 		MyAge:             30,
 		MyValidate:        30,
 		DoubleValidation:  0,
+		Set:               123,
+		NextSet: NextSet{
+			Set: 123,
+		},
 		Brothers: []Example2{
 			Example2{
 				Name:            "jessica",
@@ -183,10 +193,15 @@ func main() {
 			},
 		},
 	}
-	if errs := validator.Validate(example); len(errs) > 0 {
-		fmt.Printf("ERRORS: %d\n", len(errs))
+
+	fmt.Printf("\nBEFORE SET: %d", example.Set)
+	fmt.Printf("\nBEFORE NEXT SET: %d", example.NextSet.Set)
+	if errs := validator.Validate(&example); len(errs) > 0 {
+		fmt.Printf("\n\nERRORS: %d\n", len(errs))
 		for _, err := range errs {
 			fmt.Printf("\nERROR: %s", err)
 		}
 	}
+	fmt.Printf("\n\nAFTER SET: %d", example.Set)
+	fmt.Printf("\nAFTER NEXT SET: %d", example.NextSet.Set)
 }

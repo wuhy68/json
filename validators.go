@@ -491,7 +491,7 @@ func (v *Validator) validate_if(context *ValidatorContext, validationData *Valid
 
 			if data, ok := context.values[id]; ok {
 				var errs []error
-				err := context.executeHandlers(data.Value, data.Type, strings.Split(query, " "), &errs)
+				err := context.executeHandlers(data.Value, data.Type, data.Obj, data.MutableObj, strings.Split(query, " "), &errs)
 
 				// get next operator
 				var operator Operator
@@ -556,4 +556,29 @@ func (v *Validator) validate_if(context *ValidatorContext, validationData *Valid
 	}
 
 	return nil
+}
+
+func (v *Validator) validate_set(context *ValidatorContext, validationData *ValidationData) []error {
+	rtnErrs := make([]error, 0)
+
+	if validationData.MutableObj.CanAddr() {
+		value := validationData.MutableObj.FieldByName(validationData.Field)
+		kind := reflect.TypeOf(value.Interface()).Kind()
+
+		switch kind {
+		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+			v, _ := strconv.Atoi(validationData.Expected.(string))
+			value.SetInt(int64(v))
+		case reflect.Float32, reflect.Float64:
+			v, _ := strconv.ParseFloat(validationData.Expected.(string), 64)
+			value.SetFloat(v)
+		case reflect.String:
+			value.SetString(validationData.Expected.(string))
+		case reflect.Bool:
+			v, _ := strconv.ParseBool(validationData.Expected.(string))
+			value.SetBool(v)
+		}
+	}
+
+	return rtnErrs
 }

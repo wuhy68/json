@@ -47,6 +47,9 @@ type ValidatorContext struct {
 type ValidationData struct {
 	Code           string
 	Arguments      []interface{}
+	Field          string
+	Obj            interface{}
+	MutableObj     reflect.Value
 	Name           string
 	Value          reflect.Value
 	Expected       interface{}
@@ -61,8 +64,10 @@ type ErrorData struct {
 }
 
 type Data struct {
-	Value reflect.Value
-	Type  reflect.StructField
+	Value      reflect.Value
+	Obj        interface{}
+	MutableObj reflect.Value
+	Type       reflect.StructField
 }
 
 type Expression struct {
