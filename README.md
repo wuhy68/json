@@ -20,7 +20,7 @@ A simple struct validator by tags (exported fields only).
 * error
 * match (match between fields [define id=xpto])
 * if (conditional validation between fields with operators ("and", "or") [define id=xpto])
-* value=1, error={errorValue1}, max=10, error={errorMax10} (multi error handling)
+* multi error handling `validate:"value=1, error={errorValue1}, max=10, error={errorMax10}"`
 
 ## With methods for
 * AddBefore (add a before-validation)
