@@ -37,6 +37,7 @@ func (v *ValidatorContext) load(obj interface{}, mutable reflect.Value, errs *[]
 		return nil
 	}
 
+	fmt.Println(value.Kind())
 	if value.Kind() == reflect.Ptr && !value.IsNil() {
 		value = value.Elem()
 
@@ -62,11 +63,7 @@ func (v *ValidatorContext) load(obj interface{}, mutable reflect.Value, errs *[]
 			}
 
 			tagValue, exists := nextType.Tag.Lookup(v.validator.tag)
-			if !exists {
-				continue
-			}
-
-			if strings.Contains(tagValue, "id=") {
+			if !exists || strings.Contains(tagValue, "id=") {
 				var id string
 				var data *Data
 
@@ -77,17 +74,23 @@ func (v *ValidatorContext) load(obj interface{}, mutable reflect.Value, errs *[]
 					switch strings.TrimSpace(tag[0]) {
 					case "id":
 						id = tag[1]
-						data = &Data{
-							Value:      nextValue,
-							Obj:        &obj,
-							MutableObj: mutable,
-							Type:       nextType,
+						if data == nil {
+							data = &Data{
+								Value:      nextValue,
+								Obj:        &obj,
+								MutableObj: nextValue,
+								Type:       nextType,
+							}
 						}
 					case "set":
+						newStruct := reflect.New(value.Type()).Elem()
+						newField := newStruct.Field(i)
+						setValue(nextValue.Kind(), newField, tag[1])
+
 						data = &Data{
-							Value:      reflect.New(reflect.TypeOf(tag[1])),
+							Value:      newField,
 							Obj:        &obj,
-							MutableObj: reflect.New(reflect.TypeOf(tag[1])),
+							MutableObj: nextValue,
 							Type:       nextType,
 						}
 					}

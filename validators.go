@@ -565,20 +565,24 @@ func (v *Validator) validate_set(context *ValidatorContext, validationData *Vali
 		value := validationData.MutableObj.FieldByName(validationData.Field)
 		kind := reflect.TypeOf(value.Interface()).Kind()
 
-		switch kind {
-		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
-			v, _ := strconv.Atoi(validationData.Expected.(string))
-			value.SetInt(int64(v))
-		case reflect.Float32, reflect.Float64:
-			v, _ := strconv.ParseFloat(validationData.Expected.(string), 64)
-			value.SetFloat(v)
-		case reflect.String:
-			value.SetString(validationData.Expected.(string))
-		case reflect.Bool:
-			v, _ := strconv.ParseBool(validationData.Expected.(string))
-			value.SetBool(v)
-		}
+		setValue(kind, value, validationData.Expected)
 	}
 
 	return rtnErrs
+}
+
+func setValue(kind reflect.Kind, mutable reflect.Value, newValue interface{}) {
+	switch kind {
+	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+		v, _ := strconv.Atoi(newValue.(string))
+		mutable.SetInt(int64(v))
+	case reflect.Float32, reflect.Float64:
+		v, _ := strconv.ParseFloat(newValue.(string), 64)
+		mutable.SetFloat(v)
+	case reflect.String:
+		mutable.SetString(newValue.(string))
+	case reflect.Bool:
+		v, _ := strconv.ParseBool(newValue.(string))
+		mutable.SetBool(v)
+	}
 }

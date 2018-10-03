@@ -18,7 +18,7 @@ const (
 type Data string
 
 type NextSet struct {
-	Set int `validate:"set=321"`
+	Set int `validate:"set=321, id=next_set"`
 }
 
 type Example struct {
@@ -49,7 +49,7 @@ type Example struct {
 	MyAge             int     `validate:"id=age"`
 	MyValidate        int     `validate:"if=(id=age value=30) or (id=age value=31) and (id=name value=joao), value=10"`
 	DoubleValidation  int     `validate:"nonzero, error=20, min=5, error=21"`
-	Set               int     `validate:"set=321"`
+	Set               int     `validate:"set=321, id=set"`
 	NextSet           NextSet
 }
 
