@@ -16,7 +16,7 @@ A simple struct validator by tags (exported fields only).
 * regex
 * special ( YYYYMMDD, DDMMYYYY, date, time, url )
 * sanitize (invalid characters)
-* callbacks (add handler validations)
+* callback (add handler validations)
 * error
 * match (match between fields [define id=xpto])
 * if (conditional validation between fields with operators ("and", "or") [define id=xpto])
