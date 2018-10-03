@@ -37,7 +37,6 @@ func (v *ValidatorContext) load(obj interface{}, mutable reflect.Value, errs *[]
 		return nil
 	}
 
-	fmt.Println(value.Kind())
 	if value.Kind() == reflect.Ptr && !value.IsNil() {
 		value = value.Elem()
 

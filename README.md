@@ -58,6 +58,10 @@ const (
 
 type Data string
 
+type NextSet struct {
+	Set int `validate:"set=321, id=next_set"`
+}
+
 type Example struct {
 	Name              string         `validate:"value=joao, dummy_middle, error={1:a;b}, max=10"`
 	Age               int            `validate:"value=30, error={99}"`
@@ -86,6 +90,8 @@ type Example struct {
 	MyAge             int     `validate:"id=age"`
 	MyValidate        int     `validate:"if=(id=age value=30) or (id=age value=31) and (id=name value=joao), value=10"`
 	DoubleValidation  int     `validate:"nonzero, error=20, min=5, error=21"`
+	Set               int     `validate:"set=321, id=set"`
+	NextSet           NextSet
 }
 
 type Example2 struct {
@@ -113,7 +119,7 @@ type Example2 struct {
 	PasswordConfirm   string  `validate:"match=password"`
 }
 
-var dummy_middle_handler = func(context *validator.ValidatorContext, name string, value reflect.Value, expected interface{}, errs *[]error) []error {
+var dummy_middle_handler = func(context *validator.ValidatorContext, validationData *validator.ValidationData) []error {
 	var rtnErrs []error
 
 	err := errors.New("dummy middle responding...")
@@ -153,18 +159,18 @@ var errs = map[string]error{
 	"20": errors.New("error 20"),
 	"21": errors.New("error 21"),
 }
-var dummy_error_handler = func(context *validator.ValidatorContext, code string, arguments []interface{}, name string, value reflect.Value, expected interface{}, err *[]error) error {
-	if err, ok := errs[code]; ok {
+var dummy_error_handler = func(context *validator.ValidatorContext, validationData *validator.ValidationData) error {
+	if err, ok := errs[validationData.ErrorData.Code]; ok {
 		var regx = regexp.MustCompile(RegexForMissingParms)
 		matches := regx.FindAllStringIndex(err.Error(), -1)
 
 		if len(matches) > 0 {
 
-			if len(arguments) < len(matches) {
-				arguments = append(arguments, name)
+			if len(validationData.ErrorData.Arguments) < len(matches) {
+				validationData.ErrorData.Arguments = append(validationData.ErrorData.Arguments, validationData.Name)
 			}
 
-			err = fmt.Errorf(err.Error(), arguments...)
+			err = fmt.Errorf(err.Error(), validationData.ErrorData.Arguments...)
 		}
 
 		return err
@@ -172,7 +178,7 @@ var dummy_error_handler = func(context *validator.ValidatorContext, code string,
 	return nil
 }
 
-var dummy_callback = func(context *validator.ValidatorContext, name string, value reflect.Value, expected interface{}, err *[]error) []error {
+var dummy_callback = func(context *validator.ValidatorContext, validationData *validator.ValidationData) []error {
 	return []error{errors.New("there's a bug here!")}
 }
 
@@ -203,6 +209,10 @@ func main() {
 		MyAge:             30,
 		MyValidate:        30,
 		DoubleValidation:  0,
+		Set:               123,
+		NextSet: NextSet{
+			Set: 123,
+		},
 		Brothers: []Example2{
 			Example2{
 				Name:            "jessica",
@@ -224,12 +234,17 @@ func main() {
 			},
 		},
 	}
-	if errs := validator.Validate(example); len(errs) > 0 {
-		fmt.Printf("ERRORS: %d\n", len(errs))
+
+	fmt.Printf("\nBEFORE SET: %d", example.Set)
+	fmt.Printf("\nBEFORE NEXT SET: %d", example.NextSet.Set)
+	if errs := validator.Validate(&example); len(errs) > 0 {
+		fmt.Printf("\n\nERRORS: %d\n", len(errs))
 		for _, err := range errs {
 			fmt.Printf("\nERROR: %s", err)
 		}
 	}
+	fmt.Printf("\n\nAFTER SET: %d", example.Set)
+	fmt.Printf("\nAFTER NEXT SET: %d", example.NextSet.Set)
 }
 ```
 
@@ -260,6 +275,9 @@ ERROR: the value [password_errada] is different of the expected [password] on fi
 ERROR: the value [30] is different of the expected [10] on field [MyValidate]
 ERROR: {"code":"20","message":"the value shouldn't be zero on field [DoubleValidation]"}
 ERROR: {"code":"21","message":"the length [0] is lower then the expected [5] on field [DoubleValidation]"}
+
+AFTER SET: 321
+AFTER NEXT SET: 321
 ```
 
 ## Known issues
