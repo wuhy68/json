@@ -33,7 +33,7 @@ A simple struct validator by tags (exported fields only).
 * AddCallback (set a specific callback validation)
 * Validate (validate the object)
 
-## Dependecy Management 
+## Dependecy Management
 >### Dep
 
 Project dependencies are managed using Dep. Read more about [Dep](https://github.com/golang/dep).
