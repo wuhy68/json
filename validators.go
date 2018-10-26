@@ -429,7 +429,11 @@ func (v *Validator) validate_error(context *ValidatorContext, validationData *Va
 
 						added[split[0]] = true
 					} else {
-						*validationData.Errors = append((*validationData.Errors)[:i], (*validationData.Errors)[i+1:]...)
+						if len(*validationData.Errors)-1 == i {
+							*validationData.Errors = (*validationData.Errors)[:i]
+						} else {
+							*validationData.Errors = append((*validationData.Errors)[:i], (*validationData.Errors)[i+1:]...)
+						}
 					}
 				} else {
 					messageBytes, _ := json.Marshal(Error{
