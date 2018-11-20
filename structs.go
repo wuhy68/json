@@ -41,7 +41,7 @@ type Error struct {
 
 type ValidatorContext struct {
 	validator *Validator
-	values    map[string]*Data
+	Values    map[string]*Data
 }
 
 type ValidationData struct {

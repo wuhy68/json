@@ -9,7 +9,7 @@ import (
 func NewValidatorHandler(validator *Validator) *ValidatorContext {
 	return &ValidatorContext{
 		validator: validator,
-		values:    make(map[string]*Data),
+		Values:    make(map[string]*Data),
 	}
 }
 func (v *ValidatorContext) handleValidation(obj interface{}) []error {
@@ -19,8 +19,8 @@ func (v *ValidatorContext) handleValidation(obj interface{}) []error {
 	if mutable.Kind() == reflect.Ptr && !mutable.IsNil() {
 		mutable = mutable.Elem()
 	}
-	// load id's
 
+	// load id's
 	v.load(obj, mutable, &errs)
 
 	// execute
@@ -62,7 +62,7 @@ func (v *ValidatorContext) load(obj interface{}, mutable reflect.Value, errs *[]
 			}
 
 			tagValue, exists := nextType.Tag.Lookup(v.validator.tag)
-			if !exists || strings.Contains(tagValue, "id=") {
+			if !exists || strings.Contains(tagValue, fmt.Sprintf("%s=", ConstTagId)) {
 				var id string
 				var data *Data
 
@@ -71,7 +71,7 @@ func (v *ValidatorContext) load(obj interface{}, mutable reflect.Value, errs *[]
 					tag := strings.Split(item, "=")
 
 					switch strings.TrimSpace(tag[0]) {
-					case "id":
+					case ConstTagId:
 						id = tag[1]
 						if data == nil {
 							data = &Data{
@@ -81,7 +81,7 @@ func (v *ValidatorContext) load(obj interface{}, mutable reflect.Value, errs *[]
 								Type:       nextType,
 							}
 						}
-					case "set":
+					case ConstTagSet:
 						newStruct := reflect.New(value.Type()).Elem()
 						newField := newStruct.Field(i)
 						setValue(nextValue.Kind(), newField, tag[1])
@@ -95,7 +95,7 @@ func (v *ValidatorContext) load(obj interface{}, mutable reflect.Value, errs *[]
 					}
 				}
 
-				v.values[id] = data
+				v.Values[id] = data
 			}
 
 			if err := v.load(nextValue.Interface(), nextValue, errs); err != nil {

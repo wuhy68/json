@@ -350,18 +350,18 @@ func (v *Validator) validate_special(context *ValidatorContext, validationData *
 	}
 
 	switch validationData.Expected {
-	case TagForDateDefault:
-		validationData.Expected = RegexForDateDefault
-	case TagForDateDDMMYYYY:
-		validationData.Expected = RegexForDateDDMMYYYY
-	case TagForDateYYYYMMDD:
-		validationData.Expected = RegexForDateYYYYMMDD
-	case TagForTimeDefault:
-		validationData.Expected = RegexForTimeDefault
-	case TagForTimeHHMMSS:
-		validationData.Expected = RegexForTimeHHMMSS
-	case TagForURL:
-		validationData.Expected = RegexForURL
+	case ConstTagForDateDefault:
+		validationData.Expected = ConstRegexForDateDefault
+	case ConstTagForDateDDMMYYYY:
+		validationData.Expected = ConstRegexForDateDDMMYYYY
+	case ConstTagForDateYYYYMMDD:
+		validationData.Expected = ConstRegexForDateYYYYMMDD
+	case ConstTagForTimeDefault:
+		validationData.Expected = ConstRegexForTimeDefault
+	case ConstTagForTimeHHMMSS:
+		validationData.Expected = ConstRegexForTimeHHMMSS
+	case ConstTagForURL:
+		validationData.Expected = ConstRegexForURL
 	default:
 		err := fmt.Errorf("invalid special [%s] on field [%+v] ", validationData.Expected, validationData.Name)
 		rtnErrs = append(rtnErrs, err)
@@ -393,7 +393,7 @@ func (v *Validator) validate_error(context *ValidatorContext, validationData *Va
 			continue
 		}
 		if v.errorCodeHandler != nil {
-			if matched, err := regexp.MatchString(RegexForErrorTag, validationData.Expected.(string)); err != nil {
+			if matched, err := regexp.MatchString(ConstRegexForErrorTag, validationData.Expected.(string)); err != nil {
 				rtnErrs = append(rtnErrs, err)
 			} else {
 
@@ -452,7 +452,7 @@ func (v *Validator) validate_error(context *ValidatorContext, validationData *Va
 }
 
 func (v *Validator) validate_match(context *ValidatorContext, validationData *ValidationData) []error {
-	if expectedValue, ok := context.values[validationData.Expected.(string)]; ok {
+	if expectedValue, ok := context.Values[validationData.Expected.(string)]; ok {
 		validationData.Expected = expectedValue.Value
 	}
 
@@ -493,7 +493,7 @@ func (v *Validator) validate_if(context *ValidatorContext, validationData *Valid
 			id := query[start+3 : end]
 			query = query[end+1:]
 
-			if data, ok := context.values[id]; ok {
+			if data, ok := context.Values[id]; ok {
 				var errs []error
 				err := context.executeHandlers(data.Value, data.Type, data.Obj, data.MutableObj, strings.Split(query, " "), &errs)
 

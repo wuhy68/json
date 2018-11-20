@@ -1,18 +1,38 @@
 package validator
 
 const (
-	TagForDateDefault  = "date"
-	TagForDateYYYYMMDD = "YYYYMMDD"
-	TagForDateDDMMYYYY = "DDMMYYYY"
-	TagForTimeDefault  = "time"
-	TagForTimeHHMMSS   = "HHMMSS"
-	TagForURL          = "url"
+	ConstTagForDateDefault  = "date"
+	ConstTagForDateYYYYMMDD = "YYYYMMDD"
+	ConstTagForDateDDMMYYYY = "DDMMYYYY"
+	ConstTagForTimeDefault  = "time"
+	ConstTagForTimeHHMMSS   = "HHMMSS"
+	ConstTagForURL          = "url"
 
-	RegexForDateDDMMYYYY = `^(0?[1-9]|[12][0-9]|3[01])(/|-|.)([1-9]|0[0-9]|1[0-2])(/|-|.)[0-9]{4}$`
-	RegexForDateYYYYMMDD = `^[0-9]{4}(/|-|.)(0?[1-9]|[12][0-9]|3[01])(/|-|.)([1-9]|0[0-9]|1[0-2])$`
-	RegexForDateDefault  = RegexForDateDDMMYYYY
-	RegexForTimeDefault  = RegexForTimeHHMMSS
-	RegexForTimeHHMMSS   = `^([0-9]|0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]$`
-	RegexForErrorTag     = "{[A-Za-z0-9_-]+:?([A-Za-z0-9_-];?)+}"
-	RegexForURL          = "^((http|https)://)?(www)?[a-zA-Z0-9-._:/?&=,]+$"
+	ConstRegexForDateDDMMYYYY = `^(0?[1-9]|[12][0-9]|3[01])(/|-|.)([1-9]|0[0-9]|1[0-2])(/|-|.)[0-9]{4}$`
+	ConstRegexForDateYYYYMMDD = `^[0-9]{4}(/|-|.)(0?[1-9]|[12][0-9]|3[01])(/|-|.)([1-9]|0[0-9]|1[0-2])$`
+	ConstRegexForDateDefault  = ConstRegexForDateDDMMYYYY
+	ConstRegexForTimeDefault  = ConstRegexForTimeHHMMSS
+	ConstRegexForTimeHHMMSS   = `^([0-9]|0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]$`
+	ConstRegexForErrorTag     = "{[A-Za-z0-9_-]+:?([A-Za-z0-9_-];?)+}"
+	ConstRegexForURL          = "^((http|https)://)?(www)?[a-zA-Z0-9-._:/?&=,]+$"
+
+	ConstDefaultValidationTag = "validation"
+	ConstDefaultLogTag = "validator"
+
+	ConstTagId       = "id"
+	ConstTagValue    = "value"
+	ConstTagError    = "error"
+	ConstTagIf       = "if"
+	ConstTagNot      = "not"
+	ConstTagOptions  = "options"
+	ConstTagSize     = "size"
+	ConstTagMin      = "min"
+	ConstTagMax      = "max"
+	ConstTagNonzero  = "nonzero"
+	ConstTagRegex    = "regex"
+	ConstTagSpecial  = "special"
+	ConstTagSanitize = "sanitize"
+	ConstTagCallback = "callback"
+	ConstTagMatch    = "match"
+	ConstTagSet      = "set"
 )
