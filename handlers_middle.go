@@ -15,5 +15,6 @@ func (v *Validator) NewDefaultMiddleHandlers() map[string]MiddleTagHandler {
 		ConstTagCallback: v.validate_callback,
 		ConstTagMatch:    v.validate_match,
 		ConstTagSet:      v.validate_set,
+		ConstTagDistinct: v.validate_distinct,
 	}
 }

@@ -590,3 +590,39 @@ func setValue(kind reflect.Kind, mutable reflect.Value, newValue interface{}) {
 		mutable.SetBool(v)
 	}
 }
+
+func (v *Validator) validate_distinct(context *ValidatorContext, validationData *ValidationData) []error {
+	rtnErrs := make([]error, 0)
+
+	if validationData.MutableObj.CanAddr() {
+		value := validationData.MutableObj.FieldByName(validationData.Field)
+		kind := reflect.TypeOf(value.Interface()).Kind()
+
+		if kind != reflect.Array && kind != reflect.Slice {
+			return rtnErrs
+		}
+		newInstance := reflect.New(value.Type()).Elem()
+
+		values := make(map[interface{}]bool)
+		for i := 0; i < value.Len(); i++ {
+
+			if _, ok := values[value.Index(i).Interface()]; ok {
+				continue
+			}
+
+			switch value.Index(i).Kind() {
+			case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64,
+				reflect.Float32, reflect.Float64,
+				reflect.String,
+				reflect.Bool:
+				newInstance = reflect.Append(newInstance, value.Index(i))
+				values[value.Index(i).Interface()] = true
+			}
+		}
+
+		// set the new instance without duplicated values
+		value.Set(newInstance)
+	}
+
+	return rtnErrs
+}

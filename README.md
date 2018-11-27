@@ -24,6 +24,7 @@ A simple struct validator by tags (exported fields only).
 * if (conditional validation between fields with operators ("and", "or") [define id=xpto])
 * multi error handling `validate:"value=1, error={errorValue1}, max=10, error={errorMax10}"`
 * set (allows to set native values) to use this you need to use the variable address, like this `validator.Validate(&example)`
+* distinct (remove duplicated values from slices of primitive types)
 
 ## With methods for
 * AddBefore (add a before-validation)

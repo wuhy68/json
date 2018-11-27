@@ -51,6 +51,7 @@ type Example struct {
 	DoubleValidation  int     `validate:"nonzero, error=20, min=5, error=21"`
 	Set               int     `validate:"set=321, id=set"`
 	NextSet           NextSet
+	Distinct          []int `validate:"distinct"`
 }
 
 type Example2 struct {
@@ -172,6 +173,7 @@ func main() {
 		NextSet: NextSet{
 			Set: 123,
 		},
+		Distinct: []int{1, 2, 3, 1, 2, 3},
 		Brothers: []Example2{
 			Example2{
 				Name:            "jessica",
@@ -196,6 +198,8 @@ func main() {
 
 	fmt.Printf("\nBEFORE SET: %d", example.Set)
 	fmt.Printf("\nBEFORE NEXT SET: %d", example.NextSet.Set)
+
+	fmt.Printf("\nBEFORE DISTINCT: %+v", example.Distinct)
 	if errs := validator.Validate(&example); len(errs) > 0 {
 		fmt.Printf("\n\nERRORS: %d\n", len(errs))
 		for _, err := range errs {
@@ -204,4 +208,6 @@ func main() {
 	}
 	fmt.Printf("\n\nAFTER SET: %d", example.Set)
 	fmt.Printf("\nAFTER NEXT SET: %d", example.NextSet.Set)
+
+	fmt.Printf("\nAFTER DISTINCT: %+v", example.Distinct)
 }

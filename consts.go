@@ -16,8 +16,8 @@ const (
 	ConstRegexForErrorTag     = "{[A-Za-z0-9_-]+:?([A-Za-z0-9_-];?)+}"
 	ConstRegexForURL          = "^((http|https)://)?(www)?[a-zA-Z0-9-._:/?&=,]+$"
 
-	ConstDefaultValidationTag = "validation"
-	ConstDefaultLogTag = "validator"
+	ConstDefaultValidationTag = "validate"
+	ConstDefaultLogTag        = "validator"
 
 	ConstTagId       = "id"
 	ConstTagValue    = "value"
@@ -35,4 +35,5 @@ const (
 	ConstTagCallback = "callback"
 	ConstTagMatch    = "match"
 	ConstTagSet      = "set"
+	ConstTagDistinct = "distinct"
 )
