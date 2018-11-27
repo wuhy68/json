@@ -66,58 +66,63 @@ type NextSet struct {
 }
 
 type Example struct {
-	Name              string         `validate:"value=joao, dummy_middle, error={1:a;b}, max=10"`
-	Age               int            `validate:"value=30, error={99}"`
-	Street            int            `validate:"max=10, error=3"`
-	Brothers          []Example2     `validate:"size=1, error=4"`
-	Id                uuid.UUID      `validate:"nonzero, error=5"`
-	Option1           string         `validate:"options=aa;bb;cc, error=6"`
-	Option2           int            `validate:"options=11;22;33, error=7"`
-	Option3           []string       `validate:"options=aa;bb;cc, error=8"`
-	Option4           []int          `validate:"options=11;22;33, error=9"`
-	Map1              map[string]int `validate:"options=aa:11;bb:22;cc:33, error=10"`
-	Map2              map[int]string `validate:"options=11:aa;22:bb;33:cc, error=11"`
-	SpecialTime       string         `validate:"special=time, error=12"`
-	SpecialDate1      string         `validate:"special=date, error=13"`
-	SpecialDate2      string         `validate:"special=YYYYMMDD, error=14"`
-	SpecialDateString *string        `validate:"special=YYYYMMDD, error=15"`
-	SpecialData       *Data          `validate:"special=YYYYMMDD, error=16"`
-	SpecialUrl        string         `validate:"special=url"`
-	unexported        string
-	IsNill            *string `validate:"nonzero, error=17"`
-	Sanitize          string  `validate:"sanitize=a;b;teste, error=17"`
-	Callback          string  `validate:"callback=dummy_callback, error=19"`
-	Password          string  `json:"password" validate:"id=password"`
-	PasswordConfirm   string  `validate:"match=password"`
-	MyName            string  `validate:"id=name"`
-	MyAge             int     `validate:"id=age"`
-	MyValidate        int     `validate:"if=(id=age value=30) or (id=age value=31) and (id=name value=joao), value=10"`
-	DoubleValidation  int     `validate:"nonzero, error=20, min=5, error=21"`
-	Set               int     `validate:"set=321, id=set"`
-	NextSet           NextSet
+	Name               string         `validate:"value=joao, dummy_middle, error={ErrorTag1:a;b}, max=10"`
+	Age                int            `validate:"value=30, error={ErrorTag99}"`
+	Street             int            `validate:"max=10, error={ErrorTag3}"`
+	Brothers           []Example2     `validate:"size=1, error={ErrorTag4}"`
+	Id                 uuid.UUID      `validate:"nonzero, error={ErrorTag5}"`
+	Option1            string         `validate:"options=aa;bb;cc, error={ErrorTag6}"`
+	Option2            int            `validate:"options=11;22;33, error={ErrorTag7}"`
+	Option3            []string       `validate:"options=aa;bb;cc, error={ErrorTag8}"`
+	Option4            []int          `validate:"options=11;22;33, error={ErrorTag9}"`
+	Map1               map[string]int `validate:"options=aa:11;bb:22;cc:33, error={ErrorTag10}"`
+	Map2               map[int]string `validate:"options=11:aa;22:bb;33:cc, error={ErrorTag11}"`
+	SpecialTime        string         `validate:"special=time, error={ErrorTag12}"`
+	SpecialDate1       string         `validate:"special=date, error={ErrorTag13}"`
+	SpecialDate2       string         `validate:"special=YYYYMMDD, error={ErrorTag14}"`
+	SpecialDateString  *string        `validate:"special=YYYYMMDD, error={ErrorTag15}"`
+	SpecialData        *Data          `validate:"special=YYYYMMDD, error={ErrorTag16}"`
+	SpecialUrl         string         `validate:"special=url"`
+	unexported         string
+	IsNill             *string `validate:"nonzero, error={ErrorTag17}"`
+	Sanitize           string  `validate:"sanitize=a;b;teste, error={ErrorTag17}"`
+	Callback           string  `validate:"callback=dummy_callback, error={ErrorTag19}"`
+	Password           string  `json:"password" validate:"id=password"`
+	PasswordConfirm    string  `validate:"match=password"`
+	MyName             string  `validate:"id=name"`
+	MyAge              int     `validate:"id=age"`
+	MyValidate         int     `validate:"if=(id=age value=30) or (id=age value=31) and (id=name value=joao), value=10"`
+	DoubleValidation   int     `validate:"nonzero, error=20, min=5, error={ErrorTag21}"`
+	Set                int     `validate:"set=321, id=set"`
+	NextSet            NextSet
+	DistinctIntPointer []*int    `validate:"distinct"`
+	DistinctInt        []int     `validate:"distinct"`
+	DistinctString     []string  `validate:"distinct"`
+	DistinctBool       []bool    `validate:"distinct"`
+	DistinctFloat      []float32 `validate:"distinct"`
 }
 
 type Example2 struct {
-	Name              string         `validate:"value=joao, dummy_middle, error={1:a;b}, max=10"`
-	Age               int            `validate:"value=30, error={99}"`
-	Street            int            `validate:"max=10, error=3"`
-	Id                uuid.UUID      `validate:"nonzero, error=5"`
-	Option1           string         `validate:"options=aa;bb;cc, error=6"`
-	Option2           int            `validate:"options=11;22;33, error=7"`
-	Option3           []string       `validate:"options=aa;bb;cc, error=8"`
-	Option4           []int          `validate:"options=11;22;33, error=9"`
-	Map1              map[string]int `validate:"options=aa:11;bb:22;cc:33, error=10"`
-	Map2              map[int]string `validate:"options=11:aa;22:bb;33:cc, error=11"`
-	SpecialTime       string         `validate:"special=time, error=12"`
-	SpecialDate1      string         `validate:"special=date, error=13"`
-	SpecialDate2      string         `validate:"special=YYYYMMDD, error=14"`
-	SpecialDateString *string        `validate:"special=YYYYMMDD, error=15"`
-	SpecialData       *Data          `validate:"special=YYYYMMDD, error=16"`
+	Name              string         `validate:"value=joao, dummy_middle, error={ErrorTag1:a;b}, max=10"`
+	Age               int            `validate:"value=30, error={ErrorTag99}"`
+	Street            int            `validate:"max=10, error={ErrorTag3}"`
+	Id                uuid.UUID      `validate:"nonzero, error={ErrorTag5}"`
+	Option1           string         `validate:"options=aa;bb;cc, error={ErrorTag6}"`
+	Option2           int            `validate:"options=11;22;33, error={ErrorTag7}"`
+	Option3           []string       `validate:"options=aa;bb;cc, error={ErrorTag8}"`
+	Option4           []int          `validate:"options=11;22;33, error={ErrorTag9}"`
+	Map1              map[string]int `validate:"options=aa:11;bb:22;cc:33, error={ErrorTag10}"`
+	Map2              map[int]string `validate:"options=11:aa;22:bb;33:cc, error={ErrorTag11}"`
+	SpecialTime       string         `validate:"special=time, error={ErrorTag12}"`
+	SpecialDate1      string         `validate:"special=date, error={ErrorTag13}"`
+	SpecialDate2      string         `validate:"special=YYYYMMDD, error={ErrorTag14}"`
+	SpecialDateString *string        `validate:"special=YYYYMMDD, error={ErrorTag15}"`
+	SpecialData       *Data          `validate:"special=YYYYMMDD, error={ErrorTag16}"`
 	SpecialUrl        string         `validate:"special=url"`
 	unexported        string
-	IsNill            *string `validate:"nonzero, error=17"`
-	Sanitize          string  `validate:"sanitize=a;b;teste, error=17"`
-	Callback          string  `validate:"callback=dummy_callback, error=19"`
+	IsNill            *string `validate:"nonzero, error={ErrorTag17}"`
+	Sanitize          string  `validate:"sanitize=a;b;teste, error={ErrorTag17}"`
+	Callback          string  `validate:"callback=dummy_callback, error={ErrorTag19}"`
 	Password          string  `json:"password" validate:"id=password"`
 	PasswordConfirm   string  `validate:"match=password"`
 }
@@ -140,27 +145,27 @@ func init() {
 }
 
 var errs = map[string]error{
-	"1":  errors.New("error 1: a:%s, b:%s"),
-	"2":  errors.New("error 2"),
-	"3":  errors.New("error 3"),
-	"4":  errors.New("error 4"),
-	"5":  errors.New("error 5"),
-	"6":  errors.New("error 6"),
-	"7":  errors.New("error 7"),
-	"8":  errors.New("error 8"),
-	"9":  errors.New("error 9"),
-	"10": errors.New("error 10"),
-	"11": errors.New("error 11"),
-	"12": errors.New("error 12"),
-	"13": errors.New("error 13"),
-	"14": errors.New("error 14"),
-	"15": errors.New("error 15"),
-	"16": errors.New("error 16"),
-	"17": errors.New("error 17"),
-	"18": errors.New("error 18"),
-	"19": errors.New("error 19"),
-	"20": errors.New("error 20"),
-	"21": errors.New("error 21"),
+	"ErrorTag1":  errors.New("error 1: a:%s, b:%s"),
+	"ErrorTag2":  errors.New("error 2"),
+	"ErrorTag3":  errors.New("error 3"),
+	"ErrorTag4":  errors.New("error 4"),
+	"ErrorTag5":  errors.New("error 5"),
+	"ErrorTag6":  errors.New("error 6"),
+	"ErrorTag7":  errors.New("error 7"),
+	"ErrorTag8":  errors.New("error 8"),
+	"ErrorTag9":  errors.New("error 9"),
+	"ErrorTag10": errors.New("error 10"),
+	"ErrorTag11": errors.New("error 11"),
+	"ErrorTag12": errors.New("error 12"),
+	"ErrorTag13": errors.New("error 13"),
+	"ErrorTag14": errors.New("error 14"),
+	"ErrorTag15": errors.New("error 15"),
+	"ErrorTag16": errors.New("error 16"),
+	"ErrorTag17": errors.New("error 17"),
+	"ErrorTag18": errors.New("error 18"),
+	"ErrorTag19": errors.New("error 19"),
+	"ErrorTag20": errors.New("error 20"),
+	"ErrorTag21": errors.New("error 21"),
 }
 var dummy_error_handler = func(context *validator.ValidatorContext, validationData *validator.ValidationData) error {
 	if err, ok := errs[validationData.ErrorData.Code]; ok {
@@ -186,6 +191,8 @@ var dummy_callback = func(context *validator.ValidatorContext, validationData *v
 }
 
 func main() {
+	intVal1 := 1
+	intVal2 := 2
 	id, _ := uuid.NewV4()
 	str := "2018-12-1"
 	data := Data("2018-12-1")
@@ -216,6 +223,11 @@ func main() {
 		NextSet: NextSet{
 			Set: 123,
 		},
+		DistinctIntPointer: []*int{&intVal1, &intVal1, &intVal2, &intVal2},
+		DistinctInt:        []int{1, 1, 2, 2},
+		DistinctString:     []string{"a", "a", "b", "b"},
+		DistinctBool:       []bool{true, true, false, false},
+		DistinctFloat:      []float32{1.1, 1.1, 1.2, 1.2},
 		Brothers: []Example2{
 			Example2{
 				Name:            "jessica",
@@ -240,6 +252,12 @@ func main() {
 
 	fmt.Printf("\nBEFORE SET: %d", example.Set)
 	fmt.Printf("\nBEFORE NEXT SET: %d", example.NextSet.Set)
+
+	fmt.Printf("\nBEFORE DISTINCT INT POINTER: %+v", example.DistinctIntPointer)
+	fmt.Printf("\nBEFORE DISTINCT INT: %+v", example.DistinctInt)
+	fmt.Printf("\nBEFORE DISTINCT STRING: %+v", example.DistinctString)
+	fmt.Printf("\nBEFORE DISTINCT BOOL: %+v", example.DistinctBool)
+	fmt.Printf("\nBEFORE DISTINCT FLOAT: %+v", example.DistinctFloat)
 	if errs := validator.Validate(&example); len(errs) > 0 {
 		fmt.Printf("\n\nERRORS: %d\n", len(errs))
 		for _, err := range errs {
@@ -248,39 +266,58 @@ func main() {
 	}
 	fmt.Printf("\n\nAFTER SET: %d", example.Set)
 	fmt.Printf("\nAFTER NEXT SET: %d", example.NextSet.Set)
+
+	fmt.Printf("\nAFTER DISTINCT INT POINTER: %+v", example.DistinctIntPointer)
+	fmt.Printf("\nAFTER DISTINCT INT: %+v", example.DistinctInt)
+	fmt.Printf("\nAFTER DISTINCT STRING: %+v", example.DistinctString)
+	fmt.Printf("\nAFTER DISTINCT BOOL: %+v", example.DistinctBool)
+	fmt.Printf("\nAFTER DISTINCT FLOAT: %+v", example.DistinctFloat)
 }
 ```
 
 > ##### Response:
 ```go
+BEFORE SET: 123
+BEFORE NEXT SET: 123
+BEFORE DISTINCT INT POINTER: [0xc420020310 0xc420020310 0xc420020318 0xc420020318]
+BEFORE DISTINCT INT: [1 1 2 2]
+BEFORE DISTINCT STRING: [a a b b]
+BEFORE DISTINCT BOOL: [true true false false]
+BEFORE DISTINCT FLOAT: [1.1 1.1 1.2 1.2]
+
 ERRORS: 23
 
 ERROR: error 1: a:a, b:b
 ERROR: error 1: a:a, b:b
 ERROR: the value [10] is different of the expected [30] on field [Age]
-ERROR: {"code":"3","message":"the length [12] is bigger then the expected [10] on field [Street]"}
-ERROR: {"code":"5","message":"the value shouldn't be zero on field [Id]"}
-ERROR: {"code":"6","message":"the value [xx] is different of the expected options [aa;bb;cc] on field [Option1]"}
-ERROR: {"code":"7","message":"the value [99] is different of the expected options [11;22;33] on field [Option2]"}
-ERROR: {"code":"8","message":"the value [zz] is different of the expected options [aa;bb;cc] on field [Option3]"}
-ERROR: {"code":"9","message":"the value [44] is different of the expected options [11;22;33] on field [Option4]"}
-ERROR: {"code":"10","message":"the value [22] is different of the expected options [aa:11;bb:22;cc:33] on field [Map1]"}
-ERROR: {"code":"11","message":"the value [cc] is different of the expected options [11:aa;22:bb;33:cc] on field [Map2]"}
-ERROR: {"code":"12","message":"invalid data [99:01:00] on field [SpecialTime] "}
-ERROR: {"code":"13","message":"invalid data [01-99-2018] on field [SpecialDate1] "}
-ERROR: {"code":"14","message":"invalid data [2018-99-1] on field [SpecialDate2] "}
-ERROR: {"code":"17","message":"the value shouldn't be zero on field [IsNill]"}
-ERROR: {"code":"17","message":"the value [b teste] is has invalid characters [b,teste] on field [Sanitize]"}
-ERROR: {"code":"19","message":"there's a bug here!"}
-ERROR: {"code":"17","message":"the value shouldn't be zero on field [IsNill]"}
-ERROR: {"code":"19","message":"there's a bug here!"}
+ERROR: error 3
+ERROR: error 5
+ERROR: error 6
+ERROR: error 7
+ERROR: error 8
+ERROR: error 9
+ERROR: error 10
+ERROR: error 11
+ERROR: error 12
+ERROR: error 13
+ERROR: error 14
+ERROR: error 17
+ERROR: error 17
+ERROR: error 19
+ERROR: error 17
+ERROR: error 19
 ERROR: the value [password_errada] is different of the expected [password] on field [PasswordConfirm]
 ERROR: the value [30] is different of the expected [10] on field [MyValidate]
 ERROR: {"code":"20","message":"the value shouldn't be zero on field [DoubleValidation]"}
-ERROR: {"code":"21","message":"the length [0] is lower then the expected [5] on field [DoubleValidation]"}
+ERROR: error 21
 
 AFTER SET: 321
 AFTER NEXT SET: 321
+AFTER DISTINCT INT POINTER: [0xc420020310 0xc420020318]
+AFTER DISTINCT INT: [1 2]
+AFTER DISTINCT STRING: [a b]
+AFTER DISTINCT BOOL: [true false]
+AFTER DISTINCT FLOAT: [1.1 1.2]
 ```
 
 ## Known issues
