@@ -22,33 +22,33 @@ type NextSet struct {
 }
 
 type Example struct {
-	Name               string         `validate:"value=joao, dummy_middle, error={1:a;b}, max=10"`
-	Age                int            `validate:"value=30, error={99}"`
-	Street             int            `validate:"max=10, error=3"`
-	Brothers           []Example2     `validate:"size=1, error=4"`
-	Id                 uuid.UUID      `validate:"nonzero, error=5"`
-	Option1            string         `validate:"options=aa;bb;cc, error=6"`
-	Option2            int            `validate:"options=11;22;33, error=7"`
-	Option3            []string       `validate:"options=aa;bb;cc, error=8"`
-	Option4            []int          `validate:"options=11;22;33, error=9"`
-	Map1               map[string]int `validate:"options=aa:11;bb:22;cc:33, error=10"`
-	Map2               map[int]string `validate:"options=11:aa;22:bb;33:cc, error=11"`
-	SpecialTime        string         `validate:"special=time, error=12"`
-	SpecialDate1       string         `validate:"special=date, error=13"`
-	SpecialDate2       string         `validate:"special=YYYYMMDD, error=14"`
-	SpecialDateString  *string        `validate:"special=YYYYMMDD, error=15"`
-	SpecialData        *Data          `validate:"special=YYYYMMDD, error=16"`
+	Name               string         `validate:"value=joao, dummy_middle, error={ErrorTag1:a;b}, max=10"`
+	Age                int            `validate:"value=30, error={ErrorTag99}"`
+	Street             int            `validate:"max=10, error={ErrorTag3}"`
+	Brothers           []Example2     `validate:"size=1, error={ErrorTag4}"`
+	Id                 uuid.UUID      `validate:"nonzero, error={ErrorTag5}"`
+	Option1            string         `validate:"options=aa;bb;cc, error={ErrorTag6}"`
+	Option2            int            `validate:"options=11;22;33, error={ErrorTag7}"`
+	Option3            []string       `validate:"options=aa;bb;cc, error={ErrorTag8}"`
+	Option4            []int          `validate:"options=11;22;33, error={ErrorTag9}"`
+	Map1               map[string]int `validate:"options=aa:11;bb:22;cc:33, error={ErrorTag10}"`
+	Map2               map[int]string `validate:"options=11:aa;22:bb;33:cc, error={ErrorTag11}"`
+	SpecialTime        string         `validate:"special=time, error={ErrorTag12}"`
+	SpecialDate1       string         `validate:"special=date, error={ErrorTag13}"`
+	SpecialDate2       string         `validate:"special=YYYYMMDD, error={ErrorTag14}"`
+	SpecialDateString  *string        `validate:"special=YYYYMMDD, error={ErrorTag15}"`
+	SpecialData        *Data          `validate:"special=YYYYMMDD, error={ErrorTag16}"`
 	SpecialUrl         string         `validate:"special=url"`
 	unexported         string
-	IsNill             *string `validate:"nonzero, error=17"`
-	Sanitize           string  `validate:"sanitize=a;b;teste, error=17"`
-	Callback           string  `validate:"callback=dummy_callback, error=19"`
+	IsNill             *string `validate:"nonzero, error={ErrorTag17}"`
+	Sanitize           string  `validate:"sanitize=a;b;teste, error={ErrorTag17}"`
+	Callback           string  `validate:"callback=dummy_callback, error={ErrorTag19}"`
 	Password           string  `json:"password" validate:"id=password"`
 	PasswordConfirm    string  `validate:"match=password"`
 	MyName             string  `validate:"id=name"`
 	MyAge              int     `validate:"id=age"`
 	MyValidate         int     `validate:"if=(id=age value=30) or (id=age value=31) and (id=name value=joao), value=10"`
-	DoubleValidation   int     `validate:"nonzero, error=20, min=5, error=21"`
+	DoubleValidation   int     `validate:"nonzero, error=20, min=5, error={ErrorTag21}"`
 	Set                int     `validate:"set=321, id=set"`
 	NextSet            NextSet
 	DistinctIntPointer []*int    `validate:"distinct"`
@@ -59,26 +59,26 @@ type Example struct {
 }
 
 type Example2 struct {
-	Name              string         `validate:"value=joao, dummy_middle, error={1:a;b}, max=10"`
-	Age               int            `validate:"value=30, error={99}"`
-	Street            int            `validate:"max=10, error=3"`
-	Id                uuid.UUID      `validate:"nonzero, error=5"`
-	Option1           string         `validate:"options=aa;bb;cc, error=6"`
-	Option2           int            `validate:"options=11;22;33, error=7"`
-	Option3           []string       `validate:"options=aa;bb;cc, error=8"`
-	Option4           []int          `validate:"options=11;22;33, error=9"`
-	Map1              map[string]int `validate:"options=aa:11;bb:22;cc:33, error=10"`
-	Map2              map[int]string `validate:"options=11:aa;22:bb;33:cc, error=11"`
-	SpecialTime       string         `validate:"special=time, error=12"`
-	SpecialDate1      string         `validate:"special=date, error=13"`
-	SpecialDate2      string         `validate:"special=YYYYMMDD, error=14"`
-	SpecialDateString *string        `validate:"special=YYYYMMDD, error=15"`
-	SpecialData       *Data          `validate:"special=YYYYMMDD, error=16"`
+	Name              string         `validate:"value=joao, dummy_middle, error={ErrorTag1:a;b}, max=10"`
+	Age               int            `validate:"value=30, error={ErrorTag99}"`
+	Street            int            `validate:"max=10, error={ErrorTag3}"`
+	Id                uuid.UUID      `validate:"nonzero, error={ErrorTag5}"`
+	Option1           string         `validate:"options=aa;bb;cc, error={ErrorTag6}"`
+	Option2           int            `validate:"options=11;22;33, error={ErrorTag7}"`
+	Option3           []string       `validate:"options=aa;bb;cc, error={ErrorTag8}"`
+	Option4           []int          `validate:"options=11;22;33, error={ErrorTag9}"`
+	Map1              map[string]int `validate:"options=aa:11;bb:22;cc:33, error={ErrorTag10}"`
+	Map2              map[int]string `validate:"options=11:aa;22:bb;33:cc, error={ErrorTag11}"`
+	SpecialTime       string         `validate:"special=time, error={ErrorTag12}"`
+	SpecialDate1      string         `validate:"special=date, error={ErrorTag13}"`
+	SpecialDate2      string         `validate:"special=YYYYMMDD, error={ErrorTag14}"`
+	SpecialDateString *string        `validate:"special=YYYYMMDD, error={ErrorTag15}"`
+	SpecialData       *Data          `validate:"special=YYYYMMDD, error={ErrorTag16}"`
 	SpecialUrl        string         `validate:"special=url"`
 	unexported        string
-	IsNill            *string `validate:"nonzero, error=17"`
-	Sanitize          string  `validate:"sanitize=a;b;teste, error=17"`
-	Callback          string  `validate:"callback=dummy_callback, error=19"`
+	IsNill            *string `validate:"nonzero, error={ErrorTag17}"`
+	Sanitize          string  `validate:"sanitize=a;b;teste, error={ErrorTag17}"`
+	Callback          string  `validate:"callback=dummy_callback, error={ErrorTag19}"`
 	Password          string  `json:"password" validate:"id=password"`
 	PasswordConfirm   string  `validate:"match=password"`
 }
@@ -101,27 +101,27 @@ func init() {
 }
 
 var errs = map[string]error{
-	"1":  errors.New("error 1: a:%s, b:%s"),
-	"2":  errors.New("error 2"),
-	"3":  errors.New("error 3"),
-	"4":  errors.New("error 4"),
-	"5":  errors.New("error 5"),
-	"6":  errors.New("error 6"),
-	"7":  errors.New("error 7"),
-	"8":  errors.New("error 8"),
-	"9":  errors.New("error 9"),
-	"10": errors.New("error 10"),
-	"11": errors.New("error 11"),
-	"12": errors.New("error 12"),
-	"13": errors.New("error 13"),
-	"14": errors.New("error 14"),
-	"15": errors.New("error 15"),
-	"16": errors.New("error 16"),
-	"17": errors.New("error 17"),
-	"18": errors.New("error 18"),
-	"19": errors.New("error 19"),
-	"20": errors.New("error 20"),
-	"21": errors.New("error 21"),
+	"ErrorTag1":  errors.New("error 1: a:%s, b:%s"),
+	"ErrorTag2":  errors.New("error 2"),
+	"ErrorTag3":  errors.New("error 3"),
+	"ErrorTag4":  errors.New("error 4"),
+	"ErrorTag5":  errors.New("error 5"),
+	"ErrorTag6":  errors.New("error 6"),
+	"ErrorTag7":  errors.New("error 7"),
+	"ErrorTag8":  errors.New("error 8"),
+	"ErrorTag9":  errors.New("error 9"),
+	"ErrorTag10": errors.New("error 10"),
+	"ErrorTag11": errors.New("error 11"),
+	"ErrorTag12": errors.New("error 12"),
+	"ErrorTag13": errors.New("error 13"),
+	"ErrorTag14": errors.New("error 14"),
+	"ErrorTag15": errors.New("error 15"),
+	"ErrorTag16": errors.New("error 16"),
+	"ErrorTag17": errors.New("error 17"),
+	"ErrorTag18": errors.New("error 18"),
+	"ErrorTag19": errors.New("error 19"),
+	"ErrorTag20": errors.New("error 20"),
+	"ErrorTag21": errors.New("error 21"),
 }
 var dummy_error_handler = func(context *validator.ValidatorContext, validationData *validator.ValidationData) error {
 	if err, ok := errs[validationData.ErrorData.Code]; ok {
