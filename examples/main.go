@@ -51,7 +51,10 @@ type Example struct {
 	DoubleValidation  int     `validate:"nonzero, error=20, min=5, error=21"`
 	Set               int     `validate:"set=321, id=set"`
 	NextSet           NextSet
-	Distinct          []int `validate:"distinct"`
+	DistinctInt       []int     `validate:"distinct"`
+	DistinctString    []string  `validate:"distinct"`
+	DistinctBool      []bool    `validate:"distinct"`
+	DistinctFloat     []float32 `validate:"distinct"`
 }
 
 type Example2 struct {
@@ -173,7 +176,10 @@ func main() {
 		NextSet: NextSet{
 			Set: 123,
 		},
-		Distinct: []int{1, 2, 3, 1, 2, 3},
+		DistinctInt:    []int{1, 2, 3, 1, 2, 3},
+		DistinctString: []string{"a", "a", "b", "b"},
+		DistinctBool:   []bool{true, true, false, false},
+		DistinctFloat:  []float32{1.1, 1.1, 1.2, 1.2},
 		Brothers: []Example2{
 			Example2{
 				Name:            "jessica",
@@ -199,7 +205,10 @@ func main() {
 	fmt.Printf("\nBEFORE SET: %d", example.Set)
 	fmt.Printf("\nBEFORE NEXT SET: %d", example.NextSet.Set)
 
-	fmt.Printf("\nBEFORE DISTINCT: %+v", example.Distinct)
+	fmt.Printf("\nBEFORE DISTINCT INT: %+v", example.DistinctInt)
+	fmt.Printf("\nBEFORE DISTINCT STRING: %+v", example.DistinctString)
+	fmt.Printf("\nBEFORE DISTINCT BOOL: %+v", example.DistinctBool)
+	fmt.Printf("\nBEFORE DISTINCT FLOAT: %+v", example.DistinctFloat)
 	if errs := validator.Validate(&example); len(errs) > 0 {
 		fmt.Printf("\n\nERRORS: %d\n", len(errs))
 		for _, err := range errs {
@@ -209,5 +218,8 @@ func main() {
 	fmt.Printf("\n\nAFTER SET: %d", example.Set)
 	fmt.Printf("\nAFTER NEXT SET: %d", example.NextSet.Set)
 
-	fmt.Printf("\nAFTER DISTINCT: %+v", example.Distinct)
+	fmt.Printf("\nAFTER DISTINCT INT: %+v", example.DistinctInt)
+	fmt.Printf("\nAFTER DISTINCT STRING: %+v", example.DistinctString)
+	fmt.Printf("\nAFTER DISTINCT BOOL: %+v", example.DistinctBool)
+	fmt.Printf("\nAFTER DISTINCT FLOAT: %+v", example.DistinctFloat)
 }
