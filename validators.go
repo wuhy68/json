@@ -606,17 +606,27 @@ func (v *Validator) validate_distinct(context *ValidatorContext, validationData 
 		values := make(map[interface{}]bool)
 		for i := 0; i < value.Len(); i++ {
 
-			if _, ok := values[value.Index(i).Interface()]; ok {
+			indexValue := value.Index(i)
+			if indexValue.Kind() == reflect.Ptr && !indexValue.IsNil() {
+				indexValue = value.Index(i).Elem()
+			}
+
+			if _, ok := values[indexValue.Interface()]; ok {
 				continue
 			}
 
-			switch value.Index(i).Kind() {
+			switch indexValue.Kind() {
 			case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64,
 				reflect.Float32, reflect.Float64,
 				reflect.String,
 				reflect.Bool:
-				newInstance = reflect.Append(newInstance, value.Index(i))
-				values[value.Index(i).Interface()] = true
+				if value.Index(i).Kind() == reflect.Ptr && !value.Index(i).IsNil() {
+					newInstance = reflect.Append(newInstance, indexValue.Addr())
+				} else {
+					newInstance = reflect.Append(newInstance, indexValue)
+				}
+
+				values[indexValue.Interface()] = true
 			}
 		}
 
