@@ -24,7 +24,7 @@ func SetSanitize(sanitize []string) *Validator {
 	return validatorInstance.SetSanitize(sanitize)
 }
 
-// MyValidate ...
+// Validate ...
 func Validate(obj interface{}) []error {
 	return validatorInstance.Validate(obj)
 }
