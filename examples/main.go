@@ -56,6 +56,7 @@ type Example struct {
 	DistinctString     []string  `validate:"distinct"`
 	DistinctBool       []bool    `validate:"distinct"`
 	DistinctFloat      []float32 `validate:"distinct"`
+	IsZero             int       `validate:"iszero"`
 }
 
 type Example2 struct {

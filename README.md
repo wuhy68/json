@@ -15,6 +15,7 @@ A simple struct validator by tags (exported fields only).
 * min 
 * max 
 * nonzero (also supports uuid zero validation)
+* iszero (also supports uuid zero validation)
 * regex
 * special ( YYYYMMDD, DDMMYYYY, date, time, url )
 * sanitize (invalid characters)

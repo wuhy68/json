@@ -29,6 +29,7 @@ const (
 	ConstTagMin      = "min"
 	ConstTagMax      = "max"
 	ConstTagNonzero  = "nonzero"
+	ConstTagIszero   = "iszero"
 	ConstTagRegex    = "regex"
 	ConstTagSpecial  = "special"
 	ConstTagSanitize = "sanitize"
