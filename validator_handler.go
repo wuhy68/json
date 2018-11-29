@@ -79,22 +79,30 @@ func (v *ValidatorContext) load(obj interface{}, mutable reflect.Value, errs *[]
 								Obj:        &obj,
 								MutableObj: nextValue,
 								Type:       nextType,
+								IsSet:      false,
 							}
 						}
 					case ConstTagSet:
+						isSet := false
 						newStruct := reflect.New(value.Type()).Elem()
 						newField := newStruct.Field(i)
-						setValue(nextValue.Kind(), newField, tag[1])
+
+						if !strings.Contains(tagValue, fmt.Sprintf("%s=", ConstTagIf)) {
+							isSet = true
+							setValue(nextValue.Kind(), newField, tag[1])
+						} else {
+							setValue(nextValue.Kind(), newField, value.Field(i).String())
+						}
 
 						data = &Data{
 							Value:      newField,
 							Obj:        &obj,
-							MutableObj: nextValue,
+							MutableObj: newStruct,
 							Type:       nextType,
+							IsSet:      isSet,
 						}
 					}
 				}
-
 				v.Values[id] = data
 			}
 

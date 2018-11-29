@@ -68,6 +68,7 @@ type Data struct {
 	Obj        interface{}
 	MutableObj reflect.Value
 	Type       reflect.StructField
+	IsSet      bool
 }
 
 type Expression struct {
