@@ -323,8 +323,8 @@ func (v *Validator) validate_iszero(context *ValidatorContext, validationData *V
 
 		switch validationData.Value.Type() {
 		case reflect.TypeOf(uuid.UUID{}):
-			if validationData.Value.Interface().(uuid.UUID) != uuid.Nil {
-				valueSize = 1
+			if validationData.Value.Interface().(uuid.UUID) == uuid.Nil {
+				valueSize = 0
 			}
 		default:
 			valueSize = int64(validationData.Value.Len())
