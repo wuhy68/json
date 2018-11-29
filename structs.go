@@ -45,6 +45,7 @@ type ValidatorContext struct {
 }
 
 type ValidationData struct {
+	Id             string
 	Code           string
 	Arguments      []interface{}
 	Field          string

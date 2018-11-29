@@ -245,10 +245,25 @@ func (v *ValidatorContext) doValidate(value reflect.Value, typ reflect.StructFie
 	return v.executeHandlers(value, typ, obj, mutable, validations, errs)
 }
 
+func (v *ValidatorContext) getFieldId(validations []string) string {
+	for _, validation := range validations {
+		options := strings.SplitN(validation, "=", 2)
+		tag := strings.TrimSpace(options[0])
+
+		if tag == ConstTagId {
+			return options[1]
+		}
+	}
+
+	return ""
+}
+
 func (v *ValidatorContext) executeHandlers(value reflect.Value, typ reflect.StructField, obj interface{}, mutable reflect.Value, validations []string, errs *[]error) error {
 	var err error
 	var itErrs []error
 	var replacedErrors = make(map[error]bool)
+
+	id := v.getFieldId(validations)
 
 	for _, validation := range validations {
 		var name string
@@ -279,6 +294,7 @@ func (v *ValidatorContext) executeHandlers(value reflect.Value, typ reflect.Stru
 		}
 
 		validationData := ValidationData{
+			Id:             id,
 			Name:           name,
 			Value:          value,
 			Field:          typ.Name,
