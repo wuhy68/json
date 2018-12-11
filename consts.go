@@ -36,5 +36,7 @@ const (
 	ConstTagCallback = "callback"
 	ConstTagMatch    = "match"
 	ConstTagSet      = "set"
+	ConstTagTrim     = "trim"
+	ConstTagKey      = "key"
 	ConstTagDistinct = "distinct"
 )

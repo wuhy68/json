@@ -57,6 +57,8 @@ type Example struct {
 	DistinctBool       []bool    `validate:"distinct"`
 	DistinctFloat      []float32 `validate:"distinct"`
 	IsZero             int       `validate:"iszero"`
+	Trim               string    `validate:"trim"`
+	Key                string    `validate:"key"`
 }
 
 type Example2 struct {
@@ -185,6 +187,8 @@ func main() {
 		DistinctString:     []string{"a", "a", "b", "b"},
 		DistinctBool:       []bool{true, true, false, false},
 		DistinctFloat:      []float32{1.1, 1.1, 1.2, 1.2},
+		Trim:               "     aqui       tem     espaços    !!   ",
+		Key:                "     aaaaa     3245 79 / ( ) ? =  tem     espaços ...   !!  <<<< ",
 		Brothers: []Example2{
 			Example2{
 				Name:            "jessica",
@@ -229,4 +233,7 @@ func main() {
 	fmt.Printf("\nAFTER DISTINCT STRING: %+v", example.DistinctString)
 	fmt.Printf("\nAFTER DISTINCT BOOL: %+v", example.DistinctBool)
 	fmt.Printf("\nAFTER DISTINCT FLOAT: %+v", example.DistinctFloat)
+
+	fmt.Printf("\nAFTER TRIM: %s", example.Trim)
+	fmt.Printf("\nAFTER KEY: %s", example.Key)
 }

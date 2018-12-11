@@ -1,6 +1,7 @@
 package validator
 
 import (
+	"bytes"
 	"fmt"
 	"reflect"
 	"regexp"
@@ -616,6 +617,41 @@ func (v *Validator) validate_set(context *ValidatorContext, validationData *Vali
 		kind := reflect.TypeOf(value.Interface()).Kind()
 
 		setValue(kind, value, validationData.Expected)
+	}
+
+	return rtnErrs
+}
+
+func (v *Validator) validate_trim(context *ValidatorContext, validationData *ValidationData) []error {
+	rtnErrs := make([]error, 0)
+
+	if validationData.MutableObj.CanAddr() {
+		value := validationData.MutableObj.FieldByName(validationData.Field)
+		kind := reflect.TypeOf(value.Interface()).Kind()
+
+		switch kind {
+		case reflect.String:
+			newValue := strings.TrimSpace(value.Interface().(string))
+			regx := regexp.MustCompile("  +")
+			newValue = string(regx.ReplaceAll(bytes.TrimSpace([]byte(newValue)), []byte(" ")))
+			setValue(kind, value, newValue)
+		}
+	}
+
+	return rtnErrs
+}
+
+func (v *Validator) validate_key(context *ValidatorContext, validationData *ValidationData) []error {
+	rtnErrs := make([]error, 0)
+
+	if validationData.MutableObj.CanAddr() {
+		value := validationData.MutableObj.FieldByName(validationData.Field)
+		kind := reflect.TypeOf(value.Interface()).Kind()
+
+		switch kind {
+		case reflect.String:
+			setValue(kind, value, convertToKey(value.Interface().(string), true))
+		}
 	}
 
 	return rtnErrs

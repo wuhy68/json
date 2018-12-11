@@ -26,6 +26,8 @@ A simple struct validator by tags (exported fields only).
 * multi error handling `validate:"value=1, error={errorValue1}, max=10, error={errorMax10}"`
 * set (allows to set native values) to use this you need to use the variable address, like this `validator.Validate(&example)`
 * distinct (remove duplicated values from slices of primitive types)
+* trim (start and end spaces and all inner duplicated spaces)
+* key (converts the value to a url valid key [example "This is a test" to "this-is-a-test"])
 
 ## With methods for
 * AddBefore (add a before-validation)
@@ -56,6 +58,7 @@ This examples are available in the project at [validator/examples](https://githu
 
 ### Code
 ```go
+
 const (
 	RegexForMissingParms = `%\+?[a-z]`
 )
@@ -101,6 +104,9 @@ type Example struct {
 	DistinctString     []string  `validate:"distinct"`
 	DistinctBool       []bool    `validate:"distinct"`
 	DistinctFloat      []float32 `validate:"distinct"`
+	IsZero             int       `validate:"iszero"`
+	Trim               string    `validate:"trim"`
+	Key                string    `validate:"key"`
 }
 
 type Example2 struct {
@@ -229,6 +235,8 @@ func main() {
 		DistinctString:     []string{"a", "a", "b", "b"},
 		DistinctBool:       []bool{true, true, false, false},
 		DistinctFloat:      []float32{1.1, 1.1, 1.2, 1.2},
+		Trim:               "     aqui       tem     espaços    !!   ",
+		Key:                "     aaaaa     3245 79 / ( ) ? =  tem     espaços ...   !!  <<<< ",
 		Brothers: []Example2{
 			Example2{
 				Name:            "jessica",
@@ -273,6 +281,9 @@ func main() {
 	fmt.Printf("\nAFTER DISTINCT STRING: %+v", example.DistinctString)
 	fmt.Printf("\nAFTER DISTINCT BOOL: %+v", example.DistinctBool)
 	fmt.Printf("\nAFTER DISTINCT FLOAT: %+v", example.DistinctFloat)
+
+	fmt.Printf("\nAFTER TRIM: %s", example.Trim)
+	fmt.Printf("\nAFTER KEY: %s", example.Key)
 }
 ```
 
@@ -280,13 +291,13 @@ func main() {
 ```go
 BEFORE SET: 123
 BEFORE NEXT SET: 123
-BEFORE DISTINCT INT POINTER: [0xc420020310 0xc420020310 0xc420020318 0xc420020318]
+BEFORE DISTINCT INT POINTER: [0xc420086300 0xc420086300 0xc420086308 0xc420086308]
 BEFORE DISTINCT INT: [1 1 2 2]
 BEFORE DISTINCT STRING: [a a b b]
 BEFORE DISTINCT BOOL: [true true false false]
 BEFORE DISTINCT FLOAT: [1.1 1.1 1.2 1.2]
 
-ERRORS: 23
+ERRORS: 24
 
 ERROR: error 1: a:a, b:b
 ERROR: error 1: a:a, b:b
@@ -311,14 +322,17 @@ ERROR: the value [password_errada] is different of the expected [password] on fi
 ERROR: the value [30] is different of the expected [10] on field [MyValidate]
 ERROR: {"code":"20","message":"the value shouldn't be zero on field [DoubleValidation]"}
 ERROR: error 21
+ERROR: the value should be zero on field [IsZero]
 
 AFTER SET: 321
 AFTER NEXT SET: 321
-AFTER DISTINCT INT POINTER: [0xc420020310 0xc420020318]
+AFTER DISTINCT INT POINTER: [0xc420086300 0xc420086308]
 AFTER DISTINCT INT: [1 2]
 AFTER DISTINCT STRING: [a b]
 AFTER DISTINCT BOOL: [true false]
 AFTER DISTINCT FLOAT: [1.1 1.2]
+AFTER TRIM: aqui tem espaços !!
+AFTER KEY: -aaaaa-3245-79-tem-espacos-
 ```
 
 ## Known issues
