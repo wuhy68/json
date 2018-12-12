@@ -27,7 +27,7 @@ A simple struct validator by tags (exported fields only).
 * set (allows to set native values) to use this you need to use the variable address, like this `validator.Validate(&example)`
 * distinct (remove duplicated values from slices of primitive types)
 * trim (start and end spaces and all inner duplicated spaces)
-* key (converts the value to a url valid key [example "This is a test" to "this-is-a-test"])
+* key (converts the value to a url valid key. You can also do key=xpto or key={id} where the id is other field id [example "This is a test" to "this-is-a-test"])
 
 ## With methods for
 * AddBefore (add a before-validation)
