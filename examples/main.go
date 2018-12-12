@@ -58,7 +58,8 @@ type Example struct {
 	DistinctFloat      []float32 `validate:"distinct"`
 	IsZero             int       `validate:"iszero"`
 	Trim               string    `validate:"trim"`
-	Key                string    `validate:"key"`
+	KeyValue           string    `validate:"id=my_value"`
+	Key                string    `validate:"key={my_value}"`
 }
 
 type Example2 struct {
@@ -188,7 +189,7 @@ func main() {
 		DistinctBool:       []bool{true, true, false, false},
 		DistinctFloat:      []float32{1.1, 1.1, 1.2, 1.2},
 		Trim:               "     aqui       tem     espaços    !!   ",
-		Key:                "     aaaaa     3245 79 / ( ) ? =  tem     espaços ...   !!  <<<< ",
+		KeyValue:           "     aaaaa     3245 79 / ( ) ? =  tem     espaços ...   !!  <<<< ",
 		Brothers: []Example2{
 			Example2{
 				Name:            "jessica",

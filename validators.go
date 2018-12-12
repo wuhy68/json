@@ -443,7 +443,6 @@ func (v *Validator) validate_error(context *ValidatorContext, validationData *Va
 			if matched, err := regexp.MatchString(ConstRegexForErrorTag, validationData.Expected.(string)); err != nil {
 				rtnErrs = append(rtnErrs, err)
 			} else {
-
 				if matched {
 					replacer := strings.NewReplacer("{", "", "}", "")
 					expected := replacer.Replace(validationData.Expected.(string))
@@ -650,7 +649,22 @@ func (v *Validator) validate_key(context *ValidatorContext, validationData *Vali
 
 		switch kind {
 		case reflect.String:
-			setValue(kind, value, convertToKey(value.Interface().(string), true))
+			newValue := strings.TrimSpace(value.Interface().(string))
+			if validationData.Expected.(string) != "" {
+				if matched, err := regexp.MatchString(ConstRegexForErrorTag, validationData.Expected.(string)); err != nil {
+					rtnErrs = append(rtnErrs, err)
+				} else {
+					if matched {
+						replacer := strings.NewReplacer("{", "", "}", "")
+						id := replacer.Replace(validationData.Expected.(string))
+						newValue = context.Values[id].Value.Interface().(string)
+					} else {
+						newValue = validationData.Expected.(string)
+					}
+				}
+
+			}
+			setValue(kind, value, convertToKey(newValue, true))
 		}
 	}
 
