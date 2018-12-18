@@ -20,10 +20,9 @@ A simple struct validator by tags (exported fields only).
 * special ( YYYYMMDD, DDMMYYYY, date, time, url )
 * sanitize (invalid characters)
 * callback (add handler validations)
-* error
+* error (simple and multi error handling `validate:"value=1, error={errorValue1}, max=10, error={errorMax10}"`)
 * match (match between fields [define id=xpto])
 * if (conditional validation between fields with operators ("and", "or") [define id=xpto])
-* multi error handling `validate:"value=1, error={errorValue1}, max=10, error={errorMax10}"`
 * set (allows to set native values) to use this you need to use the variable address, like this `validator.Validate(&example)`
 * distinct (remove duplicated values from slices of primitive types)
 * trim (start and end spaces and all inner duplicated spaces)
@@ -59,7 +58,6 @@ This examples are available in the project at [validator/examples](https://githu
 
 ### Code
 ```go
-
 const (
 	RegexForMissingParms = `%\+?[a-z]`
 )
@@ -91,7 +89,7 @@ type Example struct {
 	unexported         string
 	IsNill             *string `validate:"nonzero, error={ErrorTag17}"`
 	Sanitize           string  `validate:"sanitize=a;b;teste, error={ErrorTag17}"`
-	Callback           string  `validate:"callback=dummy_callback, error={ErrorTag19}"`
+	Callback           string  `validate:"callback=dummy_callback;dummy_callback_2, error={ErrorTag19}"`
 	Password           string  `json:"password" validate:"id=password"`
 	PasswordConfirm    string  `validate:"match=password"`
 	MyName             string  `validate:"id=name"`
@@ -107,7 +105,10 @@ type Example struct {
 	DistinctFloat      []float32 `validate:"distinct"`
 	IsZero             int       `validate:"iszero"`
 	Trim               string    `validate:"trim"`
-	Key                string    `validate:"key"`
+	KeyValue           string    `validate:"id=my_value"`
+	Key                string    `validate:"key={my_value}"`
+	NotMatch1          string    `validate:"id=not_match"`
+	NotMatch2          string    `validate:"notmatch=not_match"`
 }
 
 type Example2 struct {
@@ -149,7 +150,8 @@ func init() {
 		AddMiddle("dummy_middle", dummy_middle_handler).
 		SetValidateAll(true).
 		SetErrorCodeHandler(dummy_error_handler).
-		AddCallback("dummy_callback", dummy_callback)
+		AddCallback("dummy_callback", dummy_callback).
+		AddCallback("dummy_callback_2", dummy_callback)
 }
 
 var errs = map[string]error{
@@ -237,7 +239,9 @@ func main() {
 		DistinctBool:       []bool{true, true, false, false},
 		DistinctFloat:      []float32{1.1, 1.1, 1.2, 1.2},
 		Trim:               "     aqui       tem     espaços    !!   ",
-		Key:                "     aaaaa     3245 79 / ( ) ? =  tem     espaços ...   !!  <<<< ",
+		KeyValue:           "     aaaaa     3245 79 / ( ) ? =  tem     espaços ...   !!  <<<< ",
+		NotMatch1:          "A",
+		NotMatch2:          "A",
 		Brothers: []Example2{
 			Example2{
 				Name:            "jessica",
@@ -292,13 +296,13 @@ func main() {
 ```go
 BEFORE SET: 123
 BEFORE NEXT SET: 123
-BEFORE DISTINCT INT POINTER: [0xc420086300 0xc420086300 0xc420086308 0xc420086308]
+BEFORE DISTINCT INT POINTER: [0xc420020348 0xc420020348 0xc420020360 0xc420020360]
 BEFORE DISTINCT INT: [1 1 2 2]
 BEFORE DISTINCT STRING: [a a b b]
 BEFORE DISTINCT BOOL: [true true false false]
 BEFORE DISTINCT FLOAT: [1.1 1.1 1.2 1.2]
 
-ERRORS: 24
+ERRORS: 25
 
 ERROR: error 1: a:a, b:b
 ERROR: error 1: a:a, b:b
@@ -324,10 +328,11 @@ ERROR: the value [30] is different of the expected [10] on field [MyValidate]
 ERROR: {"code":"20","message":"the value shouldn't be zero on field [DoubleValidation]"}
 ERROR: error 21
 ERROR: the value should be zero on field [IsZero]
+ERROR: the value [A] should be different of the [A] on field [NotMatch2]
 
 AFTER SET: 321
 AFTER NEXT SET: 321
-AFTER DISTINCT INT POINTER: [0xc420086300 0xc420086308]
+AFTER DISTINCT INT POINTER: [0xc420020348 0xc420020360]
 AFTER DISTINCT INT: [1 2]
 AFTER DISTINCT STRING: [a b]
 AFTER DISTINCT BOOL: [true false]
