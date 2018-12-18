@@ -28,6 +28,7 @@ A simple struct validator by tags (exported fields only).
 * distinct (remove duplicated values from slices of primitive types)
 * trim (start and end spaces and all inner duplicated spaces)
 * key (converts the value to a url valid key. You can also do key=xpto or key={id} where the id is other field id [example "This is a test" to "this-is-a-test"])
+* notmatch (not match between fields [define id=xpto])
 
 ## With methods for
 * AddBefore (add a before-validation)

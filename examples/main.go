@@ -42,7 +42,7 @@ type Example struct {
 	unexported         string
 	IsNill             *string `validate:"nonzero, error={ErrorTag17}"`
 	Sanitize           string  `validate:"sanitize=a;b;teste, error={ErrorTag17}"`
-	Callback           string  `validate:"callback=dummy_callback, error={ErrorTag19}"`
+	Callback           string  `validate:"callback=dummy_callback;dummy_callback_2, error={ErrorTag19}"`
 	Password           string  `json:"password" validate:"id=password"`
 	PasswordConfirm    string  `validate:"match=password"`
 	MyName             string  `validate:"id=name"`
@@ -60,6 +60,8 @@ type Example struct {
 	Trim               string    `validate:"trim"`
 	KeyValue           string    `validate:"id=my_value"`
 	Key                string    `validate:"key={my_value}"`
+	NotMatch1          string    `validate:"id=not_match"`
+	NotMatch2          string    `validate:"notmatch=not_match"`
 }
 
 type Example2 struct {
@@ -101,7 +103,8 @@ func init() {
 		AddMiddle("dummy_middle", dummy_middle_handler).
 		SetValidateAll(true).
 		SetErrorCodeHandler(dummy_error_handler).
-		AddCallback("dummy_callback", dummy_callback)
+		AddCallback("dummy_callback", dummy_callback).
+		AddCallback("dummy_callback_2", dummy_callback)
 }
 
 var errs = map[string]error{
@@ -190,6 +193,8 @@ func main() {
 		DistinctFloat:      []float32{1.1, 1.1, 1.2, 1.2},
 		Trim:               "     aqui       tem     espaços    !!   ",
 		KeyValue:           "     aaaaa     3245 79 / ( ) ? =  tem     espaços ...   !!  <<<< ",
+		NotMatch1:          "A",
+		NotMatch2:          "A",
 		Brothers: []Example2{
 			Example2{
 				Name:            "jessica",

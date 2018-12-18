@@ -419,12 +419,24 @@ func (v *Validator) validate_special(context *ValidatorContext, validationData *
 }
 
 func (v *Validator) validate_callback(context *ValidatorContext, validationData *ValidationData) []error {
+	rtnErrs := make([]error, 0)
 
-	if callback, ok := v.callbacks[validationData.Expected.(string)]; ok {
-		return callback(context, validationData)
+	validators := strings.Split(validationData.Expected.(string), ";")
+
+	for _, validator := range validators {
+		if callback, ok := v.callbacks[validator]; ok {
+			errs := callback(context, validationData)
+			if errs != nil && len(errs) > 0 {
+				rtnErrs = append(rtnErrs, errs...)
+			}
+
+			if !v.validateAll {
+				return rtnErrs
+			}
+		}
 	}
 
-	return make([]error, 0)
+	return rtnErrs
 }
 
 type ErrorValidate struct {
@@ -503,6 +515,14 @@ func (v *Validator) validate_match(context *ValidatorContext, validationData *Va
 	}
 
 	return v.validate_value(context, validationData)
+}
+
+func (v *Validator) validate_notmatch(context *ValidatorContext, validationData *ValidationData) []error {
+	if expectedValue, ok := context.Values[validationData.Expected.(string)]; ok {
+		validationData.Expected = expectedValue.Value
+	}
+
+	return v.validate_not(context, validationData)
 }
 
 func (v *Validator) validate_id(context *ValidatorContext, validationData *ValidationData) []error {
