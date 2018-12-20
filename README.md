@@ -21,13 +21,11 @@ A simple struct validator by tags (exported fields only).
 * sanitize (invalid characters)
 * callback (add handler validations)
 * error (simple and multi error handling `validate:"value=1, error={errorValue1}, max=10, error={errorMax10}"`)
-* match (match between fields [define id=xpto])
 * if (conditional validation between fields with operators ("and", "or") [define id=xpto])
 * set (allows to set native values) to use this you need to use the variable address, like this `validator.Validate(&example)`
 * distinct (remove duplicated values from slices of primitive types)
 * trim (start and end spaces and all inner duplicated spaces)
 * key (converts the value to a url valid key. You can also do key=xpto or key={id} where the id is other field id [example "This is a test" to "this-is-a-test"])
-* notmatch (not match between fields [define id=xpto])
 
 ## With methods for
 * AddBefore (add a before-validation)
@@ -91,7 +89,7 @@ type Example struct {
 	Sanitize           string  `validate:"sanitize=a;b;teste, error={ErrorTag17}"`
 	Callback           string  `validate:"callback=dummy_callback;dummy_callback_2, error={ErrorTag19}"`
 	Password           string  `json:"password" validate:"id=password"`
-	PasswordConfirm    string  `validate:"match=password"`
+	PasswordConfirm    string  `validate:"value={password}"`
 	MyName             string  `validate:"id=name"`
 	MyAge              int     `validate:"id=age"`
 	MyValidate         int     `validate:"if=(id=age value=30) or (id=age value=31) and (id=name value=joao), value=10"`
@@ -108,7 +106,7 @@ type Example struct {
 	KeyValue           string    `validate:"id=my_value"`
 	Key                string    `validate:"key={my_value}"`
 	NotMatch1          string    `validate:"id=not_match"`
-	NotMatch2          string    `validate:"notmatch=not_match"`
+	NotMatch2          string    `validate:"not={not_match}"`
 }
 
 type Example2 struct {
@@ -133,7 +131,7 @@ type Example2 struct {
 	Sanitize          string  `validate:"sanitize=a;b;teste, error={ErrorTag17}"`
 	Callback          string  `validate:"callback=dummy_callback, error={ErrorTag19}"`
 	Password          string  `json:"password" validate:"id=password"`
-	PasswordConfirm   string  `validate:"match=password"`
+	PasswordConfirm   string  `validate:"value={password}"`
 }
 
 var dummy_middle_handler = func(context *validator.ValidatorContext, validationData *validator.ValidationData) []error {
@@ -328,7 +326,7 @@ ERROR: the value [30] is different of the expected [10] on field [MyValidate]
 ERROR: {"code":"20","message":"the value shouldn't be zero on field [DoubleValidation]"}
 ERROR: error 21
 ERROR: the value should be zero on field [IsZero]
-ERROR: the value [A] should be different of the [A] on field [NotMatch2]
+ERROR: the expected [A] should be different of the [A] on field [NotMatch2]
 
 AFTER SET: 321
 AFTER NEXT SET: 321
@@ -338,7 +336,7 @@ AFTER DISTINCT STRING: [a b]
 AFTER DISTINCT BOOL: [true false]
 AFTER DISTINCT FLOAT: [1.1 1.2]
 AFTER TRIM: aqui tem espaços !!
-AFTER KEY: -aaaaa-3245-79-tem-espacos-
+AFTER KEY: aaaaa-3245-79-tem-espacos-
 ```
 
 ## Known issues

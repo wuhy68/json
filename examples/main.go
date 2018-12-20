@@ -44,7 +44,7 @@ type Example struct {
 	Sanitize           string  `validate:"sanitize=a;b;teste, error={ErrorTag17}"`
 	Callback           string  `validate:"callback=dummy_callback;dummy_callback_2, error={ErrorTag19}"`
 	Password           string  `json:"password" validate:"id=password"`
-	PasswordConfirm    string  `validate:"match=password"`
+	PasswordConfirm    string  `validate:"value={password}"`
 	MyName             string  `validate:"id=name"`
 	MyAge              int     `validate:"id=age"`
 	MyValidate         int     `validate:"if=(id=age value=30) or (id=age value=31) and (id=name value=joao), value=10"`
@@ -61,7 +61,7 @@ type Example struct {
 	KeyValue           string    `validate:"id=my_value"`
 	Key                string    `validate:"key={my_value}"`
 	NotMatch1          string    `validate:"id=not_match"`
-	NotMatch2          string    `validate:"notmatch=not_match"`
+	NotMatch2          string    `validate:"not={not_match}"`
 }
 
 type Example2 struct {
@@ -86,7 +86,7 @@ type Example2 struct {
 	Sanitize          string  `validate:"sanitize=a;b;teste, error={ErrorTag17}"`
 	Callback          string  `validate:"callback=dummy_callback, error={ErrorTag19}"`
 	Password          string  `json:"password" validate:"id=password"`
-	PasswordConfirm   string  `validate:"match=password"`
+	PasswordConfirm   string  `validate:"value={password}"`
 }
 
 var dummy_middle_handler = func(context *validator.ValidatorContext, validationData *validator.ValidationData) []error {

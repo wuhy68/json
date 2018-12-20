@@ -14,6 +14,21 @@ import (
 	"github.com/satori/go.uuid"
 )
 
+func (v *Validator) loadExpectedValue(context *ValidatorContext, expected interface{}) (string, error) {
+	newExpected := fmt.Sprintf("%+v", expected)
+	if matched, err := regexp.MatchString(ConstRegexForErrorTag, newExpected); err != nil {
+		return "", err
+	} else {
+		if matched {
+			replacer := strings.NewReplacer("{", "", "}", "")
+			id := replacer.Replace(newExpected)
+			newExpected = fmt.Sprintf("%+v", context.Values[id].Value.Interface())
+		}
+	}
+
+	return newExpected, nil
+}
+
 func (v *Validator) validate_value(context *ValidatorContext, validationData *ValidationData) []error {
 	rtnErrs := make([]error, 0)
 
@@ -21,8 +36,14 @@ func (v *Validator) validate_value(context *ValidatorContext, validationData *Va
 		return rtnErrs
 	}
 
-	if fmt.Sprintf("%+v", validationData.Value) != fmt.Sprintf("%+v", validationData.Expected) {
-		err := fmt.Errorf("the value [%+v] is different of the expected [%+v] on field [%s]", validationData.Value, validationData.Expected, validationData.Name)
+	expected, err := v.loadExpectedValue(context, validationData.Expected)
+	if err != nil {
+		rtnErrs = append(rtnErrs, err)
+		return rtnErrs
+	}
+
+	if fmt.Sprintf("%+v", validationData.Value) != expected {
+		err := fmt.Errorf("the value [%+v] is different of the expected [%+v] on field [%s]", validationData.Value, expected, validationData.Name)
 		rtnErrs = append(rtnErrs, err)
 	}
 
@@ -69,8 +90,14 @@ func (v *Validator) validate_not(context *ValidatorContext, validationData *Vali
 		return rtnErrs
 	}
 
-	if fmt.Sprintf("%+v", validationData.Value) == fmt.Sprintf("%+v", validationData.Expected) {
-		err := fmt.Errorf("the value [%+v] should be different of the [%+v] on field [%s]", validationData.Value, validationData.Expected, validationData.Name)
+	expected, err := v.loadExpectedValue(context, validationData.Expected)
+	if err != nil {
+		rtnErrs = append(rtnErrs, err)
+		return rtnErrs
+	}
+
+	if fmt.Sprintf("%+v", validationData.Value) == fmt.Sprintf("%+v", expected) {
+		err := fmt.Errorf("the expected [%+v] should be different of the [%+v] on field [%s]", validationData.Value, expected, validationData.Name)
 		rtnErrs = append(rtnErrs, err)
 	}
 
@@ -89,8 +116,18 @@ func (v *Validator) validate_options(context *ValidatorContext, validationData *
 
 	switch validationData.Value.Kind() {
 	case reflect.Array, reflect.Slice:
+		var err error
 		optionsVal := make(map[string]bool)
 		for _, option := range options {
+			option, err = v.loadExpectedValue(context, option)
+			if err != nil {
+				rtnErrs = append(rtnErrs, err)
+				if !v.validateAll {
+					return rtnErrs
+				} else {
+					continue
+				}
+			}
 			optionsVal[option] = true
 		}
 
@@ -119,6 +156,18 @@ func (v *Validator) validate_options(context *ValidatorContext, validationData *
 			if len(values) != 2 {
 				continue
 			}
+
+			var err error
+			values[1], err = v.loadExpectedValue(context, values[1])
+			if err != nil {
+				rtnErrs = append(rtnErrs, err)
+				if !v.validateAll {
+					return rtnErrs
+				} else {
+					continue
+				}
+			}
+
 			optionsMap[values[0]] = values[1]
 		}
 
@@ -141,8 +190,18 @@ func (v *Validator) validate_options(context *ValidatorContext, validationData *
 		}
 
 	default:
+		var err error
 		optionsVal := make(map[string]bool)
 		for _, option := range options {
+			option, err = v.loadExpectedValue(context, option)
+			if err != nil {
+				rtnErrs = append(rtnErrs, err)
+				if !v.validateAll {
+					return rtnErrs
+				} else {
+					continue
+				}
+			}
 			optionsVal[option] = true
 		}
 
@@ -159,9 +218,16 @@ func (v *Validator) validate_options(context *ValidatorContext, validationData *
 
 func (v *Validator) validate_size(context *ValidatorContext, validationData *ValidationData) []error {
 	rtnErrs := make([]error, 0)
-	size, e := strconv.Atoi(validationData.Expected.(string))
+
+	expected, err := v.loadExpectedValue(context, validationData.Expected)
+	if err != nil {
+		rtnErrs = append(rtnErrs, err)
+		return rtnErrs
+	}
+
+	size, e := strconv.Atoi(expected)
 	if e != nil {
-		err := fmt.Errorf("the size [%s] is invalid on field [%s]", validationData.Expected, validationData.Value)
+		err := fmt.Errorf("the size [%s] is invalid on field [%s]", expected, validationData.Value)
 		rtnErrs = append(rtnErrs, err)
 		return rtnErrs
 	}
@@ -187,7 +253,7 @@ func (v *Validator) validate_size(context *ValidatorContext, validationData *Val
 	}
 
 	if valueSize != int64(size) {
-		err := fmt.Errorf("the length [%+v] is lower then the expected [%+v] on field [%s]", valueSize, validationData.Expected, validationData.Name)
+		err := fmt.Errorf("the length [%+v] is lower then the expected [%+v] on field [%s]", valueSize, expected, validationData.Name)
 		rtnErrs = append(rtnErrs, err)
 	}
 
@@ -196,9 +262,16 @@ func (v *Validator) validate_size(context *ValidatorContext, validationData *Val
 
 func (v *Validator) validate_min(context *ValidatorContext, validationData *ValidationData) []error {
 	rtnErrs := make([]error, 0)
-	min, e := strconv.Atoi(validationData.Expected.(string))
+
+	expected, err := v.loadExpectedValue(context, validationData.Expected)
+	if err != nil {
+		rtnErrs = append(rtnErrs, err)
+		return rtnErrs
+	}
+
+	min, e := strconv.Atoi(expected)
 	if e != nil {
-		err := fmt.Errorf("the size [%s] is invalid on field [%s]", validationData.Expected, validationData.Value)
+		err := fmt.Errorf("the size [%s] is invalid on field [%s]", expected, validationData.Value)
 		rtnErrs = append(rtnErrs, err)
 		return rtnErrs
 	}
@@ -224,7 +297,7 @@ func (v *Validator) validate_min(context *ValidatorContext, validationData *Vali
 	}
 
 	if valueSize < int64(min) {
-		err := fmt.Errorf("the length [%+v] is lower then the expected [%+v] on field [%s]", valueSize, validationData.Expected, validationData.Name)
+		err := fmt.Errorf("the length [%+v] is lower then the expected [%+v] on field [%s]", valueSize, expected, validationData.Name)
 		rtnErrs = append(rtnErrs, err)
 	}
 
@@ -233,7 +306,14 @@ func (v *Validator) validate_min(context *ValidatorContext, validationData *Vali
 
 func (v *Validator) validate_max(context *ValidatorContext, validationData *ValidationData) []error {
 	rtnErrs := make([]error, 0)
-	max, e := strconv.Atoi(validationData.Expected.(string))
+
+	expected, err := v.loadExpectedValue(context, validationData.Expected)
+	if err != nil {
+		rtnErrs = append(rtnErrs, err)
+		return rtnErrs
+	}
+
+	max, e := strconv.Atoi(expected)
 	if e != nil {
 		err := fmt.Errorf("the size [%s] is invalid on field [%s]", validationData.Expected, validationData.Name)
 		rtnErrs = append(rtnErrs, err)
@@ -261,7 +341,7 @@ func (v *Validator) validate_max(context *ValidatorContext, validationData *Vali
 	}
 
 	if valueSize > int64(max) {
-		err := fmt.Errorf("the length [%+v] is bigger then the expected [%+v] on field [%s]", valueSize, validationData.Expected, validationData.Name)
+		err := fmt.Errorf("the length [%+v] is bigger then the expected [%+v] on field [%s]", valueSize, expected, validationData.Name)
 		rtnErrs = append(rtnErrs, err)
 	}
 
@@ -509,22 +589,6 @@ func (v *Validator) validate_error(context *ValidatorContext, validationData *Va
 	return rtnErrs
 }
 
-func (v *Validator) validate_match(context *ValidatorContext, validationData *ValidationData) []error {
-	if expectedValue, ok := context.Values[validationData.Expected.(string)]; ok {
-		validationData.Expected = expectedValue.Value
-	}
-
-	return v.validate_value(context, validationData)
-}
-
-func (v *Validator) validate_notmatch(context *ValidatorContext, validationData *ValidationData) []error {
-	if expectedValue, ok := context.Values[validationData.Expected.(string)]; ok {
-		validationData.Expected = expectedValue.Value
-	}
-
-	return v.validate_not(context, validationData)
-}
-
 func (v *Validator) validate_id(context *ValidatorContext, validationData *ValidationData) []error {
 	return nil
 }
@@ -669,22 +733,13 @@ func (v *Validator) validate_key(context *ValidatorContext, validationData *Vali
 
 		switch kind {
 		case reflect.String:
-			newValue := strings.TrimSpace(value.Interface().(string))
-			if validationData.Expected.(string) != "" {
-				if matched, err := regexp.MatchString(ConstRegexForErrorTag, validationData.Expected.(string)); err != nil {
-					rtnErrs = append(rtnErrs, err)
-				} else {
-					if matched {
-						replacer := strings.NewReplacer("{", "", "}", "")
-						id := replacer.Replace(validationData.Expected.(string))
-						newValue = context.Values[id].Value.Interface().(string)
-					} else {
-						newValue = validationData.Expected.(string)
-					}
-				}
-
+			expected, err := v.loadExpectedValue(context, validationData.Expected)
+			if err != nil {
+				rtnErrs = append(rtnErrs, err)
+				return rtnErrs
 			}
-			setValue(kind, value, convertToKey(newValue, true))
+
+			setValue(kind, value, convertToKey(strings.TrimSpace(expected), true))
 		}
 	}
 

@@ -34,8 +34,6 @@ const (
 	ConstTagSpecial  = "special"
 	ConstTagSanitize = "sanitize"
 	ConstTagCallback = "callback"
-	ConstTagMatch    = "match"
-	ConstTagNotMatch = "notmatch"
 	ConstTagSet      = "set"
 	ConstTagTrim     = "trim"
 	ConstTagKey      = "key"
