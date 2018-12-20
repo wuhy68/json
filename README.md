@@ -17,7 +17,7 @@ A simple struct validator by tags (exported fields only).
 * nonzero (also supports uuid zero validation)
 * iszero (also supports uuid zero validation)
 * regex
-* special ( YYYYMMDD, DDMMYYYY, date, time, url )
+* special ( YYYYMMDD, DDMMYYYY, date, time, url, email )
 * sanitize (invalid characters)
 * callback (add handler validations)
 * error (simple and multi error handling `validate:"value=1, error={errorValue1}, max=10, error={errorMax10}"`)
@@ -26,7 +26,8 @@ A simple struct validator by tags (exported fields only).
 * distinct (remove duplicated values from slices of primitive types)
 * trim (start and end spaces and all inner duplicated spaces)
 * key (converts the value to a url valid key. You can also do key=xpto or key={id} where the id is other field id [example "This is a test" to "this-is-a-test"])
-
+* alpha (the value needs to be alphanumeric)
+* numeric (the value needs to be numeric)
 ## With methods for
 * AddBefore (add a before-validation)
 * AddMiddle (add a middle-validation [by default has all validations])

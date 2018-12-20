@@ -7,6 +7,7 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"unicode"
 
 	"encoding/json"
 	"errors"
@@ -489,6 +490,8 @@ func (v *Validator) validate_special(context *ValidatorContext, validationData *
 		validationData.Expected = ConstRegexForTimeHHMMSS
 	case ConstTagForURL:
 		validationData.Expected = ConstRegexForURL
+	case ConstTagForEmail:
+		validationData.Expected = ConstRegexForEmail
 	default:
 		err := fmt.Errorf("invalid special [%s] on field [%+v] ", validationData.Expected, validationData.Name)
 		rtnErrs = append(rtnErrs, err)
@@ -803,6 +806,54 @@ func (v *Validator) validate_distinct(context *ValidatorContext, validationData 
 
 		// set the new instance without duplicated values
 		value.Set(newInstance)
+	}
+
+	return rtnErrs
+}
+
+func (v *Validator) validate_alpha(context *ValidatorContext, validationData *ValidationData) []error {
+	rtnErrs := make([]error, 0)
+
+	if fmt.Sprintf("%+v", validationData.Value) == "" || (validationData.Value.Kind() == reflect.Ptr && validationData.Value.IsNil()) {
+		return rtnErrs
+	}
+
+	expected, err := v.loadExpectedValue(context, validationData.Expected)
+	if err != nil {
+		rtnErrs = append(rtnErrs, err)
+		return rtnErrs
+	}
+
+	for _, r := range expected {
+		if !unicode.IsLetter(r) {
+			err := fmt.Errorf("the value [%+v] should be [%+v] on field [%s]", validationData.Value, expected, validationData.Name)
+			rtnErrs = append(rtnErrs, err)
+			break
+		}
+	}
+
+	return rtnErrs
+}
+
+func (v *Validator) validate_numeric(context *ValidatorContext, validationData *ValidationData) []error {
+	rtnErrs := make([]error, 0)
+
+	if fmt.Sprintf("%+v", validationData.Value) == "" || (validationData.Value.Kind() == reflect.Ptr && validationData.Value.IsNil()) {
+		return rtnErrs
+	}
+
+	expected, err := v.loadExpectedValue(context, validationData.Expected)
+	if err != nil {
+		rtnErrs = append(rtnErrs, err)
+		return rtnErrs
+	}
+
+	for _, r := range expected {
+		if !unicode.IsNumber(r) {
+			err := fmt.Errorf("the value [%+v] should be [%+v] on field [%s]", validationData.Value, expected, validationData.Name)
+			rtnErrs = append(rtnErrs, err)
+			break
+		}
 	}
 
 	return rtnErrs
