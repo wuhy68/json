@@ -17,7 +17,7 @@ import (
 
 func (v *Validator) loadExpectedValue(context *ValidatorContext, expected interface{}) (string, error) {
 	newExpected := fmt.Sprintf("%+v", expected)
-	if matched, err := regexp.MatchString(ConstRegexForErrorTag, newExpected); err != nil {
+	if matched, err := regexp.MatchString(ConstRegexForTagValue, newExpected); err != nil {
 		return "", err
 	} else {
 		if matched {
@@ -478,19 +478,19 @@ func (v *Validator) validate_special(context *ValidatorContext, validationData *
 	}
 
 	switch validationData.Expected {
-	case ConstTagForDateDefault:
+	case ConstSpecialTagForDateDefault:
 		validationData.Expected = ConstRegexForDateDefault
-	case ConstTagForDateDDMMYYYY:
+	case ConstSpecialTagForDateDDMMYYYY:
 		validationData.Expected = ConstRegexForDateDDMMYYYY
-	case ConstTagForDateYYYYMMDD:
+	case ConstSpecialTagForDateYYYYMMDD:
 		validationData.Expected = ConstRegexForDateYYYYMMDD
-	case ConstTagForTimeDefault:
+	case ConstSpecialTagForTimeDefault:
 		validationData.Expected = ConstRegexForTimeDefault
-	case ConstTagForTimeHHMMSS:
+	case ConstSpecialTagForTimeHHMMSS:
 		validationData.Expected = ConstRegexForTimeHHMMSS
-	case ConstTagForURL:
+	case ConstSpecialTagForURL:
 		validationData.Expected = ConstRegexForURL
-	case ConstTagForEmail:
+	case ConstSpecialTagForEmail:
 		validationData.Expected = ConstRegexForEmail
 	default:
 		err := fmt.Errorf("invalid special [%s] on field [%+v] ", validationData.Expected, validationData.Name)
@@ -535,7 +535,7 @@ func (v *Validator) validate_error(context *ValidatorContext, validationData *Va
 			continue
 		}
 		if v.errorCodeHandler != nil {
-			if matched, err := regexp.MatchString(ConstRegexForErrorTag, validationData.Expected.(string)); err != nil {
+			if matched, err := regexp.MatchString(ConstRegexForTagValue, validationData.Expected.(string)); err != nil {
 				rtnErrs = append(rtnErrs, err)
 			} else {
 				if matched {
@@ -698,36 +698,57 @@ func (v *Validator) validate_if(context *ValidatorContext, validationData *Valid
 func (v *Validator) validate_set(context *ValidatorContext, validationData *ValidationData) []error {
 	rtnErrs := make([]error, 0)
 
-	if validationData.MutableObj.CanAddr() {
-		value := validationData.MutableObj.FieldByName(validationData.Field)
-		kind := reflect.TypeOf(value.Interface()).Kind()
-
-		setValue(kind, value, validationData.Expected)
+	if !validationData.MutableObj.CanAddr() {
+		err := fmt.Errorf("the object should be passed as a pointer! when validating field [%+v]", validationData.Name)
+		rtnErrs = append(rtnErrs, err)
+		return rtnErrs
 	}
 
-	return rtnErrs
-}
+	newExpected := fmt.Sprintf("%+v", validationData.Expected)
+	if matched, err := regexp.MatchString(ConstRegexForTagValue, newExpected); err != nil {
+		rtnErrs = append(rtnErrs, err)
+		return rtnErrs
+	} else {
+		if matched {
+			replacer := strings.NewReplacer("{", "", "}", "")
+			id := replacer.Replace(newExpected)
+			validationData.Expected = validationData.Value.Interface()
 
-func (v *Validator) validate_trim(context *ValidatorContext, validationData *ValidationData) []error {
-	rtnErrs := make([]error, 0)
+			switch id {
+			case ConstSetTagForTrim:
+				v.set_trim(context, validationData)
+			case ConstSetTagForTitle:
+				v.set_title(context, validationData)
+			case ConstSetTagForLower:
+				v.set_lower(context, validationData)
+			case ConstSetTagForUpper:
+				v.set_upper(context, validationData)
+			case ConstSetTagForKey:
+				v.set_key(context, validationData)
+			default:
+				if newValue, ok := context.Values[id]; ok {
+					value := validationData.MutableObj.FieldByName(validationData.Field)
+					kind := reflect.TypeOf(value.Interface()).Kind()
 
-	if validationData.MutableObj.CanAddr() {
-		value := validationData.MutableObj.FieldByName(validationData.Field)
-		kind := reflect.TypeOf(value.Interface()).Kind()
+					setValue(kind, value, newValue.Value.Interface())
+				} else {
+					err := fmt.Errorf("invalid set tag [%s] on field [%+v]", validationData.Expected, validationData.Name)
+					rtnErrs = append(rtnErrs, err)
+					return rtnErrs
+				}
+			}
+		} else {
+			value := validationData.MutableObj.FieldByName(validationData.Field)
+			kind := reflect.TypeOf(value.Interface()).Kind()
 
-		switch kind {
-		case reflect.String:
-			newValue := strings.TrimSpace(value.Interface().(string))
-			regx := regexp.MustCompile("  +")
-			newValue = string(regx.ReplaceAll(bytes.TrimSpace([]byte(newValue)), []byte(" ")))
-			setValue(kind, value, newValue)
+			setValue(kind, value, validationData.Expected)
 		}
 	}
 
 	return rtnErrs
 }
 
-func (v *Validator) validate_key(context *ValidatorContext, validationData *ValidationData) []error {
+func (v *Validator) set_key(context *ValidatorContext, validationData *ValidationData) []error {
 	rtnErrs := make([]error, 0)
 
 	if validationData.MutableObj.CanAddr() {
@@ -853,6 +874,76 @@ func (v *Validator) validate_numeric(context *ValidatorContext, validationData *
 			err := fmt.Errorf("the value [%+v] should be [%+v] on field [%s]", validationData.Value, expected, validationData.Name)
 			rtnErrs = append(rtnErrs, err)
 			break
+		}
+	}
+
+	return rtnErrs
+}
+
+func (v *Validator) set_trim(context *ValidatorContext, validationData *ValidationData) []error {
+	rtnErrs := make([]error, 0)
+
+	if validationData.MutableObj.CanAddr() {
+		value := validationData.MutableObj.FieldByName(validationData.Field)
+		kind := reflect.TypeOf(value.Interface()).Kind()
+
+		switch kind {
+		case reflect.String:
+			newValue := strings.TrimSpace(value.Interface().(string))
+			regx := regexp.MustCompile("  +")
+			newValue = string(regx.ReplaceAll(bytes.TrimSpace([]byte(newValue)), []byte(" ")))
+			setValue(kind, value, newValue)
+		}
+	}
+
+	return rtnErrs
+}
+
+func (v *Validator) set_title(context *ValidatorContext, validationData *ValidationData) []error {
+	rtnErrs := make([]error, 0)
+
+	if validationData.MutableObj.CanAddr() {
+		value := validationData.MutableObj.FieldByName(validationData.Field)
+		kind := reflect.TypeOf(value.Interface()).Kind()
+
+		switch kind {
+		case reflect.String:
+			newValue := strings.Title(value.Interface().(string))
+			setValue(kind, value, newValue)
+		}
+	}
+
+	return rtnErrs
+}
+
+func (v *Validator) set_upper(context *ValidatorContext, validationData *ValidationData) []error {
+	rtnErrs := make([]error, 0)
+
+	if validationData.MutableObj.CanAddr() {
+		value := validationData.MutableObj.FieldByName(validationData.Field)
+		kind := reflect.TypeOf(value.Interface()).Kind()
+
+		switch kind {
+		case reflect.String:
+			newValue := strings.ToUpper(value.Interface().(string))
+			setValue(kind, value, newValue)
+		}
+	}
+
+	return rtnErrs
+}
+
+func (v *Validator) set_lower(context *ValidatorContext, validationData *ValidationData) []error {
+	rtnErrs := make([]error, 0)
+
+	if validationData.MutableObj.CanAddr() {
+		value := validationData.MutableObj.FieldByName(validationData.Field)
+		kind := reflect.TypeOf(value.Interface()).Kind()
+
+		switch kind {
+		case reflect.String:
+			newValue := strings.ToLower(value.Interface().(string))
+			setValue(kind, value, newValue)
 		}
 	}
 

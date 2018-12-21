@@ -8,7 +8,7 @@ A simple struct validator by tags (exported fields only).
 ###### If i miss something or you have something interesting, please be part of this project. Let me know! My contact is at the end.
 
 ## With support for
-* value (equal to)
+* value (equal to) or {id_field}
 * not (not equal to)
 * options (one of the options)
 * size (size equal to)
@@ -23,9 +23,10 @@ A simple struct validator by tags (exported fields only).
 * error (simple and multi error handling `validate:"value=1, error={errorValue1}, max=10, error={errorMax10}"`)
 * if (conditional validation between fields with operators ("and", "or") [define id=xpto])
 * set (allows to set native values) to use this you need to use the variable address, like this `validator.Validate(&example)`
+with values ("the field id", "the field value", trim, title, upper, lower, key),  
+(key converts the value to a url valid key. You can also do key=xpto or key={id} where the id is other field id [example "This is a test" to "this-is-a-test"])
 * distinct (remove duplicated values from slices of primitive types)
 * trim (start and end spaces and all inner duplicated spaces)
-* key (converts the value to a url valid key. You can also do key=xpto or key={id} where the id is other field id [example "This is a test" to "this-is-a-test"])
 * alpha (the value needs to be alphanumeric)
 * numeric (the value needs to be numeric)
 ## With methods for
@@ -103,7 +104,9 @@ type Example struct {
 	DistinctBool       []bool    `validate:"distinct"`
 	DistinctFloat      []float32 `validate:"distinct"`
 	IsZero             int       `validate:"iszero"`
-	Trim               string    `validate:"trim"`
+	Trim               string    `validate:"set={trim}"`
+	Lower              string    `validate:"set={lower}"`
+	Upper              string    `validate:"set={upper}"`
 	KeyValue           string    `validate:"id=my_value"`
 	Key                string    `validate:"key={my_value}"`
 	NotMatch1          string    `validate:"id=not_match"`
@@ -237,7 +240,9 @@ func main() {
 		DistinctString:     []string{"a", "a", "b", "b"},
 		DistinctBool:       []bool{true, true, false, false},
 		DistinctFloat:      []float32{1.1, 1.1, 1.2, 1.2},
-		Trim:               "     aqui       tem     espaços    !!   ",
+		Trim:               "     aqui       TEM     espaços    !!   ",
+		Upper:              "     aqui       TEM     espaços    !!   ",
+		Lower:              "     AQUI       TEM     ESPACOS    !!   ",
 		KeyValue:           "     aaaaa     3245 79 / ( ) ? =  tem     espaços ...   !!  <<<< ",
 		NotMatch1:          "A",
 		NotMatch2:          "A",
@@ -265,6 +270,10 @@ func main() {
 
 	fmt.Printf("\nBEFORE SET: %d", example.Set)
 	fmt.Printf("\nBEFORE NEXT SET: %d", example.NextSet.Set)
+	fmt.Printf("\nBEFORE TRIM: %s", example.Trim)
+	fmt.Printf("\nBEFORE KEY: %s", example.Key)
+	fmt.Printf("\nBEFORE UPPER: %s", example.Upper)
+	fmt.Printf("\nBEFORE LOWER: %s", example.Lower)
 
 	fmt.Printf("\nBEFORE DISTINCT INT POINTER: %+v", example.DistinctIntPointer)
 	fmt.Printf("\nBEFORE DISTINCT INT: %+v", example.DistinctInt)
@@ -279,15 +288,16 @@ func main() {
 	}
 	fmt.Printf("\n\nAFTER SET: %d", example.Set)
 	fmt.Printf("\nAFTER NEXT SET: %d", example.NextSet.Set)
+	fmt.Printf("\nAFTER TRIM: %s", example.Trim)
+	fmt.Printf("\nAFTER KEY: %s", example.Key)
+	fmt.Printf("\n\nAFTER LOWER: %s", example.Lower)
+	fmt.Printf("\n\nAFTER UPPER: %s", example.Upper)
 
 	fmt.Printf("\nAFTER DISTINCT INT POINTER: %+v", example.DistinctIntPointer)
 	fmt.Printf("\nAFTER DISTINCT INT: %+v", example.DistinctInt)
 	fmt.Printf("\nAFTER DISTINCT STRING: %+v", example.DistinctString)
 	fmt.Printf("\nAFTER DISTINCT BOOL: %+v", example.DistinctBool)
 	fmt.Printf("\nAFTER DISTINCT FLOAT: %+v", example.DistinctFloat)
-
-	fmt.Printf("\nAFTER TRIM: %s", example.Trim)
-	fmt.Printf("\nAFTER KEY: %s", example.Key)
 }
 ```
 
@@ -295,6 +305,10 @@ func main() {
 ```go
 BEFORE SET: 123
 BEFORE NEXT SET: 123
+BEFORE TRIM:      aqui       TEM     espaços    !!   
+BEFORE KEY: 
+BEFORE UPPER:      aqui       TEM     espaços    !!   
+BEFORE LOWER:      AQUI       TEM     ESPACOS    !!   
 BEFORE DISTINCT INT POINTER: [0xc420020348 0xc420020348 0xc420020360 0xc420020360]
 BEFORE DISTINCT INT: [1 1 2 2]
 BEFORE DISTINCT STRING: [a a b b]
@@ -331,13 +345,17 @@ ERROR: the expected [A] should be different of the [A] on field [NotMatch2]
 
 AFTER SET: 321
 AFTER NEXT SET: 321
+AFTER TRIM: aqui TEM espaços !!
+AFTER KEY: aaaaa-3245-79-tem-espacos-
+
+AFTER LOWER:      aqui       tem     espacos    !!   
+
+AFTER UPPER:      AQUI       TEM     ESPAÇOS    !!   
 AFTER DISTINCT INT POINTER: [0xc420020348 0xc420020360]
 AFTER DISTINCT INT: [1 2]
 AFTER DISTINCT STRING: [a b]
 AFTER DISTINCT BOOL: [true false]
 AFTER DISTINCT FLOAT: [1.1 1.2]
-AFTER TRIM: aqui tem espaços !!
-AFTER KEY: aaaaa-3245-79-tem-espacos-
 ```
 
 ## Known issues

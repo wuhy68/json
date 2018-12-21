@@ -57,9 +57,12 @@ type Example struct {
 	DistinctBool       []bool    `validate:"distinct"`
 	DistinctFloat      []float32 `validate:"distinct"`
 	IsZero             int       `validate:"iszero"`
-	Trim               string    `validate:"trim"`
+	Trim               string    `validate:"set={trim}"`
+	Lower              string    `validate:"set={lower}"`
+	Upper              string    `validate:"set={upper}"`
+	Key                string    `validate:"set={key}"`
 	KeyValue           string    `validate:"id=my_value"`
-	Key                string    `validate:"key={my_value}"`
+	KeyFromValue       string    `validate:"key={my_value}"`
 	NotMatch1          string    `validate:"id=not_match"`
 	NotMatch2          string    `validate:"not={not_match}"`
 }
@@ -191,7 +194,10 @@ func main() {
 		DistinctString:     []string{"a", "a", "b", "b"},
 		DistinctBool:       []bool{true, true, false, false},
 		DistinctFloat:      []float32{1.1, 1.1, 1.2, 1.2},
-		Trim:               "     aqui       tem     espaços    !!   ",
+		Trim:               "     aqui       TEM     espaços    !!   ",
+		Upper:              "     aqui       TEM     espaços    !!   ",
+		Lower:              "     AQUI       TEM     ESPACOS    !!   ",
+		Key:                "     AQUI       TEM     ESPACOS    !!   ",
 		KeyValue:           "     aaaaa     3245 79 / ( ) ? =  tem     espaços ...   !!  <<<< ",
 		NotMatch1:          "A",
 		NotMatch2:          "A",
@@ -219,6 +225,11 @@ func main() {
 
 	fmt.Printf("\nBEFORE SET: %d", example.Set)
 	fmt.Printf("\nBEFORE NEXT SET: %d", example.NextSet.Set)
+	fmt.Printf("\nBEFORE TRIM: %s", example.Trim)
+	fmt.Printf("\nBEFORE KEY: %s", example.Key)
+	fmt.Printf("\nBEFORE FROM KEY: %s", example.KeyFromValue)
+	fmt.Printf("\nBEFORE UPPER: %s", example.Upper)
+	fmt.Printf("\nBEFORE LOWER: %s", example.Lower)
 
 	fmt.Printf("\nBEFORE DISTINCT INT POINTER: %+v", example.DistinctIntPointer)
 	fmt.Printf("\nBEFORE DISTINCT INT: %+v", example.DistinctInt)
@@ -233,13 +244,15 @@ func main() {
 	}
 	fmt.Printf("\n\nAFTER SET: %d", example.Set)
 	fmt.Printf("\nAFTER NEXT SET: %d", example.NextSet.Set)
+	fmt.Printf("\nAFTER TRIM: %s", example.Trim)
+	fmt.Printf("\nAFTER KEY: %s", example.Key)
+	fmt.Printf("\nAFTER FROM KEY: %s", example.KeyFromValue)
+	fmt.Printf("\n\nAFTER LOWER: %s", example.Lower)
+	fmt.Printf("\n\nAFTER UPPER: %s", example.Upper)
 
 	fmt.Printf("\nAFTER DISTINCT INT POINTER: %+v", example.DistinctIntPointer)
 	fmt.Printf("\nAFTER DISTINCT INT: %+v", example.DistinctInt)
 	fmt.Printf("\nAFTER DISTINCT STRING: %+v", example.DistinctString)
 	fmt.Printf("\nAFTER DISTINCT BOOL: %+v", example.DistinctBool)
 	fmt.Printf("\nAFTER DISTINCT FLOAT: %+v", example.DistinctFloat)
-
-	fmt.Printf("\nAFTER TRIM: %s", example.Trim)
-	fmt.Printf("\nAFTER KEY: %s", example.Key)
 }
