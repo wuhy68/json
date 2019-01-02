@@ -65,6 +65,9 @@ type Example struct {
 	KeyFromValue       string    `validate:"key={my_value}"`
 	NotMatch1          string    `validate:"id=not_match"`
 	NotMatch2          string    `validate:"not={not_match}"`
+	TypeAlpha          string    `validate:"alpha"`
+	TypeNumeric        string    `validate:"numeric"`
+	TypeBool           string    `validate:"bool"`
 }
 
 type Example2 struct {
@@ -201,6 +204,9 @@ func main() {
 		KeyValue:           "     aaaaa     3245 79 / ( ) ? =  tem     espaços ...   !!  <<<< ",
 		NotMatch1:          "A",
 		NotMatch2:          "A",
+		TypeAlpha:          "123",
+		TypeNumeric:        "ABC",
+		TypeBool:           "ERRADO",
 		Brothers: []Example2{
 			Example2{
 				Name:            "jessica",

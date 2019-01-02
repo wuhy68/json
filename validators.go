@@ -835,19 +835,15 @@ func (v *Validator) validate_distinct(context *ValidatorContext, validationData 
 func (v *Validator) validate_alpha(context *ValidatorContext, validationData *ValidationData) []error {
 	rtnErrs := make([]error, 0)
 
-	if fmt.Sprintf("%+v", validationData.Value) == "" || (validationData.Value.Kind() == reflect.Ptr && validationData.Value.IsNil()) {
-		return rtnErrs
-	}
+	expected := fmt.Sprintf("%+v", validationData.Value)
 
-	expected, err := v.loadExpectedValue(context, validationData.Expected)
-	if err != nil {
-		rtnErrs = append(rtnErrs, err)
+	if expected == "" || (validationData.Value.Kind() == reflect.Ptr && validationData.Value.IsNil()) {
 		return rtnErrs
 	}
 
 	for _, r := range expected {
 		if !unicode.IsLetter(r) {
-			err := fmt.Errorf("the value [%+v] should be [%+v] on field [%s]", validationData.Value, expected, validationData.Name)
+			err := fmt.Errorf("the value [%+v] is invalid for type alphanumeric on field [%s]", expected, validationData.Name)
 			rtnErrs = append(rtnErrs, err)
 			break
 		}
@@ -858,23 +854,36 @@ func (v *Validator) validate_alpha(context *ValidatorContext, validationData *Va
 
 func (v *Validator) validate_numeric(context *ValidatorContext, validationData *ValidationData) []error {
 	rtnErrs := make([]error, 0)
+	expected := fmt.Sprintf("%+v", validationData.Value)
 
-	if fmt.Sprintf("%+v", validationData.Value) == "" || (validationData.Value.Kind() == reflect.Ptr && validationData.Value.IsNil()) {
-		return rtnErrs
-	}
-
-	expected, err := v.loadExpectedValue(context, validationData.Expected)
-	if err != nil {
-		rtnErrs = append(rtnErrs, err)
+	if expected == "" || (validationData.Value.Kind() == reflect.Ptr && validationData.Value.IsNil()) {
 		return rtnErrs
 	}
 
 	for _, r := range expected {
 		if !unicode.IsNumber(r) {
-			err := fmt.Errorf("the value [%+v] should be [%+v] on field [%s]", validationData.Value, expected, validationData.Name)
+			err := fmt.Errorf("the value [%+v] is invalid for type numeric on field [%s]", expected, validationData.Name)
 			rtnErrs = append(rtnErrs, err)
 			break
 		}
+	}
+
+	return rtnErrs
+}
+
+func (v *Validator) validate_bool(context *ValidatorContext, validationData *ValidationData) []error {
+	rtnErrs := make([]error, 0)
+	expected := fmt.Sprintf("%+v", validationData.Value)
+
+	if expected == "" || (validationData.Value.Kind() == reflect.Ptr && validationData.Value.IsNil()) {
+		return rtnErrs
+	}
+
+	switch strings.ToLower(expected) {
+	case "true", "false":
+	default:
+		err := fmt.Errorf("the value [%+v] is invalid for type bool on field [%s]", expected, validationData.Name)
+		rtnErrs = append(rtnErrs, err)
 	}
 
 	return rtnErrs

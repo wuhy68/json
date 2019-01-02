@@ -47,4 +47,5 @@ const (
 	ConstTagDistinct = "distinct"
 	ConstTagAlpha    = "alpha"
 	ConstTagNumeric  = "numeric"
+	ConstTagBool     = "bool"
 )

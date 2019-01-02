@@ -26,9 +26,10 @@ A simple struct validator by tags (exported fields only).
 with values ("the field id", "the field value", trim, title, upper, lower, key),  
 (key converts the value to a url valid key. You can also do key=xpto or key={id} where the id is other field id [example "This is a test" to "this-is-a-test"])
 * distinct (remove duplicated values from slices of primitive types)
-* trim (start and end spaces and all inner duplicated spaces)
 * alpha (the value needs to be alphanumeric)
 * numeric (the value needs to be numeric)
+* bool (the value needs to be boolean [true or false])
+
 ## With methods for
 * AddBefore (add a before-validation)
 * AddMiddle (add a middle-validation [by default has all validations])
