@@ -5,13 +5,13 @@
   branch = "master"
   name = "github.com/joaosoft/errors"
   packages = ["."]
-  revision = "3ebf6983bd704eae5217e69e4371dd3f13834572"
+  revision = "fdf3056873e72340b59c5b286ca94b07ae6fcf37"
 
 [[projects]]
   branch = "master"
   name = "github.com/joaosoft/logger"
   packages = ["."]
-  revision = "8018ec71ba9060c1af16497e3cf9f96dc44a1dfb"
+  revision = "b245b1fd47dcf07bfac383551078de3c1d890de0"
 
 [[projects]]
   branch = "master"
@@ -25,8 +25,8 @@
     "color",
     "log"
   ]
-  revision = "2a618302b929cc20862dda3aa6f02f64dbe740dd"
-  version = "v0.2.7"
+  revision = "7fd9f68ece0bcb1a905fac8f1549f0083f71c51b"
+  version = "v0.2.8"
 
 [[projects]]
   name = "github.com/mattn/go-colorable"
@@ -44,7 +44,7 @@
   branch = "master"
   name = "github.com/satori/go.uuid"
   packages = ["."]
-  revision = "36e9d2ebbde5e3f13ab2e25625fd453271d6522e"
+  revision = "b2ce2384e17bbe0c6d34077efa39dbab3e09123b"
 
 [[projects]]
   name = "github.com/valyala/bytebufferpool"
@@ -62,7 +62,7 @@
   branch = "master"
   name = "golang.org/x/sys"
   packages = ["unix"]
-  revision = "e4b3c5e9061176387e7cea65e4dc5853801f3fb7"
+  revision = "82a175fd1598e8a172e58ebdf5ed262bb29129e5"
 
 [solve-meta]
   analyzer-name = "dep"
