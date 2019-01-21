@@ -23,7 +23,7 @@ type Validator struct {
 	errorCodeHandler ErrorCodeHandler
 	callbacks        map[string]CallbackHandler
 	sanitize         []string
-	log              logger.ILogger
+	logger           logger.ILogger
 	validateAll      bool
 }
 
