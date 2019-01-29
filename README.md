@@ -347,7 +347,7 @@ BEFORE DISTINCT ARRAY2: [111 111 222 222]123456
 1234567
 
 
-ERRORS: 32
+ERRORS: 31
 
 ERROR: the length [6] is lower then the expected [5] on field [Array] value [123456]
 ERROR: the length [6] is lower then the expected [5] on field [Array] value [123456]
@@ -376,7 +376,6 @@ ERROR: the value [password_errada] is different of the expected [password] on fi
 ERROR: the value [30] is different of the expected [10] on field [MyValidate] value [30]
 ERROR: {"code":"20","message":"the value shouldn't be zero on field [DoubleValidation]"}
 ERROR: error 21
-ERROR: the value should be zero on field [IsZero] instead of [0]
 ERROR: the expected [A] should be different of the [A] on field [NotMatch2]
 ERROR: the value [123] is invalid for type alphanumeric on field [TypeAlpha] value [123]
 ERROR: the value [ABC] is invalid for type numeric on field [TypeNumeric] value [ABC]

@@ -351,43 +351,8 @@ func (v *Validator) validate_max(context *ValidatorContext, validationData *Vali
 
 func (v *Validator) validate_nonzero(context *ValidatorContext, validationData *ValidationData) []error {
 	rtnErrs := make([]error, 0)
-	var valueSize int64
-	var val string
 
-	switch validationData.Value.Kind() {
-	case reflect.Array, reflect.Slice, reflect.Map:
-
-		switch validationData.Value.Type() {
-		case reflect.TypeOf(uuid.UUID{}):
-			if validationData.Value.Interface().(uuid.UUID) != uuid.Nil {
-				valueSize = 1
-			}
-		default:
-			valueSize = int64(validationData.Value.Len())
-		}
-
-	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
-		val = strings.TrimSpace(strconv.Itoa(int(validationData.Value.Int())))
-		valueSize = int64(len(val))
-	case reflect.Float32, reflect.Float64:
-		val = strings.TrimSpace(strconv.FormatFloat(validationData.Value.Float(), 'g', 1, 64))
-		valueSize = int64(len(val))
-	case reflect.String:
-		valueSize = int64(len(strings.TrimSpace(validationData.Value.String())))
-	case reflect.Bool:
-		valueSize = int64(len(strings.TrimSpace(strconv.FormatBool(validationData.Value.Bool()))))
-	case reflect.Struct:
-		if validationData.Value.Interface() != reflect.Zero(validationData.Value.Type()).Interface() {
-			valueSize = 1
-		}
-	default:
-		if validationData.Value.Kind() == reflect.Ptr && validationData.Value.IsNil() {
-			break
-		}
-		valueSize = int64(len(strings.TrimSpace(validationData.Value.String())))
-	}
-
-	if valueSize == 0 || (val == "0") {
+	if errs := v.validate_iszero(context, validationData); len(errs) == 0 {
 		err := fmt.Errorf("the value shouldn't be zero on field [%s]", validationData.Name)
 		rtnErrs = append(rtnErrs, err)
 	}
@@ -397,8 +362,8 @@ func (v *Validator) validate_nonzero(context *ValidatorContext, validationData *
 
 func (v *Validator) validate_iszero(context *ValidatorContext, validationData *ValidationData) []error {
 	rtnErrs := make([]error, 0)
-	var valueSize int64
-	var val string
+
+	var isZero bool
 
 	switch validationData.Value.Kind() {
 	case reflect.Array, reflect.Slice, reflect.Map:
@@ -406,34 +371,31 @@ func (v *Validator) validate_iszero(context *ValidatorContext, validationData *V
 		switch validationData.Value.Type() {
 		case reflect.TypeOf(uuid.UUID{}):
 			if validationData.Value.Interface().(uuid.UUID) == uuid.Nil {
-				valueSize = 0
+				isZero = true
 			}
 		default:
-			valueSize = int64(validationData.Value.Len())
+			isZero = validationData.Value.Len() == 0
 		}
 
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
-		val = strings.TrimSpace(strconv.Itoa(int(validationData.Value.Int())))
-		valueSize = int64(len(val))
+		isZero = validationData.Value.Int() == 0
 	case reflect.Float32, reflect.Float64:
-		val = strings.TrimSpace(strconv.FormatFloat(validationData.Value.Float(), 'g', 1, 64))
-		valueSize = int64(len(val))
+		isZero = validationData.Value.Float() == 0
 	case reflect.String:
-		valueSize = int64(len(strings.TrimSpace(validationData.Value.String())))
+		isZero = len(strings.TrimSpace(validationData.Value.String())) == 0
 	case reflect.Bool:
-		valueSize = int64(len(strings.TrimSpace(strconv.FormatBool(validationData.Value.Bool()))))
+		isZero = validationData.Value.Bool() == false
 	case reflect.Struct:
-		if validationData.Value.Interface() != reflect.Zero(validationData.Value.Type()).Interface() {
-			valueSize = 1
+		if validationData.Value.Interface() == reflect.Zero(validationData.Value.Type()).Interface() {
+			isZero = true
 		}
 	default:
 		if validationData.Value.Kind() == reflect.Ptr && validationData.Value.IsNil() {
-			break
+			isZero = true
 		}
-		valueSize = int64(len(strings.TrimSpace(validationData.Value.String())))
 	}
 
-	if valueSize != 0 || (val != "0") {
+	if !isZero {
 		err := fmt.Errorf("the value should be zero on field [%s] instead of [%+v]", validationData.Name, validationData.Value)
 		rtnErrs = append(rtnErrs, err)
 	}
