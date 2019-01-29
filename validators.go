@@ -434,7 +434,7 @@ func (v *Validator) validate_iszero(context *ValidatorContext, validationData *V
 	}
 
 	if valueSize != 0 || (val != "0") {
-		err := fmt.Errorf("the value should be zero on field [%s]", validationData.Name)
+		err := fmt.Errorf("the value should be zero on field [%s] instead of [%+v]", validationData.Name, validationData.Value)
 		rtnErrs = append(rtnErrs, err)
 	}
 

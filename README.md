@@ -338,7 +338,7 @@ BEFORE KEY:      AQUI       TEM     ESPACOS    !!
 BEFORE FROM KEY: 
 BEFORE UPPER:      aqui       TEM     espaços    !!   
 BEFORE LOWER:      AQUI       TEM     ESPACOS    !!   
-BEFORE DISTINCT INT POINTER: [0xc00009a300 0xc00009a300 0xc00009a308 0xc00009a308]
+BEFORE DISTINCT INT POINTER: [0xc000020348 0xc000020348 0xc000020360 0xc000020360]
 BEFORE DISTINCT INT: [1 1 2 2]
 BEFORE DISTINCT STRING: [a a b b]
 BEFORE DISTINCT BOOL: [true true false false]
@@ -376,7 +376,7 @@ ERROR: the value [password_errada] is different of the expected [password] on fi
 ERROR: the value [30] is different of the expected [10] on field [MyValidate] value [30]
 ERROR: {"code":"20","message":"the value shouldn't be zero on field [DoubleValidation]"}
 ERROR: error 21
-ERROR: the value should be zero on field [IsZero]
+ERROR: the value should be zero on field [IsZero] instead of [0]
 ERROR: the expected [A] should be different of the [A] on field [NotMatch2]
 ERROR: the value [123] is invalid for type alphanumeric on field [TypeAlpha] value [123]
 ERROR: the value [ABC] is invalid for type numeric on field [TypeNumeric] value [ABC]
@@ -391,7 +391,7 @@ AFTER FROM KEY: aaaaa-3245-79-tem-espacos-
 AFTER LOWER:      aqui       tem     espacos    !!   
 
 AFTER UPPER:      AQUI       TEM     ESPAÇOS    !!   
-AFTER DISTINCT INT POINTER: [0xc00009a300 0xc00009a308]
+AFTER DISTINCT INT POINTER: [0xc000020348 0xc000020360]
 AFTER DISTINCT INT: [1 2]
 AFTER DISTINCT STRING: [a b]
 AFTER DISTINCT BOOL: [true false]
