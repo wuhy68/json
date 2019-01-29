@@ -29,6 +29,7 @@ with values ("the field id", "the field value", trim, title, upper, lower, key),
 * alpha (the value needs to be alphanumeric)
 * numeric (the value needs to be numeric)
 * bool (the value needs to be boolean [true or false])
+* item:<< command >>> (allows you to validate array items individually, [example: "item:size=10", means that the array items need to have the size of 10])
 
 ## With methods for
 * AddBefore (add a before-validation)
@@ -69,7 +70,15 @@ type NextSet struct {
 	Set int `validate:"set=321, id=next_set"`
 }
 
+type Items struct {
+	A string
+	B int
+}
+
 type Example struct {
+	Array              []string       `validate:"item:size=5"`
+	Array2             []string       `validate:"item:distinct"`
+	Array3             Items          `validate:"item:size=5"`
 	Name               string         `validate:"value=joao, dummy_middle, error={ErrorTag1:a;b}, max=10"`
 	Age                int            `validate:"value=30, error={ErrorTag99}"`
 	Street             int            `validate:"max=10, error={ErrorTag3}"`
@@ -108,10 +117,14 @@ type Example struct {
 	Trim               string    `validate:"set={trim}"`
 	Lower              string    `validate:"set={lower}"`
 	Upper              string    `validate:"set={upper}"`
+	Key                string    `validate:"set={key}"`
 	KeyValue           string    `validate:"id=my_value"`
-	Key                string    `validate:"key={my_value}"`
+	KeyFromValue       string    `validate:"key={my_value}"`
 	NotMatch1          string    `validate:"id=not_match"`
 	NotMatch2          string    `validate:"not={not_match}"`
+	TypeAlpha          string    `validate:"alpha"`
+	TypeNumeric        string    `validate:"numeric"`
+	TypeBool           string    `validate:"bool"`
 }
 
 type Example2 struct {
@@ -210,6 +223,12 @@ func main() {
 	str := "2018-12-1"
 	data := Data("2018-12-1")
 	example := Example{
+		Array:  []string{"12345", "123456", "12345", "123456"},
+		Array2: []string{"111", "111", "222", "222"},
+		Array3: Items{
+			A: "123456",
+			B: 1234567,
+		},
 		Id:                id,
 		Name:              "joao",
 		Age:               30,
@@ -244,9 +263,13 @@ func main() {
 		Trim:               "     aqui       TEM     espaços    !!   ",
 		Upper:              "     aqui       TEM     espaços    !!   ",
 		Lower:              "     AQUI       TEM     ESPACOS    !!   ",
+		Key:                "     AQUI       TEM     ESPACOS    !!   ",
 		KeyValue:           "     aaaaa     3245 79 / ( ) ? =  tem     espaços ...   !!  <<<< ",
 		NotMatch1:          "A",
 		NotMatch2:          "A",
+		TypeAlpha:          "123",
+		TypeNumeric:        "ABC",
+		TypeBool:           "ERRADO",
 		Brothers: []Example2{
 			Example2{
 				Name:            "jessica",
@@ -273,6 +296,7 @@ func main() {
 	fmt.Printf("\nBEFORE NEXT SET: %d", example.NextSet.Set)
 	fmt.Printf("\nBEFORE TRIM: %s", example.Trim)
 	fmt.Printf("\nBEFORE KEY: %s", example.Key)
+	fmt.Printf("\nBEFORE FROM KEY: %s", example.KeyFromValue)
 	fmt.Printf("\nBEFORE UPPER: %s", example.Upper)
 	fmt.Printf("\nBEFORE LOWER: %s", example.Lower)
 
@@ -281,6 +305,7 @@ func main() {
 	fmt.Printf("\nBEFORE DISTINCT STRING: %+v", example.DistinctString)
 	fmt.Printf("\nBEFORE DISTINCT BOOL: %+v", example.DistinctBool)
 	fmt.Printf("\nBEFORE DISTINCT FLOAT: %+v", example.DistinctFloat)
+	fmt.Printf("\nBEFORE DISTINCT ARRAY2: %+v", example.Array2)
 	if errs := validator.Validate(&example); len(errs) > 0 {
 		fmt.Printf("\n\nERRORS: %d\n", len(errs))
 		for _, err := range errs {
@@ -291,6 +316,7 @@ func main() {
 	fmt.Printf("\nAFTER NEXT SET: %d", example.NextSet.Set)
 	fmt.Printf("\nAFTER TRIM: %s", example.Trim)
 	fmt.Printf("\nAFTER KEY: %s", example.Key)
+	fmt.Printf("\nAFTER FROM KEY: %s", example.KeyFromValue)
 	fmt.Printf("\n\nAFTER LOWER: %s", example.Lower)
 	fmt.Printf("\n\nAFTER UPPER: %s", example.Upper)
 
@@ -299,6 +325,7 @@ func main() {
 	fmt.Printf("\nAFTER DISTINCT STRING: %+v", example.DistinctString)
 	fmt.Printf("\nAFTER DISTINCT BOOL: %+v", example.DistinctBool)
 	fmt.Printf("\nAFTER DISTINCT FLOAT: %+v", example.DistinctFloat)
+	fmt.Printf("\nAFTER DISTINCT ARRAY2: %+v", example.Array2)
 }
 ```
 
@@ -307,20 +334,28 @@ func main() {
 BEFORE SET: 123
 BEFORE NEXT SET: 123
 BEFORE TRIM:      aqui       TEM     espaços    !!   
-BEFORE KEY: 
+BEFORE KEY:      AQUI       TEM     ESPACOS    !!   
+BEFORE FROM KEY: 
 BEFORE UPPER:      aqui       TEM     espaços    !!   
 BEFORE LOWER:      AQUI       TEM     ESPACOS    !!   
-BEFORE DISTINCT INT POINTER: [0xc420020348 0xc420020348 0xc420020360 0xc420020360]
+BEFORE DISTINCT INT POINTER: [0xc00009a300 0xc00009a300 0xc00009a308 0xc00009a308]
 BEFORE DISTINCT INT: [1 1 2 2]
 BEFORE DISTINCT STRING: [a a b b]
 BEFORE DISTINCT BOOL: [true true false false]
 BEFORE DISTINCT FLOAT: [1.1 1.1 1.2 1.2]
+BEFORE DISTINCT ARRAY2: [111 111 222 222]123456
+1234567
 
-ERRORS: 25
 
+ERRORS: 32
+
+ERROR: the length [6] is lower then the expected [5] on field [Array] value [123456]
+ERROR: the length [6] is lower then the expected [5] on field [Array] value [123456]
+ERROR: the length [6] is lower then the expected [5] on field [Array3] value [123456]
+ERROR: the length [7] is lower then the expected [5] on field [Array3] value [1234567]
 ERROR: error 1: a:a, b:b
 ERROR: error 1: a:a, b:b
-ERROR: the value [10] is different of the expected [30] on field [Age]
+ERROR: the value [10] is different of the expected [30] on field [Age] value [10]
 ERROR: error 3
 ERROR: error 5
 ERROR: error 6
@@ -337,26 +372,31 @@ ERROR: error 17
 ERROR: error 19
 ERROR: error 17
 ERROR: error 19
-ERROR: the value [password_errada] is different of the expected [password] on field [PasswordConfirm]
-ERROR: the value [30] is different of the expected [10] on field [MyValidate]
+ERROR: the value [password_errada] is different of the expected [password] on field [PasswordConfirm] value [password_errada]
+ERROR: the value [30] is different of the expected [10] on field [MyValidate] value [30]
 ERROR: {"code":"20","message":"the value shouldn't be zero on field [DoubleValidation]"}
 ERROR: error 21
 ERROR: the value should be zero on field [IsZero]
 ERROR: the expected [A] should be different of the [A] on field [NotMatch2]
+ERROR: the value [123] is invalid for type alphanumeric on field [TypeAlpha] value [123]
+ERROR: the value [ABC] is invalid for type numeric on field [TypeNumeric] value [ABC]
+ERROR: the value [ERRADO] is invalid for type bool on field [TypeBool] value [ERRADO]
 
 AFTER SET: 321
 AFTER NEXT SET: 321
 AFTER TRIM: aqui TEM espaços !!
-AFTER KEY: aaaaa-3245-79-tem-espacos-
+AFTER KEY: aqui-tem-espacos-
+AFTER FROM KEY: aaaaa-3245-79-tem-espacos-
 
 AFTER LOWER:      aqui       tem     espacos    !!   
 
 AFTER UPPER:      AQUI       TEM     ESPAÇOS    !!   
-AFTER DISTINCT INT POINTER: [0xc420020348 0xc420020360]
+AFTER DISTINCT INT POINTER: [0xc00009a300 0xc00009a308]
 AFTER DISTINCT INT: [1 2]
 AFTER DISTINCT STRING: [a b]
 AFTER DISTINCT BOOL: [true false]
 AFTER DISTINCT FLOAT: [1.1 1.2]
+AFTER DISTINCT ARRAY2: [111 222]
 ```
 
 ## Known issues

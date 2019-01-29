@@ -242,7 +242,7 @@ func (v *ValidatorContext) doValidate(value reflect.Value, typ reflect.StructFie
 
 	validations := strings.Split(tag, ",")
 
-	return v.executeHandlers(value, typ, obj, mutable, validations, errs)
+	return v.execute(value, typ, obj, mutable, validations, errs)
 }
 
 func (v *ValidatorContext) getFieldId(validations []string) string {
@@ -258,7 +258,7 @@ func (v *ValidatorContext) getFieldId(validations []string) string {
 	return ""
 }
 
-func (v *ValidatorContext) executeHandlers(value reflect.Value, typ reflect.StructField, obj interface{}, mutable reflect.Value, validations []string, errs *[]error) error {
+func (v *ValidatorContext) execute(value reflect.Value, typ reflect.StructField, obj interface{}, mutable reflect.Value, validations []string, errs *[]error) error {
 	var err error
 	var itErrs []error
 	var replacedErrors = make(map[error]bool)
@@ -267,9 +267,16 @@ func (v *ValidatorContext) executeHandlers(value reflect.Value, typ reflect.Stru
 
 	for _, validation := range validations {
 		var name string
+		var tag string
+		var prefix string
 
 		options := strings.SplitN(validation, "=", 2)
-		tag := strings.TrimSpace(options[0])
+		tag = strings.TrimSpace(options[0])
+
+		if split := strings.SplitN(tag, ":", 2); len(split) > 1 {
+			prefix = split[0]
+			tag = split[1]
+		}
 
 		if _, ok := v.validator.activeHandlers[tag]; !ok {
 			err := fmt.Errorf("invalid tag [%s]", tag)
@@ -293,46 +300,148 @@ func (v *ValidatorContext) executeHandlers(value reflect.Value, typ reflect.Stru
 			name = typ.Name
 		}
 
-		validationData := ValidationData{
-			Id:             id,
-			Name:           name,
-			Value:          value,
-			Field:          typ.Name,
-			Obj:            obj,
-			MutableObj:     mutable,
-			Expected:       expected,
-			Errors:         &itErrs,
-			ErrorsReplaced: replacedErrors,
-		}
 		// execute validations
-		if _, ok := v.validator.handlersBefore[tag]; ok {
-			if rtnErrs := v.validator.handlersBefore[tag](v, &validationData); rtnErrs != nil && len(rtnErrs) > 0 {
+		switch prefix {
+		case ConstPrefixTagItem:
+			types := reflect.TypeOf(value.Interface())
 
-				// skip validation
-				if rtnErrs[0] == ErrorSkipValidation {
+			if !value.CanInterface() {
+				return nil
+			}
+
+			if value.Kind() == reflect.Ptr && !value.IsNil() {
+				value = value.Elem()
+
+				if value.IsValid() {
+					types = value.Type()
+				} else {
 					return nil
 				}
-				itErrs = append(itErrs, rtnErrs...)
-				err = rtnErrs[0]
 			}
-		}
 
-		if _, ok := v.validator.handlersMiddle[tag]; ok {
-			if rtnErrs := v.validator.handlersMiddle[tag](v, &validationData); rtnErrs != nil && len(rtnErrs) > 0 {
-				itErrs = append(itErrs, rtnErrs...)
-				err = rtnErrs[0]
-			}
-		}
+			switch value.Kind() {
+			case reflect.Array, reflect.Slice:
+				for i := 0; i < value.Len(); i++ {
+					nextValue := value.Index(i)
 
-		if _, ok := v.validator.handlersAfter[tag]; ok {
-			if rtnErrs := v.validator.handlersAfter[tag](v, &validationData); rtnErrs != nil && len(rtnErrs) > 0 {
-				itErrs = append(itErrs, rtnErrs...)
-				err = rtnErrs[0]
+					if !nextValue.CanInterface() {
+						continue
+					}
+
+					validationData := ValidationData{
+						Id:             id,
+						Name:           name,
+						Value:          nextValue,
+						Field:          typ.Name,
+						Obj:            obj,
+						MutableObj:     mutable,
+						Expected:       expected,
+						Errors:         &itErrs,
+						ErrorsReplaced: replacedErrors,
+					}
+
+					err = v.executeHandlers(tag, &validationData, &itErrs)
+				}
+			case reflect.Map:
+				for _, key := range value.MapKeys() {
+					nextValue := value.MapIndex(key)
+
+					if !nextValue.CanInterface() {
+						continue
+					}
+
+					validationData := ValidationData{
+						Id:             id,
+						Name:           name,
+						Value:          nextValue,
+						Field:          typ.Name,
+						Obj:            obj,
+						MutableObj:     mutable,
+						Expected:       expected,
+						Errors:         &itErrs,
+						ErrorsReplaced: replacedErrors,
+					}
+
+					err = v.executeHandlers(tag, &validationData, &itErrs)
+				}
+			case reflect.Struct:
+				for i := 0; i < types.NumField(); i++ {
+					nextValue := value.Field(i)
+
+					if nextValue.Kind() == reflect.Ptr && !nextValue.IsNil() {
+						nextValue = nextValue.Elem()
+					}
+
+					if !nextValue.CanInterface() {
+						continue
+					}
+					fmt.Println(nextValue.Interface())
+					validationData := ValidationData{
+						Id:             id,
+						Name:           name,
+						Value:          nextValue,
+						Field:          typ.Name,
+						Obj:            obj,
+						MutableObj:     mutable,
+						Expected:       expected,
+						Errors:         &itErrs,
+						ErrorsReplaced: replacedErrors,
+					}
+
+					err = v.executeHandlers(tag, &validationData, &itErrs)
+				}
 			}
+
+		default:
+			validationData := ValidationData{
+				Id:             id,
+				Name:           name,
+				Value:          value,
+				Field:          typ.Name,
+				Obj:            obj,
+				MutableObj:     mutable,
+				Expected:       expected,
+				Errors:         &itErrs,
+				ErrorsReplaced: replacedErrors,
+			}
+
+			err = v.executeHandlers(tag, &validationData, &itErrs)
 		}
 	}
 
 	*errs = append(*errs, itErrs...)
+
+	return err
+}
+
+func (v *ValidatorContext) executeHandlers(tag string, validationData *ValidationData, errs *[]error) error {
+	var err error
+
+	if _, ok := v.validator.handlersBefore[tag]; ok {
+		if rtnErrs := v.validator.handlersBefore[tag](v, validationData); rtnErrs != nil && len(rtnErrs) > 0 {
+
+			// skip validation
+			if rtnErrs[0] == ErrorSkipValidation {
+				return nil
+			}
+			*errs = append(*errs, rtnErrs...)
+			err = rtnErrs[0]
+		}
+	}
+
+	if _, ok := v.validator.handlersMiddle[tag]; ok {
+		if rtnErrs := v.validator.handlersMiddle[tag](v, validationData); rtnErrs != nil && len(rtnErrs) > 0 {
+			*errs = append(*errs, rtnErrs...)
+			err = rtnErrs[0]
+		}
+	}
+
+	if _, ok := v.validator.handlersAfter[tag]; ok {
+		if rtnErrs := v.validator.handlersAfter[tag](v, validationData); rtnErrs != nil && len(rtnErrs) > 0 {
+			*errs = append(*errs, rtnErrs...)
+			err = rtnErrs[0]
+		}
+	}
 
 	return err
 }

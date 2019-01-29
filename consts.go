@@ -27,6 +27,8 @@ const (
 	ConstDefaultValidationTag = "validate"
 	ConstDefaultLogTag        = "validator"
 
+	ConstPrefixTagItem = "item"
+
 	ConstTagId       = "id"
 	ConstTagValue    = "value"
 	ConstTagError    = "error"

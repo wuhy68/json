@@ -21,7 +21,15 @@ type NextSet struct {
 	Set int `validate:"set=321, id=next_set"`
 }
 
+type Items struct {
+	A string
+	B int
+}
+
 type Example struct {
+	Array              []string       `validate:"item:size=5"`
+	Array2             []string       `validate:"item:distinct"`
+	Array3             Items          `validate:"item:size=5"`
 	Name               string         `validate:"value=joao, dummy_middle, error={ErrorTag1:a;b}, max=10"`
 	Age                int            `validate:"value=30, error={ErrorTag99}"`
 	Street             int            `validate:"max=10, error={ErrorTag3}"`
@@ -166,6 +174,12 @@ func main() {
 	str := "2018-12-1"
 	data := Data("2018-12-1")
 	example := Example{
+		Array:  []string{"12345", "123456", "12345", "123456"},
+		Array2: []string{"111", "111", "222", "222"},
+		Array3: Items{
+			A: "123456",
+			B: 1234567,
+		},
 		Id:                id,
 		Name:              "joao",
 		Age:               30,
@@ -242,6 +256,7 @@ func main() {
 	fmt.Printf("\nBEFORE DISTINCT STRING: %+v", example.DistinctString)
 	fmt.Printf("\nBEFORE DISTINCT BOOL: %+v", example.DistinctBool)
 	fmt.Printf("\nBEFORE DISTINCT FLOAT: %+v", example.DistinctFloat)
+	fmt.Printf("\nBEFORE DISTINCT ARRAY2: %+v", example.Array2)
 	if errs := validator.Validate(&example); len(errs) > 0 {
 		fmt.Printf("\n\nERRORS: %d\n", len(errs))
 		for _, err := range errs {
@@ -261,4 +276,5 @@ func main() {
 	fmt.Printf("\nAFTER DISTINCT STRING: %+v", example.DistinctString)
 	fmt.Printf("\nAFTER DISTINCT BOOL: %+v", example.DistinctBool)
 	fmt.Printf("\nAFTER DISTINCT FLOAT: %+v", example.DistinctFloat)
+	fmt.Printf("\nAFTER DISTINCT ARRAY2: %+v", example.Array2)
 }

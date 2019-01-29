@@ -44,7 +44,7 @@ func (v *Validator) validate_value(context *ValidatorContext, validationData *Va
 	}
 
 	if fmt.Sprintf("%+v", validationData.Value) != expected {
-		err := fmt.Errorf("the value [%+v] is different of the expected [%+v] on field [%s]", validationData.Value, expected, validationData.Name)
+		err := fmt.Errorf("the value [%+v] is different of the expected [%+v] on field [%s] value [%+v]", validationData.Value, expected, validationData.Name, validationData.Value)
 		rtnErrs = append(rtnErrs, err)
 	}
 
@@ -98,7 +98,7 @@ func (v *Validator) validate_not(context *ValidatorContext, validationData *Vali
 	}
 
 	if fmt.Sprintf("%+v", validationData.Value) == fmt.Sprintf("%+v", expected) {
-		err := fmt.Errorf("the expected [%+v] should be different of the [%+v] on field [%s]", validationData.Value, expected, validationData.Name)
+		err := fmt.Errorf("the expected [%+v] should be different of the [%+v] on field [%s]", expected, validationData.Value, validationData.Name)
 		rtnErrs = append(rtnErrs, err)
 	}
 
@@ -228,7 +228,7 @@ func (v *Validator) validate_size(context *ValidatorContext, validationData *Val
 
 	size, e := strconv.Atoi(expected)
 	if e != nil {
-		err := fmt.Errorf("the size [%s] is invalid on field [%s]", expected, validationData.Value)
+		err := fmt.Errorf("the size [%s] is invalid on field [%s] value [%+v]", expected, validationData.Name, validationData.Value)
 		rtnErrs = append(rtnErrs, err)
 		return rtnErrs
 	}
@@ -254,7 +254,7 @@ func (v *Validator) validate_size(context *ValidatorContext, validationData *Val
 	}
 
 	if valueSize != int64(size) {
-		err := fmt.Errorf("the length [%+v] is lower then the expected [%+v] on field [%s]", valueSize, expected, validationData.Name)
+		err := fmt.Errorf("the length [%+v] is lower then the expected [%+v] on field [%s] value [%+v]", valueSize, expected, validationData.Name, validationData.Value)
 		rtnErrs = append(rtnErrs, err)
 	}
 
@@ -272,7 +272,7 @@ func (v *Validator) validate_min(context *ValidatorContext, validationData *Vali
 
 	min, e := strconv.Atoi(expected)
 	if e != nil {
-		err := fmt.Errorf("the size [%s] is invalid on field [%s]", expected, validationData.Value)
+		err := fmt.Errorf("the size [%s] is invalid on field [%s] value [%+v]", expected, validationData.Name, validationData.Value)
 		rtnErrs = append(rtnErrs, err)
 		return rtnErrs
 	}
@@ -298,7 +298,7 @@ func (v *Validator) validate_min(context *ValidatorContext, validationData *Vali
 	}
 
 	if valueSize < int64(min) {
-		err := fmt.Errorf("the length [%+v] is lower then the expected [%+v] on field [%s]", valueSize, expected, validationData.Name)
+		err := fmt.Errorf("the length [%+v] is lower then the expected [%+v] on field [%s] value [%+v]", valueSize, expected, validationData.Name, validationData.Value)
 		rtnErrs = append(rtnErrs, err)
 	}
 
@@ -316,7 +316,7 @@ func (v *Validator) validate_max(context *ValidatorContext, validationData *Vali
 
 	max, e := strconv.Atoi(expected)
 	if e != nil {
-		err := fmt.Errorf("the size [%s] is invalid on field [%s]", validationData.Expected, validationData.Name)
+		err := fmt.Errorf("the size [%s] is invalid on field [%s] value [%+v]", validationData.Expected, validationData.Name, validationData.Value)
 		rtnErrs = append(rtnErrs, err)
 		return rtnErrs
 	}
@@ -342,7 +342,7 @@ func (v *Validator) validate_max(context *ValidatorContext, validationData *Vali
 	}
 
 	if valueSize > int64(max) {
-		err := fmt.Errorf("the length [%+v] is bigger then the expected [%+v] on field [%s]", valueSize, expected, validationData.Name)
+		err := fmt.Errorf("the length [%+v] is bigger then the expected [%+v] on field [%s] value [%+v]", valueSize, expected, validationData.Name, validationData.Value)
 		rtnErrs = append(rtnErrs, err)
 	}
 
@@ -461,7 +461,7 @@ func (v *Validator) validate_regex(context *ValidatorContext, validationData *Va
 
 	if len(fmt.Sprintf("%+v", validationData.Value)) > 0 {
 		if !r.MatchString(fmt.Sprintf("%+v", validationData.Value)) {
-			err := fmt.Errorf("invalid data [%s] on field [%+v] ", validationData.Value, validationData.Name)
+			err := fmt.Errorf("invalid data [%s] on field [%+v] value [%+v]", validationData.Value, validationData.Name, validationData.Value)
 			rtnErrs = append(rtnErrs, err)
 		}
 	}
@@ -493,7 +493,7 @@ func (v *Validator) validate_special(context *ValidatorContext, validationData *
 	case ConstSpecialTagForEmail:
 		validationData.Expected = ConstRegexForEmail
 	default:
-		err := fmt.Errorf("invalid special [%s] on field [%+v] ", validationData.Expected, validationData.Name)
+		err := fmt.Errorf("invalid special [%s] on field [%+v] value [%+v]", validationData.Expected, validationData.Name, validationData.Value)
 		rtnErrs = append(rtnErrs, err)
 		return rtnErrs
 	}
@@ -544,7 +544,7 @@ func (v *Validator) validate_error(context *ValidatorContext, validationData *Va
 
 					split := strings.SplitN(expected, ":", 2)
 					if len(split) == 0 {
-						rtnErrs = append(rtnErrs, fmt.Errorf("invalid tag error defined %s", expected))
+						rtnErrs = append(rtnErrs, fmt.Errorf("invalid tag error defined [%s]", expected))
 						continue
 					}
 
@@ -628,7 +628,7 @@ func (v *Validator) validate_if(context *ValidatorContext, validationData *Valid
 
 			if data, ok := context.Values[id]; ok {
 				var errs []error
-				err := context.executeHandlers(data.Value, data.Type, data.Obj, data.MutableObj, strings.Split(query, " "), &errs)
+				err := context.execute(data.Value, data.Type, data.Obj, data.MutableObj, strings.Split(query, " "), &errs)
 
 				// get next operator
 				var operator Operator
@@ -843,7 +843,7 @@ func (v *Validator) validate_alpha(context *ValidatorContext, validationData *Va
 
 	for _, r := range expected {
 		if !unicode.IsLetter(r) {
-			err := fmt.Errorf("the value [%+v] is invalid for type alphanumeric on field [%s]", expected, validationData.Name)
+			err := fmt.Errorf("the value [%+v] is invalid for type alphanumeric on field [%s] value [%+v]", expected, validationData.Name, validationData.Value)
 			rtnErrs = append(rtnErrs, err)
 			break
 		}
@@ -862,7 +862,7 @@ func (v *Validator) validate_numeric(context *ValidatorContext, validationData *
 
 	for _, r := range expected {
 		if !unicode.IsNumber(r) {
-			err := fmt.Errorf("the value [%+v] is invalid for type numeric on field [%s]", expected, validationData.Name)
+			err := fmt.Errorf("the value [%+v] is invalid for type numeric on field [%s] value [%+v]", expected, validationData.Name, validationData.Value)
 			rtnErrs = append(rtnErrs, err)
 			break
 		}
@@ -882,7 +882,7 @@ func (v *Validator) validate_bool(context *ValidatorContext, validationData *Val
 	switch strings.ToLower(expected) {
 	case "true", "false":
 	default:
-		err := fmt.Errorf("the value [%+v] is invalid for type bool on field [%s]", expected, validationData.Name)
+		err := fmt.Errorf("the value [%+v] is invalid for type bool on field [%s] value [%+v]", expected, validationData.Name, validationData.Value)
 		rtnErrs = append(rtnErrs, err)
 	}
 
