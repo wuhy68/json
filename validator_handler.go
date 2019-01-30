@@ -341,6 +341,10 @@ func (v *ValidatorContext) execute(value reflect.Value, typ reflect.StructField,
 					}
 
 					err = v.executeHandlers(tag, &validationData, &itErrs)
+
+					if !v.validator.validateAll {
+						return err
+					}
 				}
 			case reflect.Map:
 				for _, key := range value.MapKeys() {
@@ -363,6 +367,10 @@ func (v *ValidatorContext) execute(value reflect.Value, typ reflect.StructField,
 					}
 
 					err = v.executeHandlers(tag, &validationData, &itErrs)
+
+					if !v.validator.validateAll {
+						return err
+					}
 				}
 			case reflect.Struct:
 				for i := 0; i < types.NumField(); i++ {
@@ -389,6 +397,10 @@ func (v *ValidatorContext) execute(value reflect.Value, typ reflect.StructField,
 					}
 
 					err = v.executeHandlers(tag, &validationData, &itErrs)
+
+					if !v.validator.validateAll {
+						return err
+					}
 				}
 			}
 
@@ -406,6 +418,10 @@ func (v *ValidatorContext) execute(value reflect.Value, typ reflect.StructField,
 			}
 
 			err = v.executeHandlers(tag, &validationData, &itErrs)
+		}
+
+		if !v.validator.validateAll {
+			return err
 		}
 	}
 
