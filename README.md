@@ -8,7 +8,8 @@ A simple struct validator by tags (exported fields only).
 ###### If i miss something or you have something interesting, please be part of this project. Let me know! My contact is at the end.
 
 ## With support for
-* value (equal to) or {id_field}
+###### << command >>={id_field} can be used on all commands and will be replaced with the value of the field with id=id_field
+* value (equal to)
 * not (not equal to)
 * options (one of the options)
 * size (size equal to)
@@ -29,8 +30,8 @@ with values ("the field id", "the field value", trim, title, upper, lower, key),
 * alpha (the value needs to be alphanumeric)
 * numeric (the value needs to be numeric)
 * bool (the value needs to be boolean [true or false])
-* item:<< command >>> (allows you to validate array items individually, [example: "item:size=10", means that the array items need to have the size of 10])
-* key:<< command >>> (allows you to validate a map key individually, [example: "key:size=10", means that the map key's need to have the size of 10])
+* item:<< command >>> (allows you to validate array or map items individually, [example: "item:size=10", means that the array items need to have the size of 10])
+* key:<< command >>> (allows you to validate a map key's individually, [example: "key:size=10", means that the map key's need to have the size of 10])
 
 ## With methods for
 * AddBefore (add a before-validation)
