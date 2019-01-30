@@ -417,6 +417,15 @@ func (v *ValidatorContext) execute(value reflect.Value, typ reflect.StructField,
 			}
 
 		default:
+			if prefix != "" {
+				err := fmt.Errorf("invalid tag prefix [%s] on tag [%s]", prefix, tag)
+				itErrs = append(itErrs, err)
+
+				if !v.validator.validateAll {
+					return err
+				}
+			}
+
 			validationData := ValidationData{
 				Id:             id,
 				Name:           name,
