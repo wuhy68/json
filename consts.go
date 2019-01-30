@@ -28,6 +28,7 @@ const (
 	ConstDefaultLogTag        = "validator"
 
 	ConstPrefixTagItem = "item"
+	ConstPrefixTagKey  = "key"
 
 	ConstTagId       = "id"
 	ConstTagValue    = "value"

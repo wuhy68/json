@@ -302,7 +302,7 @@ func (v *ValidatorContext) execute(value reflect.Value, typ reflect.StructField,
 
 		// execute validations
 		switch prefix {
-		case ConstPrefixTagItem:
+		case ConstPrefixTagKey, ConstPrefixTagItem:
 			types := reflect.TypeOf(value.Interface())
 
 			if !value.CanInterface() {
@@ -317,6 +317,10 @@ func (v *ValidatorContext) execute(value reflect.Value, typ reflect.StructField,
 				} else {
 					return nil
 				}
+			}
+
+			if prefix == ConstPrefixTagKey && value.Kind() != reflect.Map {
+				continue
 			}
 
 			switch value.Kind() {
@@ -348,9 +352,17 @@ func (v *ValidatorContext) execute(value reflect.Value, typ reflect.StructField,
 				}
 			case reflect.Map:
 				for _, key := range value.MapKeys() {
-					nextValue := value.MapIndex(key)
 
-					if !nextValue.CanInterface() {
+					var nextValue reflect.Value
+
+					switch prefix {
+					case ConstPrefixTagKey:
+						nextValue = key
+					case ConstPrefixTagItem:
+						nextValue = value.MapIndex(key)
+					}
+
+					if !key.CanInterface() {
 						continue
 					}
 
@@ -383,7 +395,7 @@ func (v *ValidatorContext) execute(value reflect.Value, typ reflect.StructField,
 					if !nextValue.CanInterface() {
 						continue
 					}
-					fmt.Println(nextValue.Interface())
+
 					validationData := ValidationData{
 						Id:             id,
 						Name:           name,

@@ -27,26 +27,27 @@ type Items struct {
 }
 
 type Example struct {
-	Array              []string       `validate:"item:size=5"`
-	Array2             []string       `validate:"item:distinct"`
-	Array3             Items          `validate:"item:size=5"`
-	Name               string         `validate:"value=joao, dummy_middle, error={ErrorTag1:a;b}, max=10"`
-	Age                int            `validate:"value=30, error={ErrorTag99}"`
-	Street             int            `validate:"max=10, error={ErrorTag3}"`
-	Brothers           []Example2     `validate:"size=1, error={ErrorTag4}"`
-	Id                 uuid.UUID      `validate:"nonzero, error={ErrorTag5}"`
-	Option1            string         `validate:"options=aa;bb;cc, error={ErrorTag6}"`
-	Option2            int            `validate:"options=11;22;33, error={ErrorTag7}"`
-	Option3            []string       `validate:"options=aa;bb;cc, error={ErrorTag8}"`
-	Option4            []int          `validate:"options=11;22;33, error={ErrorTag9}"`
-	Map1               map[string]int `validate:"options=aa:11;bb:22;cc:33, error={ErrorTag10}"`
-	Map2               map[int]string `validate:"options=11:aa;22:bb;33:cc, error={ErrorTag11}"`
-	SpecialTime        string         `validate:"special=time, error={ErrorTag12}"`
-	SpecialDate1       string         `validate:"special=date, error={ErrorTag13}"`
-	SpecialDate2       string         `validate:"special=YYYYMMDD, error={ErrorTag14}"`
-	SpecialDateString  *string        `validate:"special=YYYYMMDD, error={ErrorTag15}"`
-	SpecialData        *Data          `validate:"special=YYYYMMDD, error={ErrorTag16}"`
-	SpecialUrl         string         `validate:"special=url"`
+	Array              []string          `validate:"item:size=5"`
+	Array2             []string          `validate:"item:distinct"`
+	Array3             Items             `validate:"item:size=5"`
+	Map4               map[string]string `validate:"item:size=5, key:size=5"`
+	Name               string            `validate:"value=joao, dummy_middle, error={ErrorTag1:a;b}, max=10"`
+	Age                int               `validate:"value=30, error={ErrorTag99}"`
+	Street             int               `validate:"max=10, error={ErrorTag3}"`
+	Brothers           []Example2        `validate:"size=1, error={ErrorTag4}"`
+	Id                 uuid.UUID         `validate:"nonzero, error={ErrorTag5}"`
+	Option1            string            `validate:"options=aa;bb;cc, error={ErrorTag6}"`
+	Option2            int               `validate:"options=11;22;33, error={ErrorTag7}"`
+	Option3            []string          `validate:"options=aa;bb;cc, error={ErrorTag8}"`
+	Option4            []int             `validate:"options=11;22;33, error={ErrorTag9}"`
+	Map1               map[string]int    `validate:"options=aa:11;bb:22;cc:33, error={ErrorTag10}"`
+	Map2               map[int]string    `validate:"options=11:aa;22:bb;33:cc, error={ErrorTag11}"`
+	SpecialTime        string            `validate:"special=time, error={ErrorTag12}"`
+	SpecialDate1       string            `validate:"special=date, error={ErrorTag13}"`
+	SpecialDate2       string            `validate:"special=YYYYMMDD, error={ErrorTag14}"`
+	SpecialDateString  *string           `validate:"special=YYYYMMDD, error={ErrorTag15}"`
+	SpecialData        *Data             `validate:"special=YYYYMMDD, error={ErrorTag16}"`
+	SpecialUrl         string            `validate:"special=url"`
 	unexported         string
 	IsNill             *string `validate:"nonzero, error={ErrorTag17}"`
 	Sanitize           string  `validate:"sanitize=a;b;teste, error={ErrorTag17}"`
@@ -180,6 +181,7 @@ func main() {
 			A: "123456",
 			B: 1234567,
 		},
+		Map4:              map[string]string{"123456": "123456", "12345": "12345"},
 		Id:                id,
 		Name:              "joao",
 		Age:               30,

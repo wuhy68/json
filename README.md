@@ -30,6 +30,7 @@ with values ("the field id", "the field value", trim, title, upper, lower, key),
 * numeric (the value needs to be numeric)
 * bool (the value needs to be boolean [true or false])
 * item:<< command >>> (allows you to validate array items individually, [example: "item:size=10", means that the array items need to have the size of 10])
+* key:<< command >>> (allows you to validate a map key individually, [example: "key:size=10", means that the map key's need to have the size of 10])
 
 ## With methods for
 * AddBefore (add a before-validation)
@@ -76,26 +77,27 @@ type Items struct {
 }
 
 type Example struct {
-	Array              []string       `validate:"item:size=5"`
-	Array2             []string       `validate:"item:distinct"`
-	Array3             Items          `validate:"item:size=5"`
-	Name               string         `validate:"value=joao, dummy_middle, error={ErrorTag1:a;b}, max=10"`
-	Age                int            `validate:"value=30, error={ErrorTag99}"`
-	Street             int            `validate:"max=10, error={ErrorTag3}"`
-	Brothers           []Example2     `validate:"size=1, error={ErrorTag4}"`
-	Id                 uuid.UUID      `validate:"nonzero, error={ErrorTag5}"`
-	Option1            string         `validate:"options=aa;bb;cc, error={ErrorTag6}"`
-	Option2            int            `validate:"options=11;22;33, error={ErrorTag7}"`
-	Option3            []string       `validate:"options=aa;bb;cc, error={ErrorTag8}"`
-	Option4            []int          `validate:"options=11;22;33, error={ErrorTag9}"`
-	Map1               map[string]int `validate:"options=aa:11;bb:22;cc:33, error={ErrorTag10}"`
-	Map2               map[int]string `validate:"options=11:aa;22:bb;33:cc, error={ErrorTag11}"`
-	SpecialTime        string         `validate:"special=time, error={ErrorTag12}"`
-	SpecialDate1       string         `validate:"special=date, error={ErrorTag13}"`
-	SpecialDate2       string         `validate:"special=YYYYMMDD, error={ErrorTag14}"`
-	SpecialDateString  *string        `validate:"special=YYYYMMDD, error={ErrorTag15}"`
-	SpecialData        *Data          `validate:"special=YYYYMMDD, error={ErrorTag16}"`
-	SpecialUrl         string         `validate:"special=url"`
+	Array              []string          `validate:"item:size=5"`
+	Array2             []string          `validate:"item:distinct"`
+	Array3             Items             `validate:"item:size=5"`
+	Map4               map[string]string `validate:"item:size=5, key:size=5"`
+	Name               string            `validate:"value=joao, dummy_middle, error={ErrorTag1:a;b}, max=10"`
+	Age                int               `validate:"value=30, error={ErrorTag99}"`
+	Street             int               `validate:"max=10, error={ErrorTag3}"`
+	Brothers           []Example2        `validate:"size=1, error={ErrorTag4}"`
+	Id                 uuid.UUID         `validate:"nonzero, error={ErrorTag5}"`
+	Option1            string            `validate:"options=aa;bb;cc, error={ErrorTag6}"`
+	Option2            int               `validate:"options=11;22;33, error={ErrorTag7}"`
+	Option3            []string          `validate:"options=aa;bb;cc, error={ErrorTag8}"`
+	Option4            []int             `validate:"options=11;22;33, error={ErrorTag9}"`
+	Map1               map[string]int    `validate:"options=aa:11;bb:22;cc:33, error={ErrorTag10}"`
+	Map2               map[int]string    `validate:"options=11:aa;22:bb;33:cc, error={ErrorTag11}"`
+	SpecialTime        string            `validate:"special=time, error={ErrorTag12}"`
+	SpecialDate1       string            `validate:"special=date, error={ErrorTag13}"`
+	SpecialDate2       string            `validate:"special=YYYYMMDD, error={ErrorTag14}"`
+	SpecialDateString  *string           `validate:"special=YYYYMMDD, error={ErrorTag15}"`
+	SpecialData        *Data             `validate:"special=YYYYMMDD, error={ErrorTag16}"`
+	SpecialUrl         string            `validate:"special=url"`
 	unexported         string
 	IsNill             *string `validate:"nonzero, error={ErrorTag17}"`
 	Sanitize           string  `validate:"sanitize=a;b;teste, error={ErrorTag17}"`
@@ -229,6 +231,7 @@ func main() {
 			A: "123456",
 			B: 1234567,
 		},
+		Map4:              map[string]string{"123456": "123456", "12345": "12345"},
 		Id:                id,
 		Name:              "joao",
 		Age:               30,
@@ -338,21 +341,21 @@ BEFORE KEY:      AQUI       TEM     ESPACOS    !!
 BEFORE FROM KEY: 
 BEFORE UPPER:      aqui       TEM     espaços    !!   
 BEFORE LOWER:      AQUI       TEM     ESPACOS    !!   
-BEFORE DISTINCT INT POINTER: [0xc000020348 0xc000020348 0xc000020360 0xc000020360]
+BEFORE DISTINCT INT POINTER: [0xc00009a300 0xc00009a300 0xc00009a308 0xc00009a308]
 BEFORE DISTINCT INT: [1 1 2 2]
 BEFORE DISTINCT STRING: [a a b b]
 BEFORE DISTINCT BOOL: [true true false false]
 BEFORE DISTINCT FLOAT: [1.1 1.1 1.2 1.2]
-BEFORE DISTINCT ARRAY2: [111 111 222 222]123456
-1234567
+BEFORE DISTINCT ARRAY2: [111 111 222 222]
 
-
-ERRORS: 31
+ERRORS: 33
 
 ERROR: the length [6] is lower then the expected [5] on field [Array] value [123456]
 ERROR: the length [6] is lower then the expected [5] on field [Array] value [123456]
 ERROR: the length [6] is lower then the expected [5] on field [Array3] value [123456]
 ERROR: the length [7] is lower then the expected [5] on field [Array3] value [1234567]
+ERROR: the length [6] is lower then the expected [5] on field [Map4] value [123456]
+ERROR: the length [6] is lower then the expected [5] on field [Map4] value [123456]
 ERROR: error 1: a:a, b:b
 ERROR: error 1: a:a, b:b
 ERROR: the value [10] is different of the expected [30] on field [Age] value [10]
@@ -390,7 +393,7 @@ AFTER FROM KEY: aaaaa-3245-79-tem-espacos-
 AFTER LOWER:      aqui       tem     espacos    !!   
 
 AFTER UPPER:      AQUI       TEM     ESPAÇOS    !!   
-AFTER DISTINCT INT POINTER: [0xc000020348 0xc000020360]
+AFTER DISTINCT INT POINTER: [0xc00009a300 0xc00009a308]
 AFTER DISTINCT INT: [1 2]
 AFTER DISTINCT STRING: [a b]
 AFTER DISTINCT BOOL: [true false]
