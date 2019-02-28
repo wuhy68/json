@@ -349,7 +349,7 @@ func (v *Validator) validate_max(context *ValidatorContext, validationData *Vali
 	return rtnErrs
 }
 
-func (v *Validator) validate_nonzero(context *ValidatorContext, validationData *ValidationData) []error {
+func (v *Validator) validate_notzero(context *ValidatorContext, validationData *ValidationData) []error {
 	rtnErrs := make([]error, 0)
 
 	if errs := v.validate_iszero(context, validationData); len(errs) == 0 {
@@ -363,7 +363,8 @@ func (v *Validator) validate_nonzero(context *ValidatorContext, validationData *
 func (v *Validator) validate_isnull(context *ValidatorContext, validationData *ValidationData) []error {
 	rtnErrs := make([]error, 0)
 
-	if validationData.Value.CanAddr() {
+	if (validationData.Value.Kind() != reflect.Ptr && validationData.Value.Interface() != nil) ||
+		(validationData.Value.Kind() == reflect.Ptr && !validationData.Value.IsNil()) {
 		err := fmt.Errorf("the value should be null on field [%s] instead of [%+v]", validationData.Name, validationData.Value)
 		rtnErrs = append(rtnErrs, err)
 	}
@@ -371,7 +372,7 @@ func (v *Validator) validate_isnull(context *ValidatorContext, validationData *V
 	return rtnErrs
 }
 
-func (v *Validator) validate_nonnull(context *ValidatorContext, validationData *ValidationData) []error {
+func (v *Validator) validate_notnull(context *ValidatorContext, validationData *ValidationData) []error {
 	rtnErrs := make([]error, 0)
 
 	if errs := v.validate_isnull(context, validationData); len(errs) == 0 {

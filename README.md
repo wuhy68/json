@@ -15,9 +15,9 @@ A simple struct validator by tags (exported fields only).
 * size (size equal to)
 * min 
 * max 
-* nonzero (also supports uuid zero validation)
+* notzero (also supports uuid zero validation)
 * iszero (also supports uuid zero validation)
-* nonnull 
+* notnull 
 * isnull 
 * regex
 * special ( YYYYMMDD, DDMMYYYY, date, time, url, email )
@@ -88,7 +88,7 @@ type Example struct {
 	Age                int               `validate:"value=30, error={ErrorTag99}"`
 	Street             int               `validate:"max=10, error={ErrorTag3}"`
 	Brothers           []Example2        `validate:"size=1, error={ErrorTag4}"`
-	Id                 uuid.UUID         `validate:"nonzero, error={ErrorTag5}"`
+	Id                 uuid.UUID         `validate:"notzero, error={ErrorTag5}"`
 	Option1            string            `validate:"options=aa;bb;cc, error={ErrorTag6}"`
 	Option2            int               `validate:"options=11;22;33, error={ErrorTag7}"`
 	Option3            []string          `validate:"options=aa;bb;cc, error={ErrorTag8}"`
@@ -102,7 +102,7 @@ type Example struct {
 	SpecialData        *Data             `validate:"special=YYYYMMDD, error={ErrorTag16}"`
 	SpecialUrl         string            `validate:"special=url"`
 	unexported         string
-	IsNill             *string `validate:"nonzero, error={ErrorTag17}"`
+	IsNill             *string `validate:"notzero, error={ErrorTag17}"`
 	Sanitize           string  `validate:"sanitize=a;b;teste, error={ErrorTag17}"`
 	Callback           string  `validate:"callback=dummy_callback;dummy_callback_2, error={ErrorTag19}"`
 	Password           string  `json:"password" validate:"id=password"`
@@ -110,7 +110,7 @@ type Example struct {
 	MyName             string  `validate:"id=name"`
 	MyAge              int     `validate:"id=age"`
 	MyValidate         int     `validate:"if=(id=age value=30) or (id=age value=31) and (id=name value=joao), value=10"`
-	DoubleValidation   int     `validate:"nonzero, error=20, min=5, error={ErrorTag21}"`
+	DoubleValidation   int     `validate:"notzero, error=20, min=5, error={ErrorTag21}"`
 	Set                int     `validate:"set=321, id=set"`
 	NextSet            NextSet
 	DistinctIntPointer []*int    `validate:"distinct"`
@@ -136,7 +136,7 @@ type Example2 struct {
 	Name              string         `validate:"value=joao, dummy_middle, error={ErrorTag1:a;b}, max=10"`
 	Age               int            `validate:"value=30, error={ErrorTag99}"`
 	Street            int            `validate:"max=10, error={ErrorTag3}"`
-	Id                uuid.UUID      `validate:"nonzero, error={ErrorTag5}"`
+	Id                uuid.UUID      `validate:"notzero, error={ErrorTag5}"`
 	Option1           string         `validate:"options=aa;bb;cc, error={ErrorTag6}"`
 	Option2           int            `validate:"options=11;22;33, error={ErrorTag7}"`
 	Option3           []string       `validate:"options=aa;bb;cc, error={ErrorTag8}"`
@@ -150,7 +150,7 @@ type Example2 struct {
 	SpecialData       *Data          `validate:"special=YYYYMMDD, error={ErrorTag16}"`
 	SpecialUrl        string         `validate:"special=url"`
 	unexported        string
-	IsNill            *string `validate:"nonzero, error={ErrorTag17}"`
+	IsNill            *string `validate:"notzero, error={ErrorTag17}"`
 	Sanitize          string  `validate:"sanitize=a;b;teste, error={ErrorTag17}"`
 	Callback          string  `validate:"callback=dummy_callback, error={ErrorTag19}"`
 	Password          string  `json:"password" validate:"id=password"`
