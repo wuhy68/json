@@ -130,6 +130,8 @@ type Example struct {
 	TypeAlpha          string    `validate:"alpha"`
 	TypeNumeric        string    `validate:"numeric"`
 	TypeBool           string    `validate:"bool"`
+	ShouldBeNull       *string   `validate:"isnull"`
+	ShouldNotBeNull    *string   `validate:"notnull"`
 }
 
 type Example2 struct {
@@ -276,6 +278,7 @@ func main() {
 		TypeAlpha:          "123",
 		TypeNumeric:        "ABC",
 		TypeBool:           "ERRADO",
+		ShouldBeNull:       &str,
 		Brothers: []Example2{
 			Example2{
 				Name:            "jessica",
@@ -344,14 +347,14 @@ BEFORE KEY:      AQUI       TEM     ESPACOS    !!
 BEFORE FROM KEY: 
 BEFORE UPPER:      aqui       TEM     espaços    !!   
 BEFORE LOWER:      AQUI       TEM     ESPACOS    !!   
-BEFORE DISTINCT INT POINTER: [0xc00009a300 0xc00009a300 0xc00009a308 0xc00009a308]
+BEFORE DISTINCT INT POINTER: [0xc000020348 0xc000020348 0xc000020360 0xc000020360]
 BEFORE DISTINCT INT: [1 1 2 2]
 BEFORE DISTINCT STRING: [a a b b]
 BEFORE DISTINCT BOOL: [true true false false]
 BEFORE DISTINCT FLOAT: [1.1 1.1 1.2 1.2]
 BEFORE DISTINCT ARRAY2: [111 111 222 222]
 
-ERRORS: 33
+ERRORS: 35
 
 ERROR: the length [6] is lower then the expected [5] on field [Array] value [123456]
 ERROR: the length [6] is lower then the expected [5] on field [Array] value [123456]
@@ -386,6 +389,8 @@ ERROR: the expected [A] should be different of the [A] on field [NotMatch2]
 ERROR: the value [123] is invalid for type alphanumeric on field [TypeAlpha] value [123]
 ERROR: the value [ABC] is invalid for type numeric on field [TypeNumeric] value [ABC]
 ERROR: the value [ERRADO] is invalid for type bool on field [TypeBool] value [ERRADO]
+ERROR: the value should be null on field [ShouldBeNull] instead of [2018-12-1]
+ERROR: the value shouldn't be null on field [ShouldNotBeNull]
 
 AFTER SET: 321
 AFTER NEXT SET: 321
@@ -396,7 +401,7 @@ AFTER FROM KEY: aaaaa-3245-79-tem-espacos-
 AFTER LOWER:      aqui       tem     espacos    !!   
 
 AFTER UPPER:      AQUI       TEM     ESPAÇOS    !!   
-AFTER DISTINCT INT POINTER: [0xc00009a300 0xc00009a308]
+AFTER DISTINCT INT POINTER: [0xc000020348 0xc000020360]
 AFTER DISTINCT INT: [1 2]
 AFTER DISTINCT STRING: [a b]
 AFTER DISTINCT BOOL: [true false]
