@@ -360,6 +360,28 @@ func (v *Validator) validate_nonzero(context *ValidatorContext, validationData *
 	return rtnErrs
 }
 
+func (v *Validator) validate_isnull(context *ValidatorContext, validationData *ValidationData) []error {
+	rtnErrs := make([]error, 0)
+
+	if validationData.Value.CanAddr() {
+		err := fmt.Errorf("the value should be null on field [%s] instead of [%+v]", validationData.Name, validationData.Value)
+		rtnErrs = append(rtnErrs, err)
+	}
+
+	return rtnErrs
+}
+
+func (v *Validator) validate_nonnull(context *ValidatorContext, validationData *ValidationData) []error {
+	rtnErrs := make([]error, 0)
+
+	if errs := v.validate_isnull(context, validationData); len(errs) == 0 {
+		err := fmt.Errorf("the value shouldn't be null on field [%s]", validationData.Name)
+		rtnErrs = append(rtnErrs, err)
+	}
+
+	return rtnErrs
+}
+
 func (v *Validator) validate_iszero(context *ValidatorContext, validationData *ValidationData) []error {
 	rtnErrs := make([]error, 0)
 
