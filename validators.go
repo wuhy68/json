@@ -2,6 +2,7 @@ package validator
 
 import (
 	"bytes"
+	"crypto/md5"
 	"fmt"
 	"reflect"
 	"regexp"
@@ -938,6 +939,28 @@ func (v *Validator) set_lower(context *ValidatorContext, validationData *Validat
 		case reflect.String:
 			newValue := strings.ToLower(value.Interface().(string))
 			setValue(kind, value, newValue)
+		}
+	}
+
+	return rtnErrs
+}
+
+func (v *Validator) validate_encode(context *ValidatorContext, validationData *ValidationData) []error {
+	rtnErrs := make([]error, 0)
+	expected := fmt.Sprintf("%+v", validationData.Value)
+	encoding := strings.ToLower(validationData.Expected.(string))
+
+	if validationData.MutableObj.CanAddr() {
+		value := validationData.MutableObj.FieldByName(validationData.Field)
+		kind := reflect.TypeOf(value.Interface()).Kind()
+
+		switch encoding {
+		case "md5":
+			newValue := fmt.Sprintf("%x", md5.Sum([]byte(expected)))
+			setValue(kind, value, newValue)
+		default:
+			err := fmt.Errorf("the encoding [%s] is invalid on field [%s]", encoding, validationData.Name)
+			rtnErrs = append(rtnErrs, err)
 		}
 	}
 

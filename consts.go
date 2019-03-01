@@ -53,4 +53,6 @@ const (
 	ConstTagAlpha    = "alpha"
 	ConstTagNumeric  = "numeric"
 	ConstTagBool     = "bool"
+	ConstTagDecode   = "decode"
+	ConstTagEncode   = "encode"
 )

@@ -79,6 +79,8 @@ type Example struct {
 	TypeBool           string    `validate:"bool"`
 	ShouldBeNull       *string   `validate:"isnull"`
 	ShouldNotBeNull    *string   `validate:"notnull"`
+	EncodeMd5          string    `validate:"encode=md5"`
+	EncodeX            string    `validate:"encode=x"`
 }
 
 type Example2 struct {
@@ -226,6 +228,8 @@ func main() {
 		TypeNumeric:        "ABC",
 		TypeBool:           "ERRADO",
 		ShouldBeNull:       &str,
+		EncodeMd5:          "teste",
+		EncodeX:            "teste",
 		Brothers: []Example2{
 			Example2{
 				Name:            "jessica",
@@ -282,4 +286,5 @@ func main() {
 	fmt.Printf("\nAFTER DISTINCT BOOL: %+v", example.DistinctBool)
 	fmt.Printf("\nAFTER DISTINCT FLOAT: %+v", example.DistinctFloat)
 	fmt.Printf("\nAFTER DISTINCT ARRAY2: %+v", example.Array2)
+	fmt.Printf("\nENCODED MD5: %+v", example.EncodeMd5)
 }

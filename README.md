@@ -34,6 +34,7 @@ with values ("the field id", "the field value", trim, title, upper, lower, key),
 * bool (the value needs to be boolean [true or false])
 * item:<< command >>> (allows you to validate array or map items individually, [example: "item:size=10", means that the array items need to have the size of 10])
 * key:<< command >>> (allows you to validate a map key's individually, [example: "key:size=10", means that the map key's need to have the size of 10])
+* encode ([example: "encode=md5"])
 
 ## With methods for
 * AddBefore (add a before-validation)
@@ -132,6 +133,8 @@ type Example struct {
 	TypeBool           string    `validate:"bool"`
 	ShouldBeNull       *string   `validate:"isnull"`
 	ShouldNotBeNull    *string   `validate:"notnull"`
+	EncodeMd5          string    `validate:"encode=md5"`
+	EncodeX            string    `validate:"encode=x"`
 }
 
 type Example2 struct {
@@ -279,6 +282,8 @@ func main() {
 		TypeNumeric:        "ABC",
 		TypeBool:           "ERRADO",
 		ShouldBeNull:       &str,
+		EncodeMd5:          "teste",
+		EncodeX:            "teste",
 		Brothers: []Example2{
 			Example2{
 				Name:            "jessica",
@@ -335,6 +340,7 @@ func main() {
 	fmt.Printf("\nAFTER DISTINCT BOOL: %+v", example.DistinctBool)
 	fmt.Printf("\nAFTER DISTINCT FLOAT: %+v", example.DistinctFloat)
 	fmt.Printf("\nAFTER DISTINCT ARRAY2: %+v", example.Array2)
+	fmt.Printf("\nENCODED MD5: %+v", example.EncodeMd5)
 }
 ```
 
@@ -347,14 +353,14 @@ BEFORE KEY:      AQUI       TEM     ESPACOS    !!
 BEFORE FROM KEY: 
 BEFORE UPPER:      aqui       TEM     espaços    !!   
 BEFORE LOWER:      AQUI       TEM     ESPACOS    !!   
-BEFORE DISTINCT INT POINTER: [0xc000020348 0xc000020348 0xc000020360 0xc000020360]
+BEFORE DISTINCT INT POINTER: [0xc000094300 0xc000094300 0xc000094308 0xc000094308]
 BEFORE DISTINCT INT: [1 1 2 2]
 BEFORE DISTINCT STRING: [a a b b]
 BEFORE DISTINCT BOOL: [true true false false]
 BEFORE DISTINCT FLOAT: [1.1 1.1 1.2 1.2]
 BEFORE DISTINCT ARRAY2: [111 111 222 222]
 
-ERRORS: 35
+ERRORS: 36
 
 ERROR: the length [6] is lower then the expected [5] on field [Array] value [123456]
 ERROR: the length [6] is lower then the expected [5] on field [Array] value [123456]
@@ -391,6 +397,7 @@ ERROR: the value [ABC] is invalid for type numeric on field [TypeNumeric] value 
 ERROR: the value [ERRADO] is invalid for type bool on field [TypeBool] value [ERRADO]
 ERROR: the value should be null on field [ShouldBeNull] instead of [2018-12-1]
 ERROR: the value shouldn't be null on field [ShouldNotBeNull]
+ERROR: the encoding [x] is invalid on field [EncodeX]
 
 AFTER SET: 321
 AFTER NEXT SET: 321
@@ -401,12 +408,13 @@ AFTER FROM KEY: aaaaa-3245-79-tem-espacos-
 AFTER LOWER:      aqui       tem     espacos    !!   
 
 AFTER UPPER:      AQUI       TEM     ESPAÇOS    !!   
-AFTER DISTINCT INT POINTER: [0xc000020348 0xc000020360]
+AFTER DISTINCT INT POINTER: [0xc000094300 0xc000094308]
 AFTER DISTINCT INT: [1 2]
 AFTER DISTINCT STRING: [a b]
 AFTER DISTINCT BOOL: [true false]
 AFTER DISTINCT FLOAT: [1.1 1.2]
 AFTER DISTINCT ARRAY2: [111 222]
+ENCODED MD5: 698dc19d489c4e4db73e28a713eab07b
 ```
 
 ## Known issues
