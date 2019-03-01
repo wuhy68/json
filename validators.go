@@ -955,7 +955,7 @@ func (v *Validator) validate_encode(context *ValidatorContext, validationData *V
 		kind := reflect.TypeOf(value.Interface()).Kind()
 
 		switch encoding {
-		case "md5":
+		case ConstEncodeMd5:
 			newValue := fmt.Sprintf("%x", md5.Sum([]byte(expected)))
 			setValue(kind, value, newValue)
 		default:
