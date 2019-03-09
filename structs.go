@@ -49,10 +49,9 @@ type ValidationData struct {
 	Code           string
 	Arguments      []interface{}
 	Field          string
-	Obj            interface{}
-	MutableObj     reflect.Value
-	Name           string
+	Parent         reflect.Value
 	Value          reflect.Value
+	Name           string
 	Expected       interface{}
 	ErrorData      *ErrorData
 	Errors         *[]error
@@ -65,11 +64,9 @@ type ErrorData struct {
 }
 
 type Data struct {
-	Value      reflect.Value
-	Obj        interface{}
-	MutableObj reflect.Value
-	Type       reflect.StructField
-	IsSet      bool
+	Obj   reflect.Value
+	Type  reflect.StructField
+	IsSet bool
 }
 
 type Expression struct {

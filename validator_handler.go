@@ -12,26 +12,20 @@ func NewValidatorHandler(validator *Validator) *ValidatorContext {
 		Values:    make(map[string]*Data),
 	}
 }
-func (v *ValidatorContext) handleValidation(obj interface{}) []error {
+func (v *ValidatorContext) handleValidation(value interface{}) []error {
 	errs := make([]error, 0)
-	mutable := reflect.ValueOf(obj)
-
-	if mutable.Kind() == reflect.Ptr && !mutable.IsNil() {
-		mutable = mutable.Elem()
-	}
 
 	// load id's
-	v.load(obj, mutable, &errs)
+	v.load(reflect.ValueOf(value), &errs)
 
 	// execute
-	v.do(obj, mutable, &errs)
+	v.do(reflect.ValueOf(value), &errs)
 
 	return errs
 }
 
-func (v *ValidatorContext) load(obj interface{}, mutable reflect.Value, errs *[]error) error {
-	types := reflect.TypeOf(obj)
-	value := reflect.ValueOf(obj)
+func (v *ValidatorContext) load(value reflect.Value, errs *[]error) error {
+	types := reflect.TypeOf(value.Interface())
 
 	if !value.CanInterface() {
 		return nil
@@ -75,11 +69,9 @@ func (v *ValidatorContext) load(obj interface{}, mutable reflect.Value, errs *[]
 						id = tag[1]
 						if data == nil {
 							data = &Data{
-								Value:      nextValue,
-								Obj:        &obj,
-								MutableObj: nextValue,
-								Type:       nextType,
-								IsSet:      false,
+								Obj:   nextValue,
+								Type:  nextType,
+								IsSet: false,
 							}
 						}
 					case ConstTagSet:
@@ -95,18 +87,16 @@ func (v *ValidatorContext) load(obj interface{}, mutable reflect.Value, errs *[]
 						}
 
 						data = &Data{
-							Value:      newField,
-							Obj:        &obj,
-							MutableObj: newStruct,
-							Type:       nextType,
-							IsSet:      isSet,
+							Obj:   newField,
+							Type:  nextType,
+							IsSet: isSet,
 						}
 					}
 				}
 				v.Values[id] = data
 			}
 
-			if err := v.load(nextValue.Interface(), nextValue, errs); err != nil {
+			if err := v.load(nextValue, errs); err != nil {
 				return err
 			}
 		}
@@ -119,7 +109,7 @@ func (v *ValidatorContext) load(obj interface{}, mutable reflect.Value, errs *[]
 				continue
 			}
 
-			if err := v.load(nextValue.Interface(), nextValue, errs); err != nil {
+			if err := v.load(nextValue, errs); err != nil {
 				return err
 			}
 		}
@@ -132,10 +122,10 @@ func (v *ValidatorContext) load(obj interface{}, mutable reflect.Value, errs *[]
 				continue
 			}
 
-			if err := v.load(key.Interface(), key, errs); err != nil {
+			if err := v.load(key, errs); err != nil {
 				return err
 			}
-			if err := v.load(nextValue.Interface(), nextValue, errs); err != nil {
+			if err := v.load(nextValue, errs); err != nil {
 				return err
 			}
 		}
@@ -146,9 +136,8 @@ func (v *ValidatorContext) load(obj interface{}, mutable reflect.Value, errs *[]
 	return nil
 }
 
-func (v *ValidatorContext) do(obj interface{}, mutable reflect.Value, errs *[]error) error {
-	types := reflect.TypeOf(obj)
-	value := reflect.ValueOf(obj)
+func (v *ValidatorContext) do(value reflect.Value, errs *[]error) error {
+	types := reflect.TypeOf(value.Interface())
 
 	if !value.CanInterface() {
 		return nil
@@ -178,14 +167,14 @@ func (v *ValidatorContext) do(obj interface{}, mutable reflect.Value, errs *[]er
 				continue
 			}
 
-			if err := v.doValidate(nextValue, nextType, obj, mutable, errs); err != nil {
+			if err := v.doValidate(nextValue, nextType, value, errs); err != nil {
 
 				if !v.validator.validateAll {
 					return err
 				}
 			}
 
-			if err := v.do(nextValue.Interface(), nextValue, errs); err != nil {
+			if err := v.do(nextValue, errs); err != nil {
 				if !v.validator.validateAll {
 					return err
 				}
@@ -200,7 +189,7 @@ func (v *ValidatorContext) do(obj interface{}, mutable reflect.Value, errs *[]er
 				continue
 			}
 
-			if err := v.do(nextValue.Interface(), nextValue, errs); err != nil {
+			if err := v.do(nextValue, errs); err != nil {
 				if !v.validator.validateAll {
 					return err
 				}
@@ -215,12 +204,12 @@ func (v *ValidatorContext) do(obj interface{}, mutable reflect.Value, errs *[]er
 				continue
 			}
 
-			if err := v.do(key.Interface(), nextValue, errs); err != nil {
+			if err := v.do(nextValue, errs); err != nil {
 				if !v.validator.validateAll {
 					return err
 				}
 			}
-			if err := v.do(nextValue.Interface(), nextValue, errs); err != nil {
+			if err := v.do(nextValue, errs); err != nil {
 				if !v.validator.validateAll {
 					return err
 				}
@@ -233,7 +222,7 @@ func (v *ValidatorContext) do(obj interface{}, mutable reflect.Value, errs *[]er
 	return nil
 }
 
-func (v *ValidatorContext) doValidate(value reflect.Value, typ reflect.StructField, obj interface{}, mutable reflect.Value, errs *[]error) error {
+func (v *ValidatorContext) doValidate(value reflect.Value, typ reflect.StructField, mutable reflect.Value, errs *[]error) error {
 
 	tag, exists := typ.Tag.Lookup(v.validator.tag)
 	if !exists {
@@ -242,7 +231,7 @@ func (v *ValidatorContext) doValidate(value reflect.Value, typ reflect.StructFie
 
 	validations := strings.Split(tag, ",")
 
-	return v.execute(value, typ, obj, mutable, validations, errs)
+	return v.execute(typ, value, validations, errs)
 }
 
 func (v *ValidatorContext) getFieldId(validations []string) string {
@@ -258,7 +247,7 @@ func (v *ValidatorContext) getFieldId(validations []string) string {
 	return ""
 }
 
-func (v *ValidatorContext) execute(value reflect.Value, typ reflect.StructField, obj interface{}, mutable reflect.Value, validations []string, errs *[]error) error {
+func (v *ValidatorContext) execute(typ reflect.StructField, value reflect.Value, validations []string, errs *[]error) error {
 	var err error
 	var itErrs []error
 	var replacedErrors = make(map[error]bool)
@@ -335,10 +324,9 @@ func (v *ValidatorContext) execute(value reflect.Value, typ reflect.StructField,
 					validationData := ValidationData{
 						Id:             id,
 						Name:           name,
-						Value:          nextValue,
 						Field:          typ.Name,
-						Obj:            obj,
-						MutableObj:     mutable,
+						Parent:         value,
+						Value:          nextValue,
 						Expected:       expected,
 						Errors:         &itErrs,
 						ErrorsReplaced: replacedErrors,
@@ -369,10 +357,9 @@ func (v *ValidatorContext) execute(value reflect.Value, typ reflect.StructField,
 					validationData := ValidationData{
 						Id:             id,
 						Name:           name,
-						Value:          nextValue,
 						Field:          typ.Name,
-						Obj:            obj,
-						MutableObj:     mutable,
+						Parent:         value,
+						Value:          nextValue,
 						Expected:       expected,
 						Errors:         &itErrs,
 						ErrorsReplaced: replacedErrors,
@@ -399,10 +386,9 @@ func (v *ValidatorContext) execute(value reflect.Value, typ reflect.StructField,
 					validationData := ValidationData{
 						Id:             id,
 						Name:           name,
-						Value:          nextValue,
 						Field:          typ.Name,
-						Obj:            obj,
-						MutableObj:     mutable,
+						Parent:         value,
+						Value:          nextValue,
 						Expected:       expected,
 						Errors:         &itErrs,
 						ErrorsReplaced: replacedErrors,
@@ -429,10 +415,9 @@ func (v *ValidatorContext) execute(value reflect.Value, typ reflect.StructField,
 			validationData := ValidationData{
 				Id:             id,
 				Name:           name,
-				Value:          value,
 				Field:          typ.Name,
-				Obj:            obj,
-				MutableObj:     mutable,
+				Parent:         value,
+				Value:          value,
 				Expected:       expected,
 				Errors:         &itErrs,
 				ErrorsReplaced: replacedErrors,

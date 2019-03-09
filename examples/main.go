@@ -179,13 +179,13 @@ func main() {
 	str := "2018-12-1"
 	data := Data("2018-12-1")
 	example := Example{
-		Array:  []string{"12345", "123456", "12345", "123456"},
+		Array:  []string{"12345", "123456", "12345", "1234567"},
 		Array2: []string{"111", "111", "222", "222"},
 		Array3: Items{
 			A: "123456",
 			B: 1234567,
 		},
-		Map4:              map[string]string{"123456": "123456", "12345": "12345"},
+		Map4:              map[string]string{"123456": "1234567", "12345": "12345"},
 		Id:                id,
 		Name:              "joao",
 		Age:               30,

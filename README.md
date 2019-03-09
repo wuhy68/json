@@ -353,7 +353,7 @@ BEFORE KEY:      AQUI       TEM     ESPACOS    !!
 BEFORE FROM KEY: 
 BEFORE UPPER:      aqui       TEM     espaços    !!   
 BEFORE LOWER:      AQUI       TEM     ESPACOS    !!   
-BEFORE DISTINCT INT POINTER: [0xc000094300 0xc000094300 0xc000094308 0xc000094308]
+BEFORE DISTINCT INT POINTER: [0xc0000a2300 0xc0000a2300 0xc0000a2308 0xc0000a2308]
 BEFORE DISTINCT INT: [1 1 2 2]
 BEFORE DISTINCT STRING: [a a b b]
 BEFORE DISTINCT BOOL: [true true false false]
@@ -363,10 +363,10 @@ BEFORE DISTINCT ARRAY2: [111 111 222 222]
 ERRORS: 36
 
 ERROR: the length [6] is lower then the expected [5] on field [Array] value [123456]
-ERROR: the length [6] is lower then the expected [5] on field [Array] value [123456]
+ERROR: the length [7] is lower then the expected [5] on field [Array] value [1234567]
 ERROR: the length [6] is lower then the expected [5] on field [Array3] value [123456]
 ERROR: the length [7] is lower then the expected [5] on field [Array3] value [1234567]
-ERROR: the length [6] is lower then the expected [5] on field [Map4] value [123456]
+ERROR: the length [7] is lower then the expected [5] on field [Map4] value [1234567]
 ERROR: the length [6] is lower then the expected [5] on field [Map4] value [123456]
 ERROR: error 1: a:a, b:b
 ERROR: error 1: a:a, b:b
@@ -408,7 +408,7 @@ AFTER FROM KEY: aaaaa-3245-79-tem-espacos-
 AFTER LOWER:      aqui       tem     espacos    !!   
 
 AFTER UPPER:      AQUI       TEM     ESPAÇOS    !!   
-AFTER DISTINCT INT POINTER: [0xc000094300 0xc000094308]
+AFTER DISTINCT INT POINTER: [0xc0000a2300 0xc0000a2308]
 AFTER DISTINCT INT: [1 2]
 AFTER DISTINCT STRING: [a b]
 AFTER DISTINCT BOOL: [true false]

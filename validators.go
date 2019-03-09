@@ -24,7 +24,7 @@ func (v *Validator) loadExpectedValue(context *ValidatorContext, expected interf
 		if matched {
 			replacer := strings.NewReplacer("{", "", "}", "")
 			id := replacer.Replace(newExpected)
-			newExpected = fmt.Sprintf("%+v", context.Values[id].Value.Interface())
+			newExpected = fmt.Sprintf("%+v", context.Values[id].Obj.Interface())
 		}
 	}
 
@@ -614,7 +614,7 @@ func (v *Validator) validate_if(context *ValidatorContext, validationData *Valid
 
 			if data, ok := context.Values[id]; ok {
 				var errs []error
-				err := context.execute(data.Value, data.Type, data.Obj, data.MutableObj, strings.Split(query, " "), &errs)
+				err := context.execute(data.Type, data.Obj, strings.Split(query, " "), &errs)
 
 				// get next operator
 				var operator Operator
@@ -684,7 +684,7 @@ func (v *Validator) validate_if(context *ValidatorContext, validationData *Valid
 func (v *Validator) validate_set(context *ValidatorContext, validationData *ValidationData) []error {
 	rtnErrs := make([]error, 0)
 
-	if !validationData.MutableObj.CanAddr() {
+	if !validationData.Value.CanAddr() {
 		err := fmt.Errorf("the object should be passed as a pointer! when validating field [%+v]", validationData.Name)
 		rtnErrs = append(rtnErrs, err)
 		return rtnErrs
@@ -713,10 +713,10 @@ func (v *Validator) validate_set(context *ValidatorContext, validationData *Vali
 				v.set_key(context, validationData)
 			default:
 				if newValue, ok := context.Values[id]; ok {
-					value := validationData.MutableObj.FieldByName(validationData.Field)
+					value := validationData.Value.FieldByName(validationData.Field)
 					kind := reflect.TypeOf(value.Interface()).Kind()
 
-					setValue(kind, value, newValue.Value.Interface())
+					setValue(kind, value, newValue.Obj.Interface())
 				} else {
 					err := fmt.Errorf("invalid set tag [%s] on field [%+v]", validationData.Expected, validationData.Name)
 					rtnErrs = append(rtnErrs, err)
@@ -724,10 +724,8 @@ func (v *Validator) validate_set(context *ValidatorContext, validationData *Vali
 				}
 			}
 		} else {
-			value := validationData.MutableObj.FieldByName(validationData.Field)
-			kind := reflect.TypeOf(value.Interface()).Kind()
-
-			setValue(kind, value, validationData.Expected)
+			kind := reflect.TypeOf(validationData.Value.Interface()).Kind()
+			setValue(kind, validationData.Value, validationData.Expected)
 		}
 	}
 
@@ -737,9 +735,8 @@ func (v *Validator) validate_set(context *ValidatorContext, validationData *Vali
 func (v *Validator) set_key(context *ValidatorContext, validationData *ValidationData) []error {
 	rtnErrs := make([]error, 0)
 
-	if validationData.MutableObj.CanAddr() {
-		value := validationData.MutableObj.FieldByName(validationData.Field)
-		kind := reflect.TypeOf(value.Interface()).Kind()
+	if validationData.Value.CanAddr() {
+		kind := reflect.TypeOf(validationData.Value.Interface()).Kind()
 
 		switch kind {
 		case reflect.String:
@@ -749,47 +746,46 @@ func (v *Validator) set_key(context *ValidatorContext, validationData *Validatio
 				return rtnErrs
 			}
 
-			setValue(kind, value, convertToKey(strings.TrimSpace(expected), true))
+			setValue(kind, validationData.Value, convertToKey(strings.TrimSpace(expected), true))
 		}
 	}
 
 	return rtnErrs
 }
 
-func setValue(kind reflect.Kind, mutable reflect.Value, newValue interface{}) {
+func setValue(kind reflect.Kind, obj reflect.Value, newValue interface{}) {
 	switch kind {
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
 		v, _ := strconv.Atoi(newValue.(string))
-		mutable.SetInt(int64(v))
+		obj.SetInt(int64(v))
 	case reflect.Float32, reflect.Float64:
 		v, _ := strconv.ParseFloat(newValue.(string), 64)
-		mutable.SetFloat(v)
+		obj.SetFloat(v)
 	case reflect.String:
-		mutable.SetString(newValue.(string))
+		obj.SetString(newValue.(string))
 	case reflect.Bool:
 		v, _ := strconv.ParseBool(newValue.(string))
-		mutable.SetBool(v)
+		obj.SetBool(v)
 	}
 }
 
 func (v *Validator) validate_distinct(context *ValidatorContext, validationData *ValidationData) []error {
 	rtnErrs := make([]error, 0)
 
-	if validationData.MutableObj.CanAddr() {
-		value := validationData.MutableObj.FieldByName(validationData.Field)
-		kind := reflect.TypeOf(value.Interface()).Kind()
+	if validationData.Parent.CanAddr() {
+		kind := reflect.TypeOf(validationData.Parent.Interface()).Kind()
 
 		if kind != reflect.Array && kind != reflect.Slice {
 			return rtnErrs
 		}
-		newInstance := reflect.New(value.Type()).Elem()
+		newInstance := reflect.New(validationData.Parent.Type()).Elem()
 
 		values := make(map[interface{}]bool)
-		for i := 0; i < value.Len(); i++ {
+		for i := 0; i < validationData.Parent.Len(); i++ {
 
-			indexValue := value.Index(i)
+			indexValue := validationData.Parent.Index(i)
 			if indexValue.Kind() == reflect.Ptr && !indexValue.IsNil() {
-				indexValue = value.Index(i).Elem()
+				indexValue = validationData.Parent.Index(i).Elem()
 			}
 
 			if _, ok := values[indexValue.Interface()]; ok {
@@ -801,7 +797,7 @@ func (v *Validator) validate_distinct(context *ValidatorContext, validationData 
 				reflect.Float32, reflect.Float64,
 				reflect.String,
 				reflect.Bool:
-				if value.Index(i).Kind() == reflect.Ptr && !value.Index(i).IsNil() {
+				if validationData.Parent.Index(i).Kind() == reflect.Ptr && !validationData.Parent.Index(i).IsNil() {
 					newInstance = reflect.Append(newInstance, indexValue.Addr())
 				} else {
 					newInstance = reflect.Append(newInstance, indexValue)
@@ -812,7 +808,7 @@ func (v *Validator) validate_distinct(context *ValidatorContext, validationData 
 		}
 
 		// set the new instance without duplicated values
-		value.Set(newInstance)
+		validationData.Parent.Set(newInstance)
 	}
 
 	return rtnErrs
@@ -878,16 +874,15 @@ func (v *Validator) validate_bool(context *ValidatorContext, validationData *Val
 func (v *Validator) set_trim(context *ValidatorContext, validationData *ValidationData) []error {
 	rtnErrs := make([]error, 0)
 
-	if validationData.MutableObj.CanAddr() {
-		value := validationData.MutableObj.FieldByName(validationData.Field)
-		kind := reflect.TypeOf(value.Interface()).Kind()
+	if validationData.Value.CanAddr() {
+		kind := reflect.TypeOf(validationData.Value.Interface()).Kind()
 
 		switch kind {
 		case reflect.String:
-			newValue := strings.TrimSpace(value.Interface().(string))
+			newValue := strings.TrimSpace(validationData.Value.Interface().(string))
 			regx := regexp.MustCompile("  +")
 			newValue = string(regx.ReplaceAll(bytes.TrimSpace([]byte(newValue)), []byte(" ")))
-			setValue(kind, value, newValue)
+			setValue(kind, validationData.Value, newValue)
 		}
 	}
 
@@ -897,14 +892,13 @@ func (v *Validator) set_trim(context *ValidatorContext, validationData *Validati
 func (v *Validator) set_title(context *ValidatorContext, validationData *ValidationData) []error {
 	rtnErrs := make([]error, 0)
 
-	if validationData.MutableObj.CanAddr() {
-		value := validationData.MutableObj.FieldByName(validationData.Field)
-		kind := reflect.TypeOf(value.Interface()).Kind()
+	if validationData.Value.CanAddr() {
+		kind := reflect.TypeOf(validationData.Value.Interface()).Kind()
 
 		switch kind {
 		case reflect.String:
-			newValue := strings.Title(value.Interface().(string))
-			setValue(kind, value, newValue)
+			newValue := strings.Title(validationData.Value.Interface().(string))
+			setValue(kind, validationData.Value, newValue)
 		}
 	}
 
@@ -914,14 +908,13 @@ func (v *Validator) set_title(context *ValidatorContext, validationData *Validat
 func (v *Validator) set_upper(context *ValidatorContext, validationData *ValidationData) []error {
 	rtnErrs := make([]error, 0)
 
-	if validationData.MutableObj.CanAddr() {
-		value := validationData.MutableObj.FieldByName(validationData.Field)
-		kind := reflect.TypeOf(value.Interface()).Kind()
+	if validationData.Value.CanAddr() {
+		kind := reflect.TypeOf(validationData.Value.Interface()).Kind()
 
 		switch kind {
 		case reflect.String:
-			newValue := strings.ToUpper(value.Interface().(string))
-			setValue(kind, value, newValue)
+			newValue := strings.ToUpper(validationData.Value.Interface().(string))
+			setValue(kind, validationData.Value, newValue)
 		}
 	}
 
@@ -931,14 +924,13 @@ func (v *Validator) set_upper(context *ValidatorContext, validationData *Validat
 func (v *Validator) set_lower(context *ValidatorContext, validationData *ValidationData) []error {
 	rtnErrs := make([]error, 0)
 
-	if validationData.MutableObj.CanAddr() {
-		value := validationData.MutableObj.FieldByName(validationData.Field)
-		kind := reflect.TypeOf(value.Interface()).Kind()
+	if validationData.Value.CanAddr() {
+		kind := reflect.TypeOf(validationData.Value.Interface()).Kind()
 
 		switch kind {
 		case reflect.String:
-			newValue := strings.ToLower(value.Interface().(string))
-			setValue(kind, value, newValue)
+			newValue := strings.ToLower(validationData.Value.Interface().(string))
+			setValue(kind, validationData.Value, newValue)
 		}
 	}
 
@@ -950,14 +942,13 @@ func (v *Validator) validate_encode(context *ValidatorContext, validationData *V
 	expected := fmt.Sprintf("%+v", validationData.Value)
 	encoding := strings.ToLower(validationData.Expected.(string))
 
-	if validationData.MutableObj.CanAddr() {
-		value := validationData.MutableObj.FieldByName(validationData.Field)
-		kind := reflect.TypeOf(value.Interface()).Kind()
+	if validationData.Value.CanAddr() {
+		kind := reflect.TypeOf(validationData.Value.Interface()).Kind()
 
 		switch encoding {
 		case ConstEncodeMd5:
 			newValue := fmt.Sprintf("%x", md5.Sum([]byte(expected)))
-			setValue(kind, value, newValue)
+			setValue(kind, validationData.Value, newValue)
 		default:
 			err := fmt.Errorf("the encoding [%s] is invalid on field [%s]", encoding, validationData.Name)
 			rtnErrs = append(rtnErrs, err)
