@@ -114,27 +114,28 @@ type Example struct {
 	DoubleValidation   int     `validate:"notzero, error=20, min=5, error={ErrorTag21}"`
 	Set                int     `validate:"set=321, id=set"`
 	NextSet            NextSet
-	DistinctIntPointer []*int    `validate:"distinct"`
-	DistinctInt        []int     `validate:"distinct"`
-	DistinctString     []string  `validate:"distinct"`
-	DistinctBool       []bool    `validate:"distinct"`
-	DistinctFloat      []float32 `validate:"distinct"`
-	IsZero             int       `validate:"iszero"`
-	Trim               string    `validate:"set={trim}"`
-	Lower              string    `validate:"set={lower}"`
-	Upper              string    `validate:"set={upper}"`
-	Key                string    `validate:"set={key}"`
-	KeyValue           string    `validate:"id=my_value"`
-	KeyFromValue       string    `validate:"key={my_value}"`
-	NotMatch1          string    `validate:"id=not_match"`
-	NotMatch2          string    `validate:"not={not_match}"`
-	TypeAlpha          string    `validate:"alpha"`
-	TypeNumeric        string    `validate:"numeric"`
-	TypeBool           string    `validate:"bool"`
-	ShouldBeNull       *string   `validate:"isnull"`
-	ShouldNotBeNull    *string   `validate:"notnull"`
-	EncodeMd5          string    `validate:"encode=md5"`
-	EncodeX            string    `validate:"encode=x"`
+	DistinctIntPointer []*int      `validate:"distinct"`
+	DistinctInt        []int       `validate:"distinct"`
+	DistinctString     []string    `validate:"distinct"`
+	DistinctBool       []bool      `validate:"distinct"`
+	DistinctFloat      []float32   `validate:"distinct"`
+	IsZero             int         `validate:"iszero"`
+	Trim               string      `validate:"set={trim}"`
+	Lower              string      `validate:"set={lower}"`
+	Upper              string      `validate:"set={upper}"`
+	Key                string      `validate:"set={key}"`
+	KeyValue           string      `validate:"id=my_value"`
+	KeyFromValue       string      `validate:"key={my_value}"`
+	NotMatch1          string      `validate:"id=not_match"`
+	NotMatch2          string      `validate:"not={not_match}"`
+	TypeAlpha          string      `validate:"alpha"`
+	TypeNumeric        string      `validate:"numeric"`
+	TypeBool           string      `validate:"bool"`
+	ShouldBeNull       *string     `validate:"isnull"`
+	ShouldNotBeNull    *string     `validate:"notnull"`
+	EncodeMd5          string      `validate:"encode=md5"`
+	EncodeX            string      `validate:"encode=x"`
+	Interface          interface{} `validate:"notnull, notzero"`
 }
 
 type Example2 struct {
@@ -233,13 +234,13 @@ func main() {
 	str := "2018-12-1"
 	data := Data("2018-12-1")
 	example := Example{
-		Array:  []string{"12345", "123456", "12345", "123456"},
+		Array:  []string{"12345", "123456", "12345", "1234567"},
 		Array2: []string{"111", "111", "222", "222"},
 		Array3: Items{
 			A: "123456",
 			B: 1234567,
 		},
-		Map4:              map[string]string{"123456": "123456", "12345": "12345"},
+		Map4:              map[string]string{"123456": "1234567", "12345": "12345"},
 		Id:                id,
 		Name:              "joao",
 		Age:               30,
@@ -353,14 +354,14 @@ BEFORE KEY:      AQUI       TEM     ESPACOS    !!
 BEFORE FROM KEY: 
 BEFORE UPPER:      aqui       TEM     espaços    !!   
 BEFORE LOWER:      AQUI       TEM     ESPACOS    !!   
-BEFORE DISTINCT INT POINTER: [0xc0000a2300 0xc0000a2300 0xc0000a2308 0xc0000a2308]
+BEFORE DISTINCT INT POINTER: [0xc00008e2b0 0xc00008e2b0 0xc00008e2b8 0xc00008e2b8]
 BEFORE DISTINCT INT: [1 1 2 2]
 BEFORE DISTINCT STRING: [a a b b]
 BEFORE DISTINCT BOOL: [true true false false]
 BEFORE DISTINCT FLOAT: [1.1 1.1 1.2 1.2]
 BEFORE DISTINCT ARRAY2: [111 111 222 222]
 
-ERRORS: 36
+ERRORS: 37
 
 ERROR: the length [6] is lower then the expected [5] on field [Array] value [123456]
 ERROR: the length [7] is lower then the expected [5] on field [Array] value [1234567]
@@ -398,6 +399,7 @@ ERROR: the value [ERRADO] is invalid for type bool on field [TypeBool] value [ER
 ERROR: the value should be null on field [ShouldBeNull] instead of [2018-12-1]
 ERROR: the value shouldn't be null on field [ShouldNotBeNull]
 ERROR: the encoding [x] is invalid on field [EncodeX]
+ERROR: the value shouldn't be null on field [Interface]
 
 AFTER SET: 321
 AFTER NEXT SET: 321
@@ -408,7 +410,7 @@ AFTER FROM KEY: aaaaa-3245-79-tem-espacos-
 AFTER LOWER:      aqui       tem     espacos    !!   
 
 AFTER UPPER:      AQUI       TEM     ESPAÇOS    !!   
-AFTER DISTINCT INT POINTER: [0xc0000a2300 0xc0000a2308]
+AFTER DISTINCT INT POINTER: [0xc00008e2b0 0xc00008e2b8]
 AFTER DISTINCT INT: [1 2]
 AFTER DISTINCT STRING: [a b]
 AFTER DISTINCT BOOL: [true false]

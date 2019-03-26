@@ -60,27 +60,28 @@ type Example struct {
 	DoubleValidation   int     `validate:"notzero, error=20, min=5, error={ErrorTag21}"`
 	Set                int     `validate:"set=321, id=set"`
 	NextSet            NextSet
-	DistinctIntPointer []*int    `validate:"distinct"`
-	DistinctInt        []int     `validate:"distinct"`
-	DistinctString     []string  `validate:"distinct"`
-	DistinctBool       []bool    `validate:"distinct"`
-	DistinctFloat      []float32 `validate:"distinct"`
-	IsZero             int       `validate:"iszero"`
-	Trim               string    `validate:"set={trim}"`
-	Lower              string    `validate:"set={lower}"`
-	Upper              string    `validate:"set={upper}"`
-	Key                string    `validate:"set={key}"`
-	KeyValue           string    `validate:"id=my_value"`
-	KeyFromValue       string    `validate:"key={my_value}"`
-	NotMatch1          string    `validate:"id=not_match"`
-	NotMatch2          string    `validate:"not={not_match}"`
-	TypeAlpha          string    `validate:"alpha"`
-	TypeNumeric        string    `validate:"numeric"`
-	TypeBool           string    `validate:"bool"`
-	ShouldBeNull       *string   `validate:"isnull"`
-	ShouldNotBeNull    *string   `validate:"notnull"`
-	EncodeMd5          string    `validate:"encode=md5"`
-	EncodeX            string    `validate:"encode=x"`
+	DistinctIntPointer []*int      `validate:"distinct"`
+	DistinctInt        []int       `validate:"distinct"`
+	DistinctString     []string    `validate:"distinct"`
+	DistinctBool       []bool      `validate:"distinct"`
+	DistinctFloat      []float32   `validate:"distinct"`
+	IsZero             int         `validate:"iszero"`
+	Trim               string      `validate:"set={trim}"`
+	Lower              string      `validate:"set={lower}"`
+	Upper              string      `validate:"set={upper}"`
+	Key                string      `validate:"set={key}"`
+	KeyValue           string      `validate:"id=my_value"`
+	KeyFromValue       string      `validate:"key={my_value}"`
+	NotMatch1          string      `validate:"id=not_match"`
+	NotMatch2          string      `validate:"not={not_match}"`
+	TypeAlpha          string      `validate:"alpha"`
+	TypeNumeric        string      `validate:"numeric"`
+	TypeBool           string      `validate:"bool"`
+	ShouldBeNull       *string     `validate:"isnull"`
+	ShouldNotBeNull    *string     `validate:"notnull"`
+	EncodeMd5          string      `validate:"encode=md5"`
+	EncodeX            string      `validate:"encode=x"`
+	Interface          interface{} `validate:"notnull, notzero"`
 }
 
 type Example2 struct {
