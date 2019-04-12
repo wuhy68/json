@@ -1,7 +1,7 @@
-package validator
+package json
 
 import "errors"
 
 var (
-	ErrorSkipValidation = errors.New("skip validation")
+	ErrorInvalidPointer = errors.New("the object isn't a pointer")
 )
