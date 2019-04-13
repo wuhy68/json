@@ -212,12 +212,20 @@ func (m *marshal) handleKey(key reflect.Value) error {
 }
 
 func (m *marshal) handleValue(object reflect.Value) error {
+
 	switch object.Kind() {
 	case reflect.String:
 		if _, err := m.result.WriteString(m.encodeString(fmt.Sprintf(`%+v`, object.Interface()))); err != nil {
 			return err
 		}
 	default:
+		if object.Kind() == reflect.Ptr && object.IsNil() {
+			if _, err := m.result.WriteString(fmt.Sprintf(`%s`, null)); err != nil {
+				return err
+			}
+			return nil
+		}
+
 		if _, err := m.result.WriteString(fmt.Sprintf(`%+v`, object.Interface())); err != nil {
 			return err
 		}

@@ -15,6 +15,7 @@ type person struct {
 	Name    string   `db:"name"`
 	Age     int      `db:"age"`
 	Address *address `db:"address"`
+	Numbers []int    `db:"numbers"`
 }
 
 func main() {
@@ -25,7 +26,16 @@ func main() {
 func marshal() {
 	fmt.Println("\n\n:: MARSHAL")
 
-	example := person{Name: "joao", Age: 30, Address: &address{Street: "street one", Number: 1.2, Map: map[string]string{`"ola" "joao"`: `"adeus" "joao"`, "c": "d"}}}
+	example := person{
+		Name: "joao",
+		Age:  30,
+		Address: &address{
+			Street: "street one",
+			Number: 1.2,
+			Map:    map[string]string{`"ola" "joao"`: `"adeus" "joao"`, "c": "d"},
+		},
+		Numbers: []int{1, 2, 3},
+	}
 
 	// with tags "db" and "db.read"
 	// marshal
@@ -37,7 +47,7 @@ func marshal() {
 
 	// with tags "db" and "db.write"
 	// marshal
-	bytes, err = json.Marshal(example, "db", "db.write")
+	bytes, err = json.Marshal(example, "db", "db.read")
 	if err != nil {
 		panic(err)
 	}
@@ -47,7 +57,15 @@ func marshal() {
 func unmarshal() {
 	fmt.Println(":: UNMARSHAL")
 
-	example := person{Name: "joao", Age: 30, Address: &address{Street: "street one", Number: 1.2}}
+	example := person{
+		Name: "joao",
+		Age:  30,
+		Address: &address{
+			Street: "street one",
+			Number: 1.2,
+		},
+		Numbers: []int{1, 2, 3},
+	}
 
 	// with tags "db" and "db.read"
 	// marshal
@@ -55,6 +73,7 @@ func unmarshal() {
 	if err != nil {
 		panic(err)
 	}
+	fmt.Println(string(bytes))
 
 	// unmarshal
 	var newExample person
@@ -62,7 +81,8 @@ func unmarshal() {
 	if err != nil {
 		panic(err)
 	}
-	fmt.Printf("%+v", newExample)
+	fmt.Printf("\n:: Example: %+v", newExample)
+	fmt.Printf("\n:: Address: %+v\n\n\n", newExample.Address)
 
 	// with tags "db" and "db.write"
 	// marshal
@@ -70,6 +90,7 @@ func unmarshal() {
 	if err != nil {
 		panic(err)
 	}
+	fmt.Println(string(bytes))
 
 	// unmarshal
 	newExample = person{}
@@ -77,5 +98,7 @@ func unmarshal() {
 	if err != nil {
 		panic(err)
 	}
-	fmt.Printf("%+v", newExample)
+
+	fmt.Printf("\n:: Example: %+v", newExample)
+	fmt.Printf("\n:: Address: %+v", newExample.Address)
 }
