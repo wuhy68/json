@@ -12,10 +12,11 @@ type address struct {
 }
 
 type person struct {
-	Name    string   `db:"name"`
-	Age     int      `db:"age"`
-	Address *address `db:"address"`
-	Numbers []int    `db:"numbers"`
+	Name    string              `db:"name"`
+	Age     int                 `db:"age"`
+	Address *address            `db:"address"`
+	Numbers []int               `db:"numbers"`
+	Others  map[string]*address `db:"others"`
 }
 
 func main() {
@@ -26,15 +27,18 @@ func main() {
 func marshal() {
 	fmt.Println("\n\n:: MARSHAL")
 
+	addr := &address{
+		Street: "street one",
+		Number: 1.2,
+		Map:    map[string]string{`"ola" "joao"`: `"adeus" "joao"`, "c": "d"},
+	}
+
 	example := person{
-		Name: "joao",
-		Age:  30,
-		Address: &address{
-			Street: "street one",
-			Number: 1.2,
-			Map:    map[string]string{`"ola" "joao"`: `"adeus" "joao"`, "c": "d"},
-		},
+		Name:    "joao",
+		Age:     30,
+		Address: addr,
 		Numbers: []int{1, 2, 3},
+		Others:  map[string]*address{`"ola" "joao"`: addr, "c": addr},
 	}
 
 	// with tags "db" and "db.read"
@@ -47,7 +51,7 @@ func marshal() {
 
 	// with tags "db" and "db.write"
 	// marshal
-	bytes, err = json.Marshal(example, "db", "db.read")
+	bytes, err = json.Marshal(example, "db", "db.write")
 	if err != nil {
 		panic(err)
 	}
@@ -55,16 +59,20 @@ func marshal() {
 }
 
 func unmarshal() {
-	fmt.Println(":: UNMARSHAL")
+	fmt.Println("\n\n:: UNMARSHAL")
+
+	addr := &address{
+		Street: "street one",
+		Number: 1.2,
+		Map:    map[string]string{`"ola" "joao"`: `"adeus" "joao"`, "c": "d"},
+	}
 
 	example := person{
-		Name: "joao",
-		Age:  30,
-		Address: &address{
-			Street: "street one",
-			Number: 1.2,
-		},
+		Name:    "joao",
+		Age:     30,
+		Address: addr,
 		Numbers: []int{1, 2, 3},
+		Others:  map[string]*address{`"ola" "joao"`: addr, "c": addr},
 	}
 
 	// with tags "db" and "db.read"
@@ -101,4 +109,9 @@ func unmarshal() {
 
 	fmt.Printf("\n:: Example: %+v", newExample)
 	fmt.Printf("\n:: Address: %+v", newExample.Address)
+
+	for key, value := range newExample.Others {
+		fmt.Printf("\n:: Others Key: %+v", key)
+		fmt.Printf("\n:: Others Value: %+v", value)
+	}
 }

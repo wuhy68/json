@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"reflect"
 	"strconv"
+	"strings"
 )
 
 var typeUnmarshal = reflect.TypeOf((*iunmarshal)(nil)).Elem()
@@ -121,7 +122,7 @@ func (u *unmarshal) handle(object reflect.Value, byts []byte) error {
 				for _, item := range sliceValues {
 					fmt.Println("Value Slice:" + string(item))
 
-					newValue := reflect.New(field.Type().Elem()).Elem()
+					newValue := reflectAlloc(field.Type().Elem())
 
 					isPrimitive, kind, err = u.isPrimitive(newValue)
 					if err != nil {
@@ -141,6 +142,61 @@ func (u *unmarshal) handle(object reflect.Value, byts []byte) error {
 					}
 
 					field.Set(reflect.Append(field, newValue))
+				}
+			case reflect.Map:
+				mapValues, err := u.getJsonMapValues(fieldValue)
+				if err != nil {
+					return err
+				}
+
+				field.Set(reflect.MakeMap(field.Type()))
+
+				for key, value := range mapValues {
+					fmt.Println("Map key: " + key + "value: " + string(value))
+
+					// key
+					newKey := reflect.New(field.Type().Key()).Elem()
+					isPrimitive, kind, err = u.isPrimitive(newKey)
+					if err != nil {
+						return err
+					}
+
+					if isPrimitive {
+						fmt.Println("Field primitive")
+						if err = u.setField(newKey, key); err != nil {
+							return err
+						}
+					} else {
+						fmt.Println("Field Complex:" + key)
+						if err = u.do(newKey, []byte(key)); err != nil {
+							return err
+						}
+					}
+
+					// value
+					newValue := reflectAlloc(field.Type().Elem())
+					if newValue.Kind() == reflect.Ptr {
+					}
+
+					isPrimitive, kind, err = u.isPrimitive(newValue)
+					if err != nil {
+						return err
+					}
+
+					fmt.Printf("BEFORE SETTING MAP WITH: %+v", newValue)
+					if isPrimitive {
+						fmt.Println("Field primitive")
+						if err = u.setField(newValue, string(value)); err != nil {
+							return err
+						}
+					} else {
+						fmt.Println("Field Complex:" + string(value))
+						if err = u.do(newValue, []byte(value)); err != nil {
+							return err
+						}
+					}
+					fmt.Printf("SETTING MAP WITH: %+v", newValue)
+					field.SetMapIndex(newKey, newValue)
 				}
 			default:
 				fmt.Println("Field Complex:" + string(fieldValue))
@@ -269,7 +325,7 @@ func (u *unmarshal) setField(object reflect.Value, value string) error {
 		v, _ := strconv.ParseBool(value)
 		object.SetBool(v)
 	case reflect.String:
-		object.SetString(value)
+		object.SetString(u.decodeString(value))
 	}
 
 	return nil
@@ -402,7 +458,14 @@ func (u *unmarshal) getJsonValue(byts []byte) (value []byte, nextValue []byte, e
 		}
 	}
 
-	return byts[start:end], byts[end:], nil
+	nextEnd := end
+	if len(byts) > end {
+		if byts[end] == []byte(stringStartEnd)[0] {
+			nextEnd = end + 1
+		}
+	}
+
+	return byts[start:end], byts[nextEnd:], nil
 }
 
 func (u *unmarshal) getJsonSliceValues(byts []byte) (values [][]byte, err error) {
@@ -427,6 +490,51 @@ func (u *unmarshal) getJsonSliceValues(byts []byte) (values [][]byte, err error)
 	return values, nil
 }
 
+func (u *unmarshal) getJsonMapValues(byts []byte) (_ map[string][]byte, err error) {
+
+	var key []byte
+	var value []byte
+	var values = make(map[string][]byte)
+
+	if string(byts[0]) == jsonStart && string(byts[len(byts)-1]) == jsonEnd {
+		byts = byts[1 : len(byts)-1]
+	}
+	fmt.Println(string(byts))
+
+	for len(byts) > 0 {
+		key, byts, err = u.getJsonValue(byts)
+		if err != nil {
+			return nil, err
+		}
+
+		fmt.Println("KEY:" + string(key))
+
+		fmt.Println("NEXT:" + string(byts))
+		value, byts, err = u.getJsonValue(byts)
+		if err != nil {
+			return nil, err
+		}
+
+		fmt.Println("VALUE:" + string(value))
+		values[string(key)] = value
+
+		exit := false
+		for !exit && len(byts) > 0 {
+			switch string(byts[0]) {
+			case comma:
+				byts = byts[1:]
+				exit = true
+			default:
+				byts = byts[1:]
+			}
+		}
+
+		fmt.Println("NEXT:" + string(byts))
+	}
+
+	return values, nil
+}
+
 func (u *unmarshal) loadTag(value reflect.Value, typ reflect.StructField) (exists bool, tag string, err error) {
 	for _, searchTag := range u.tags {
 		tag, exists = typ.Tag.Lookup(searchTag)
@@ -436,4 +544,8 @@ func (u *unmarshal) loadTag(value reflect.Value, typ reflect.StructField) (exist
 	}
 
 	return exists, tag, err
+}
+
+func (u *unmarshal) decodeString(str string) string {
+	return strings.Replace(str, stringStartEndScaped, stringStartEnd, -1)
 }
