@@ -333,25 +333,6 @@ func (u *unmarshal) isPrimitive(object reflect.Value) (bool, reflect.Kind, error
 	}
 }
 
-func (u *unmarshal) hasNext(byts []byte) (hasNext bool, next []byte, err error) {
-
-	start := 0
-	exit := false
-	for i := 0; i < len(byts) && !exit; i++ {
-		switch string(byts[i]) {
-		case " ":
-			continue
-		case ",":
-			hasNext = true
-			start = i + 1
-			exit = true
-		}
-
-	}
-
-	return hasNext, byts[start:], nil
-}
-
 func (u *unmarshal) getJsonName(byts []byte) ([]byte, []byte, error) {
 
 	start := bytes.Index(byts, []byte(stringStartEnd))
