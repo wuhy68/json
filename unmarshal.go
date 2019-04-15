@@ -2,7 +2,6 @@ package json
 
 import (
 	"bytes"
-	"fmt"
 	"reflect"
 	"strconv"
 	"strings"
@@ -77,13 +76,11 @@ func (u *unmarshal) handle(object reflect.Value, byts []byte) error {
 	if err != nil {
 		return err
 	}
-	fmt.Println("Field Name:" + string(fieldName))
 
 	fieldValue, nextValue, err := u.getJsonValue(byts)
 	if err != nil {
 		return err
 	}
-	fmt.Println("Field Value:" + string(fieldValue))
 
 	exists, field, err := u.getField(object, string(fieldName))
 	if err != nil {
@@ -97,7 +94,6 @@ func (u *unmarshal) handle(object reflect.Value, byts []byte) error {
 		}
 
 		if isPrimitive {
-			fmt.Println("Field primitive")
 			if err = u.setField(field, string(fieldValue)); err != nil {
 				return err
 			}
@@ -120,7 +116,6 @@ func (u *unmarshal) handle(object reflect.Value, byts []byte) error {
 				field.Set(reflect.MakeSlice(field.Type(), 0, lenField))
 
 				for _, item := range sliceValues {
-					fmt.Println("Value Slice:" + string(item))
 
 					newValue := reflectAlloc(field.Type().Elem())
 
@@ -130,12 +125,10 @@ func (u *unmarshal) handle(object reflect.Value, byts []byte) error {
 					}
 
 					if isPrimitive {
-						fmt.Println("Field primitive")
 						if err = u.setField(newValue, string(item)); err != nil {
 							return err
 						}
 					} else {
-						fmt.Println("Field Complex:" + string(fieldValue))
 						if err = u.do(newValue, item); err != nil {
 							return err
 						}
@@ -152,7 +145,6 @@ func (u *unmarshal) handle(object reflect.Value, byts []byte) error {
 				field.Set(reflect.MakeMap(field.Type()))
 
 				for key, value := range mapValues {
-					fmt.Println("Map key: " + key + "value: " + string(value))
 
 					// key
 					newKey := reflect.New(field.Type().Key()).Elem()
@@ -162,12 +154,10 @@ func (u *unmarshal) handle(object reflect.Value, byts []byte) error {
 					}
 
 					if isPrimitive {
-						fmt.Println("Field primitive")
 						if err = u.setField(newKey, key); err != nil {
 							return err
 						}
 					} else {
-						fmt.Println("Field Complex:" + key)
 						if err = u.do(newKey, []byte(key)); err != nil {
 							return err
 						}
@@ -183,23 +173,18 @@ func (u *unmarshal) handle(object reflect.Value, byts []byte) error {
 						return err
 					}
 
-					fmt.Printf("BEFORE SETTING MAP WITH: %+v", newValue)
 					if isPrimitive {
-						fmt.Println("Field primitive")
 						if err = u.setField(newValue, string(value)); err != nil {
 							return err
 						}
 					} else {
-						fmt.Println("Field Complex:" + string(value))
 						if err = u.do(newValue, []byte(value)); err != nil {
 							return err
 						}
 					}
-					fmt.Printf("SETTING MAP WITH: %+v", newValue)
 					field.SetMapIndex(newKey, newValue)
 				}
 			default:
-				fmt.Println("Field Complex:" + string(fieldValue))
 				if err = u.do(field, fieldValue); err != nil {
 					return err
 				}
@@ -208,7 +193,6 @@ func (u *unmarshal) handle(object reflect.Value, byts []byte) error {
 	}
 
 	// next
-	fmt.Println("Next do:" + string(nextValue))
 	if err = u.do(object, nextValue); err != nil {
 		return err
 	}
@@ -473,7 +457,6 @@ func (u *unmarshal) getJsonSliceValues(byts []byte) (values [][]byte, err error)
 	var item []byte
 
 	for len(byts) > 0 {
-		fmt.Println(string(byts))
 		item, byts, err = u.getJsonValue(byts)
 		if err != nil {
 			return nil, err
@@ -499,7 +482,6 @@ func (u *unmarshal) getJsonMapValues(byts []byte) (_ map[string][]byte, err erro
 	if string(byts[0]) == jsonStart && string(byts[len(byts)-1]) == jsonEnd {
 		byts = byts[1 : len(byts)-1]
 	}
-	fmt.Println(string(byts))
 
 	for len(byts) > 0 {
 		key, byts, err = u.getJsonValue(byts)
@@ -507,15 +489,11 @@ func (u *unmarshal) getJsonMapValues(byts []byte) (_ map[string][]byte, err erro
 			return nil, err
 		}
 
-		fmt.Println("KEY:" + string(key))
-
-		fmt.Println("NEXT:" + string(byts))
 		value, byts, err = u.getJsonValue(byts)
 		if err != nil {
 			return nil, err
 		}
 
-		fmt.Println("VALUE:" + string(value))
 		values[string(key)] = value
 
 		exit := false
@@ -528,8 +506,6 @@ func (u *unmarshal) getJsonMapValues(byts []byte) (_ map[string][]byte, err erro
 				byts = byts[1:]
 			}
 		}
-
-		fmt.Println("NEXT:" + string(byts))
 	}
 
 	return values, nil
