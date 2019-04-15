@@ -12,11 +12,12 @@ type address struct {
 }
 
 type person struct {
-	Name    string              `db:"name"`
-	Age     int                 `db:"age"`
-	Address *address            `db:"address"`
-	Numbers []int               `db:"numbers"`
-	Others  map[string]*address `db:"others"`
+	Name      string              `db:"name"`
+	Age       int                 `db:"age"`
+	Address   *address            `db:"address"`
+	Numbers   []int               `db:"numbers"`
+	Others    map[string]*address `db:"others"`
+	Addresses []*address          `db:"addresses"`
 }
 
 func main() {
@@ -34,11 +35,12 @@ func marshal() {
 	}
 
 	example := person{
-		Name:    "joao",
-		Age:     30,
-		Address: addr,
-		Numbers: []int{1, 2, 3},
-		Others:  map[string]*address{`"ola" "joao"`: addr, "c": addr},
+		Name:      "joao",
+		Age:       30,
+		Address:   addr,
+		Numbers:   []int{1, 2, 3},
+		Others:    map[string]*address{`"ola" "joao"`: addr, "c": addr},
+		Addresses: []*address{addr, addr},
 	}
 
 	// with tags "db" and "db.read"
@@ -68,11 +70,12 @@ func unmarshal() {
 	}
 
 	example := person{
-		Name:    "joao",
-		Age:     30,
-		Address: addr,
-		Numbers: []int{1, 2, 3},
-		Others:  map[string]*address{`"ola" "joao"`: addr, "c": addr},
+		Name:      "joao",
+		Age:       30,
+		Address:   addr,
+		Numbers:   []int{1, 2, 3},
+		Others:    map[string]*address{`"ola" "joao"`: addr, "c": addr},
+		Addresses: []*address{addr, addr},
 	}
 
 	// with tags "db" and "db.read"
@@ -113,5 +116,9 @@ func unmarshal() {
 	for key, value := range newExample.Others {
 		fmt.Printf("\n:: Others Key: %+v", key)
 		fmt.Printf("\n:: Others Value: %+v", value)
+	}
+
+	for _, value := range newExample.Addresses {
+		fmt.Printf("\n:: Addresses: %+v", value)
 	}
 }

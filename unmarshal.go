@@ -102,6 +102,10 @@ func (u *unmarshal) handle(object reflect.Value, byts []byte) error {
 				if field.Kind() == reflect.Ptr && field.IsNil() {
 					field.Set(reflectAlloc(field.Type()))
 				}
+
+				if field.Kind() == reflect.Ptr {
+					field = field.Elem()
+				}
 			}
 
 			// is a slice
