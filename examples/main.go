@@ -6,6 +6,7 @@ import (
 )
 
 type address struct {
+	Ports  []int             `db.read:"ports"`
 	Street string            `db.read:"street"`
 	Number float64           `db.write:"number"`
 	Map    map[string]string `db:"map"`
@@ -21,7 +22,7 @@ type person struct {
 }
 
 func main() {
-	//marshal()
+	marshal()
 	unmarshal()
 }
 
@@ -36,9 +37,12 @@ func marshal() {
 func unmarshal() {
 	fmt.Println("\n\n:: UNMARSHAL")
 
-	//unmarshal_example_1()
-	//unmarshal_example_2()
+	unmarshal_example_1()
+	unmarshal_example_2()
 	unmarshal_example_3()
+	unmarshal_example_4()
+	unmarshal_example_5()
+	unmarshal_example_6()
 }
 
 func marshal_example_1() {
@@ -126,8 +130,6 @@ func unmarshal_example_1() {
 }
 
 func unmarshal_example_2() {
-	fmt.Println("\n\n:: UNMARSHAL")
-
 	addr := &address{
 		Street: "street one",
 		Number: 1.2,
@@ -205,4 +207,64 @@ func unmarshal_example_3() {
 	fmt.Printf("\n:: Example 1: %+v", newPersons[0])
 	fmt.Printf("\n:: Example 1 Address: %+v", newPersons[0].Address)
 	fmt.Printf("\n:: Example 2: %+v", newPersons[1])
+}
+
+func unmarshal_example_4() {
+	example := []int{1, 2, 3}
+
+	bytes, err := json.Marshal(example, "db", "db.read")
+	if err != nil {
+		panic(err)
+	}
+	fmt.Printf("\n\n %s", string(bytes))
+
+	// unmarshal
+	var newExample []int
+	err = json.Unmarshal(bytes, &newExample, "db", "db.read")
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Printf("\n:: LEN: %d", len(newExample))
+	fmt.Printf("\n:: Example: %+v", newExample)
+}
+
+func unmarshal_example_5() {
+	example := []int{}
+
+	bytes, err := json.Marshal(example, "db", "db.read")
+	if err != nil {
+		panic(err)
+	}
+	fmt.Printf("\n\n %s", string(bytes))
+
+	// unmarshal
+	var newExample []int
+	err = json.Unmarshal(bytes, &newExample, "db", "db.read")
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Printf("\n:: LEN: %d", len(newExample))
+	fmt.Printf("\n:: Example: %+v", newExample)
+}
+
+func unmarshal_example_6() {
+	example := map[string]int{"one": 1, "two": 2, "three": 3}
+
+	bytes, err := json.Marshal(example, "db", "db.read")
+	if err != nil {
+		panic(err)
+	}
+	fmt.Printf("\n\n %s", string(bytes))
+
+	// unmarshal
+	var newExample map[string]int
+	err = json.Unmarshal(bytes, &newExample, "db", "db.read")
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Printf("\n:: LEN: %d", len(newExample))
+	fmt.Printf("\n:: Example: %+v", newExample)
 }

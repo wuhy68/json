@@ -2,7 +2,6 @@ package json
 
 import (
 	"bytes"
-	"fmt"
 	"reflect"
 	"strconv"
 	"strings"
@@ -31,24 +30,25 @@ func (u *unmarshal) execute() error {
 		return ErrorInvalidPointer
 	}
 
-	return u.do(value, u.bytes)
+	return u.do(value, u.bytes, 0)
 }
 
-func (u *unmarshal) do(object reflect.Value, byts []byte) error {
+func (u *unmarshal) do(object reflect.Value, byts []byte, iteration int) error {
+	iteration++
 	var err error
 	exit := false
 
 	for len(byts) > 0 && !exit {
 		switch string(byts[0:1]) {
 		case comma:
-			err = u.handle(object, byts[1:])
+			err = u.handle(object, byts[1:], iteration)
 			if err != nil {
 				return err
 			}
 			exit = true
 
 		case jsonStart, arrayStart:
-			err = u.handle(object, byts)
+			err = u.handle(object, byts, iteration)
 			if err != nil {
 				return err
 			}
@@ -62,28 +62,45 @@ func (u *unmarshal) do(object reflect.Value, byts []byte) error {
 	return nil
 }
 
-func (u *unmarshal) handle(object reflect.Value, byts []byte) error {
+func (u *unmarshal) handle(object reflect.Value, byts []byte, iteration int) error {
 	var fieldName, fieldValue, nextValue []byte
+	var sliceValues [][]byte
 	var err error
+	originByts := byts
 
-	if byts[0] == []byte(arrayStart)[0] {
-		byts = byts[1:]
-
+	switch string(byts[0]) {
+	case arrayStart:
 		fieldValue, nextValue, err = u.getJsonValue(byts)
 		if err != nil {
 			return err
 		}
-	} else {
-		fmt.Printf("\ngetJsonName: %s", string(byts))
+
+		sliceValues, err = u.getJsonSliceValues(fieldValue)
+		if err != nil {
+			return err
+		}
+	default:
 		fieldName, byts, err = u.getJsonName(byts)
 		if err != nil {
 			return err
 		}
 
-		fmt.Printf("\ngetJsonValue: %s", string(byts))
-		fieldValue, nextValue, err = u.getJsonValue(byts)
-		if err != nil {
-			return err
+		switch string(byts[0]) {
+		case arrayStart:
+			fieldValue, nextValue, err = u.getJsonValue(byts)
+			if err != nil {
+				return err
+			}
+
+			sliceValues, err = u.getJsonSliceValues(fieldValue)
+			if err != nil {
+				return err
+			}
+		default:
+			fieldValue, nextValue, err = u.getJsonValue(byts)
+			if err != nil {
+				return err
+			}
 		}
 	}
 
@@ -116,11 +133,6 @@ func (u *unmarshal) handle(object reflect.Value, byts []byte) error {
 			// is a slice
 			switch kind {
 			case reflect.Array, reflect.Slice:
-				sliceValues, err := u.getJsonSliceValues(fieldValue)
-				if err != nil {
-					return err
-				}
-
 				lenField := len(sliceValues)
 				field.Set(reflect.MakeSlice(field.Type(), 0, lenField))
 
@@ -138,18 +150,21 @@ func (u *unmarshal) handle(object reflect.Value, byts []byte) error {
 							return err
 						}
 					} else {
-						if err = u.do(newValue, item); err != nil {
+						if err = u.do(newValue, item, iteration); err != nil {
 							return err
 						}
 					}
 
 					field.Set(reflect.Append(field, newValue))
-					fmt.Printf("\nITEM: %+v", newValue.Interface())
 				}
 
-				fmt.Printf("\nFINAL: %+v", field.Interface())
 			case reflect.Map:
-				mapValues, err := u.getJsonMapValues(fieldValue)
+				if iteration == 1 {
+					byts = originByts
+					nextValue = []byte{}
+				}
+
+				mapValues, err := u.getJsonMapValues(byts)
 				if err != nil {
 					return err
 				}
@@ -170,7 +185,7 @@ func (u *unmarshal) handle(object reflect.Value, byts []byte) error {
 							return err
 						}
 					} else {
-						if err = u.do(newKey, []byte(key)); err != nil {
+						if err = u.do(newKey, []byte(key), iteration); err != nil {
 							return err
 						}
 					}
@@ -188,14 +203,14 @@ func (u *unmarshal) handle(object reflect.Value, byts []byte) error {
 							return err
 						}
 					} else {
-						if err = u.do(newValue, []byte(value)); err != nil {
+						if err = u.do(newValue, []byte(value), iteration); err != nil {
 							return err
 						}
 					}
 					field.SetMapIndex(newKey, newValue)
 				}
 			default:
-				if err = u.do(field, fieldValue); err != nil {
+				if err = u.do(field, fieldValue, iteration); err != nil {
 					return err
 				}
 			}
@@ -203,7 +218,7 @@ func (u *unmarshal) handle(object reflect.Value, byts []byte) error {
 	}
 
 	// next
-	if err = u.do(object, nextValue); err != nil {
+	if err = u.do(object, nextValue, iteration); err != nil {
 		return err
 	}
 
@@ -339,8 +354,6 @@ func (u *unmarshal) getJsonName(byts []byte) ([]byte, []byte, error) {
 
 	fieldName := byts[start+1 : start+end+1]
 
-	fmt.Printf("\nNAME: %s", fieldName)
-
 	return fieldName, byts[start+end+startNext+1:], nil
 }
 
@@ -429,7 +442,7 @@ func (u *unmarshal) getJsonValue(byts []byte) (value []byte, nextValue []byte, e
 		}
 	}
 
-	return byts[start:end], byts[nextEnd:], nil
+	return bytes.TrimSpace(byts[start:end]), byts[nextEnd:], nil
 }
 
 func (u *unmarshal) getJsonSliceValues(byts []byte) (values [][]byte, err error) {
@@ -443,9 +456,16 @@ func (u *unmarshal) getJsonSliceValues(byts []byte) (values [][]byte, err error)
 		}
 		values = append(values, item)
 
-		if len(byts) > 0 {
-			if string(byts[0]) == comma {
+		exit := false
+		for len(byts) > 0 && !exit {
+			switch string(byts[0]) {
+			case comma, arrayEnd, empty:
 				byts = byts[1:]
+				if len(byts) == 0 {
+					exit = true
+				}
+			default:
+				exit = true
 			}
 		}
 	}
@@ -469,6 +489,17 @@ func (u *unmarshal) getJsonMapValues(byts []byte) (_ map[string][]byte, err erro
 			return nil, err
 		}
 
+		exit := false
+		for !exit && len(byts) > 0 {
+			switch string(byts[0]) {
+			case is:
+				byts = byts[1:]
+				exit = true
+			default:
+				byts = byts[1:]
+			}
+		}
+
 		value, byts, err = u.getJsonValue(byts)
 		if err != nil {
 			return nil, err
@@ -476,7 +507,7 @@ func (u *unmarshal) getJsonMapValues(byts []byte) (_ map[string][]byte, err erro
 
 		values[string(key)] = value
 
-		exit := false
+		exit = false
 		for !exit && len(byts) > 0 {
 			switch string(byts[0]) {
 			case comma:

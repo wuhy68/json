@@ -11,4 +11,5 @@ const (
 	is                   = `:`
 	comma                = ","
 	null                 = "null"
+	empty                = " "
 )
