@@ -145,6 +145,15 @@ func (u *unmarshal) handle(object reflect.Value, byts []byte, iteration int) err
 						return err
 					}
 
+					handled, err := u.handleUnmarshalJSON(newValue, item)
+					if err != nil {
+						return err
+					}
+
+					if handled {
+						continue
+					}
+
 					if isPrimitive {
 						if err = u.setField(newValue, string(item)); err != nil {
 							return err
@@ -180,13 +189,20 @@ func (u *unmarshal) handle(object reflect.Value, byts []byte, iteration int) err
 						return err
 					}
 
-					if isPrimitive {
-						if err = u.setField(newKey, key); err != nil {
-							return err
-						}
-					} else {
-						if err = u.do(newKey, []byte(key), iteration); err != nil {
-							return err
+					handled, err := u.handleUnmarshalJSON(newKey, []byte(key))
+					if err != nil {
+						return err
+					}
+
+					if !handled {
+						if isPrimitive {
+							if err = u.setField(newKey, key); err != nil {
+								return err
+							}
+						} else {
+							if err = u.do(newKey, []byte(key), iteration); err != nil {
+								return err
+							}
 						}
 					}
 
@@ -196,6 +212,15 @@ func (u *unmarshal) handle(object reflect.Value, byts []byte, iteration int) err
 					isPrimitive, kind, err = u.isPrimitive(newValue)
 					if err != nil {
 						return err
+					}
+
+					handled, err = u.handleUnmarshalJSON(newValue, value)
+					if err != nil {
+						return err
+					}
+
+					if handled {
+						continue
 					}
 
 					if isPrimitive {
@@ -210,8 +235,15 @@ func (u *unmarshal) handle(object reflect.Value, byts []byte, iteration int) err
 					field.SetMapIndex(newKey, newValue)
 				}
 			default:
-				if err = u.do(field, fieldValue, iteration); err != nil {
+				handled, err := u.handleUnmarshalJSON(field, fieldValue)
+				if err != nil {
 					return err
+				}
+
+				if !handled {
+					if err = u.do(field, fieldValue, iteration); err != nil {
+						return err
+					}
 				}
 			}
 		}
@@ -223,6 +255,17 @@ func (u *unmarshal) handle(object reflect.Value, byts []byte, iteration int) err
 	}
 
 	return nil
+}
+
+func (u *unmarshal) handleUnmarshalJSON(object reflect.Value, byts []byte) (bool, error) {
+	val, ok := object.Interface().(iunmarshal)
+	if ok {
+		if err := val.UnmarshalJSON(byts); err != nil {
+			return true, err
+		}
+	}
+
+	return ok, nil
 }
 
 func (u *unmarshal) getField(object reflect.Value, name string) (bool, reflect.Value, error) {
@@ -257,17 +300,6 @@ func (u *unmarshal) getField(object reflect.Value, name string) (bool, reflect.V
 
 	switch object.Kind() {
 	case reflect.Struct:
-		if hasImplementation {
-			if val, ok := object.Interface().(iunmarshal); ok {
-
-				if err := val.UnmarshalJSON([]byte{}); err != nil {
-					return false, object, err
-				}
-
-				return false, object, nil
-			}
-		}
-
 		for i := 0; i < types.NumField(); i++ {
 			nextValue := object.Field(i)
 			nextType := types.Field(i)
