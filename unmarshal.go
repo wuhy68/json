@@ -2,6 +2,7 @@ package json
 
 import (
 	"bytes"
+	"fmt"
 	"reflect"
 	"strconv"
 	"strings"
@@ -46,15 +47,8 @@ func (u *unmarshal) do(object reflect.Value, byts []byte) error {
 			}
 			exit = true
 
-		case jsonStart:
-			err = u.handle(object, byts[1:])
-			if err != nil {
-				return err
-			}
-			exit = true
-
-		case arrayStart:
-			err = u.handle(object, byts[1:])
+		case jsonStart, arrayStart:
+			err = u.handle(object, byts)
 			if err != nil {
 				return err
 			}
@@ -69,17 +63,28 @@ func (u *unmarshal) do(object reflect.Value, byts []byte) error {
 }
 
 func (u *unmarshal) handle(object reflect.Value, byts []byte) error {
-	var fieldName []byte
+	var fieldName, fieldValue, nextValue []byte
 	var err error
 
-	fieldName, byts, err = u.getJsonName(byts)
-	if err != nil {
-		return err
-	}
+	if byts[0] == []byte(arrayStart)[0] {
+		byts = byts[1:]
 
-	fieldValue, nextValue, err := u.getJsonValue(byts)
-	if err != nil {
-		return err
+		fieldValue, nextValue, err = u.getJsonValue(byts)
+		if err != nil {
+			return err
+		}
+	} else {
+		fmt.Printf("\ngetJsonName: %s", string(byts))
+		fieldName, byts, err = u.getJsonName(byts)
+		if err != nil {
+			return err
+		}
+
+		fmt.Printf("\ngetJsonValue: %s", string(byts))
+		fieldValue, nextValue, err = u.getJsonValue(byts)
+		if err != nil {
+			return err
+		}
 	}
 
 	exists, field, err := u.getField(object, string(fieldName))
@@ -139,7 +144,10 @@ func (u *unmarshal) handle(object reflect.Value, byts []byte) error {
 					}
 
 					field.Set(reflect.Append(field, newValue))
+					fmt.Printf("\nITEM: %+v", newValue.Interface())
 				}
+
+				fmt.Printf("\nFINAL: %+v", field.Interface())
 			case reflect.Map:
 				mapValues, err := u.getJsonMapValues(fieldValue)
 				if err != nil {
@@ -169,8 +177,6 @@ func (u *unmarshal) handle(object reflect.Value, byts []byte) error {
 
 					// value
 					newValue := reflectAlloc(field.Type().Elem())
-					if newValue.Kind() == reflect.Ptr {
-					}
 
 					isPrimitive, kind, err = u.isPrimitive(newValue)
 					if err != nil {
@@ -210,9 +216,11 @@ func (u *unmarshal) getField(object reflect.Value, name string) (bool, reflect.V
 	isMap := object.Kind() == reflect.Map && !hasImplementation
 	isMapOfSlices := isMap && object.Type().Elem().Kind() == reflect.Slice
 
-	if isMapOfSlices {
+	if isMapOfSlices && object.IsNil() {
 		object.Set(reflectAlloc(object.Type().Elem().Elem()))
-	} else if isSlice || isMap {
+	} else if (isSlice || isMap) && object.IsNil() {
+		object.Set(reflectAlloc(object.Type().Elem()))
+	} else if object.Kind() == reflect.Ptr && object.IsNil() {
 		object.Set(reflectAlloc(object.Type().Elem()))
 	}
 
@@ -249,8 +257,12 @@ func (u *unmarshal) getField(object reflect.Value, name string) (bool, reflect.V
 			nextValue := object.Field(i)
 			nextType := types.Field(i)
 
-			if nextValue.Kind() == reflect.Ptr && !nextValue.IsNil() {
-				nextValue = nextValue.Elem()
+			if nextValue.Kind() == reflect.Ptr {
+				if !nextValue.IsNil() {
+					nextValue = nextValue.Elem()
+				} else {
+					nextValue.Set(reflectAlloc(nextValue.Type()))
+				}
 			}
 
 			if !nextValue.CanInterface() {
@@ -268,33 +280,14 @@ func (u *unmarshal) getField(object reflect.Value, name string) (bool, reflect.V
 		}
 
 	case reflect.Array, reflect.Slice:
-		if object.IsNil() {
-			return false, object, nil
-		}
-
-		for i := 0; i < object.Len(); i++ {
-			nextValue := object.Index(i)
-
-			if !nextValue.CanInterface() {
-				continue
-			}
-		}
+		return true, object, nil
 
 	case reflect.Map:
-		if object.IsNil() {
-			return false, object, nil
-		}
-
-		for _, key := range object.MapKeys() {
-			nextValue := object.MapIndex(key)
-
-			if !nextValue.CanInterface() {
-				continue
-			}
-		}
+		return true, object, nil
 
 	default:
 	}
+
 	return false, object, nil
 }
 
@@ -344,7 +337,9 @@ func (u *unmarshal) getJsonName(byts []byte) ([]byte, []byte, error) {
 
 	startNext := bytes.Index(byts[start+end:], []byte(is))
 
-	fieldName := byts[start+1 : end+1]
+	fieldName := byts[start+1 : start+end+1]
+
+	fmt.Printf("\nNAME: %s", fieldName)
 
 	return fieldName, byts[start+end+startNext+1:], nil
 }
