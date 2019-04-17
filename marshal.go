@@ -237,6 +237,13 @@ func (m *marshal) handleValue(object reflect.Value) error {
 func (m *marshal) loadTag(object reflect.Value, typ reflect.StructField) (exists bool, tag string, err error) {
 	for _, searchTag := range m.tags {
 		tag, exists = typ.Tag.Lookup(searchTag)
+
+		if exists && tag == "-" {
+			tag = ""
+			exists = false
+			break
+		}
+
 		if exists {
 			break
 		}

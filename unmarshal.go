@@ -579,6 +579,13 @@ func (u *unmarshal) getJsonMapValues(byts []byte) (_ map[string][]byte, err erro
 func (u *unmarshal) loadTag(value reflect.Value, typ reflect.StructField) (exists bool, tag string, err error) {
 	for _, searchTag := range u.tags {
 		tag, exists = typ.Tag.Lookup(searchTag)
+
+		if exists && tag == "-" {
+			tag = ""
+			exists = false
+			break
+		}
+
 		if exists {
 			break
 		}

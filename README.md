@@ -8,7 +8,8 @@ A simple json marshal and unmarshal by customized tags (exported fields only).
 ###### If i miss something or you have something interesting, please be part of this project. Let me know! My contact is at the end.
 
 ## With support for
-
+* Customized tags
+* Ignore field using tag "-"
 
 ## Dependecy Management
 >### Dep
