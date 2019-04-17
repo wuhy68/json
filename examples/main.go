@@ -1,6 +1,7 @@
 package main
 
 import (
+	j "encoding/json"
 	"fmt"
 	"json"
 )
@@ -19,6 +20,12 @@ type person struct {
 	Numbers   []int               `db:"numbers"`
 	Others    map[string]*address `db:"others"`
 	Addresses []*address          `db:"addresses"`
+}
+
+type contents []content
+
+type content struct {
+	Data *j.RawMessage `db:"data"`
 }
 
 func main() {
@@ -43,6 +50,7 @@ func unmarshal() {
 	unmarshal_example_4()
 	unmarshal_example_5()
 	unmarshal_example_6()
+	unmarshal_example_7()
 }
 
 func marshal_example_1() {
@@ -267,4 +275,18 @@ func unmarshal_example_6() {
 
 	fmt.Printf("\n:: LEN: %d", len(newExample))
 	fmt.Printf("\n:: Example: %+v", newExample)
+}
+
+func unmarshal_example_7() {
+	bytes := []byte(`[{"data":{"test": "one", "test": "two"}}]`)
+
+	// unmarshal
+	var newExample contents
+	err := json.Unmarshal(bytes, &newExample, "db", "db.read")
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Printf("\n:: LEN: %d", len(newExample))
+	fmt.Printf("\n:: Example: %+v", newExample[0].Data)
 }

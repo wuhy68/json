@@ -105,6 +105,7 @@ func (u *unmarshal) handle(object reflect.Value, byts []byte, iteration int) err
 	}
 
 	exists, field, err := u.getField(object, string(fieldName))
+	originField := field
 	if err != nil {
 		return err
 	}
@@ -135,6 +136,15 @@ func (u *unmarshal) handle(object reflect.Value, byts []byte, iteration int) err
 			case reflect.Array, reflect.Slice:
 				lenField := len(sliceValues)
 				field.Set(reflect.MakeSlice(field.Type(), 0, lenField))
+
+				handled, err := u.handleUnmarshalJSON(originField, fieldValue)
+				if err != nil {
+					return err
+				}
+
+				if handled {
+					goto next
+				}
 
 				for _, item := range sliceValues {
 
@@ -168,17 +178,26 @@ func (u *unmarshal) handle(object reflect.Value, byts []byte, iteration int) err
 				}
 
 			case reflect.Map:
+				field.Set(reflect.MakeMap(field.Type()))
+
 				if iteration == 1 {
 					byts = originByts
 					nextValue = []byte{}
+				}
+
+				handled, err := u.handleUnmarshalJSON(originField, byts)
+				if err != nil {
+					return err
+				}
+
+				if handled {
+					goto next
 				}
 
 				mapValues, err := u.getJsonMapValues(byts)
 				if err != nil {
 					return err
 				}
-
-				field.Set(reflect.MakeMap(field.Type()))
 
 				for key, value := range mapValues {
 
@@ -235,7 +254,7 @@ func (u *unmarshal) handle(object reflect.Value, byts []byte, iteration int) err
 					field.SetMapIndex(newKey, newValue)
 				}
 			default:
-				handled, err := u.handleUnmarshalJSON(field, fieldValue)
+				handled, err := u.handleUnmarshalJSON(originField, fieldValue)
 				if err != nil {
 					return err
 				}
@@ -249,6 +268,7 @@ func (u *unmarshal) handle(object reflect.Value, byts []byte, iteration int) err
 		}
 	}
 
+next:
 	// next
 	if err = u.do(object, nextValue, iteration); err != nil {
 		return err
@@ -283,25 +303,27 @@ func (u *unmarshal) getField(object reflect.Value, name string) (bool, reflect.V
 	}
 
 	types := reflect.TypeOf(object.Interface())
+	innerObject := object
 
-	if !object.CanInterface() {
+	if !innerObject.CanInterface() {
 		return false, object, nil
 	}
 
-	if object.Kind() == reflect.Ptr && !object.IsNil() {
-		object = object.Elem()
+	if innerObject.Kind() == reflect.Ptr && !innerObject.IsNil() {
+		innerObject = innerObject.Elem()
 
-		if object.IsValid() {
-			types = object.Type()
+		if innerObject.IsValid() {
+			types = innerObject.Type()
 		} else {
 			return false, object, nil
 		}
 	}
 
-	switch object.Kind() {
+	switch innerObject.Kind() {
 	case reflect.Struct:
 		for i := 0; i < types.NumField(); i++ {
-			nextValue := object.Field(i)
+			nextValue := innerObject.Field(i)
+			object = nextValue
 			nextType := types.Field(i)
 
 			if nextValue.Kind() == reflect.Ptr {
@@ -322,7 +344,7 @@ func (u *unmarshal) getField(object reflect.Value, name string) (bool, reflect.V
 			}
 
 			if exists && tag == name {
-				return true, nextValue, nil
+				return true, object, nil
 			}
 		}
 
