@@ -32,9 +32,16 @@ func (m *marshal) execute() ([]byte, error) {
 }
 
 func (m *marshal) do(object reflect.Value) error {
-	hasImplementation := object.Type().Implements(typeMarshal)
-
 	types := reflect.TypeOf(object.Interface())
+
+	handled, err := m.handleMarshalJSON(object)
+	if err != nil {
+		return err
+	}
+
+	if handled {
+		return nil
+	}
 
 	if !object.CanInterface() {
 		return nil
@@ -56,24 +63,19 @@ func (m *marshal) do(object reflect.Value) error {
 			return err
 		}
 
-		if hasImplementation {
-			if val, ok := object.Interface().(imarshal); ok {
-				bytes, err := val.MarshalJSON()
-				if err != nil {
-					return err
-				}
-
-				if _, err := m.result.Write(bytes); err != nil {
-					return err
-				}
-				return nil
-			}
-		}
-
 		addComma := false
 		for i := 0; i < types.NumField(); i++ {
 			nextValue := object.Field(i)
 			nextType := types.Field(i)
+
+			handled, err := m.handleMarshalJSON(nextValue)
+			if err != nil {
+				return err
+			}
+
+			if handled {
+				return nil
+			}
 
 			if nextValue.Kind() == reflect.Ptr && !nextValue.IsNil() {
 				nextValue = nextValue.Elem()
@@ -127,6 +129,15 @@ func (m *marshal) do(object reflect.Value) error {
 		addComma := false
 		for i := 0; i < object.Len(); i++ {
 			nextValue := object.Index(i)
+
+			handled, err := m.handleMarshalJSON(nextValue)
+			if err != nil {
+				return err
+			}
+
+			if handled {
+				return nil
+			}
 
 			if !nextValue.CanInterface() {
 				continue
@@ -197,6 +208,16 @@ func (m *marshal) do(object reflect.Value) error {
 }
 
 func (m *marshal) handleKey(key reflect.Value) error {
+
+	handled, err := m.handleMarshalJSON(key)
+	if err != nil {
+		return err
+	}
+
+	if handled {
+		return nil
+	}
+
 	switch key.Kind() {
 	case reflect.String:
 		if _, err := m.result.WriteString(fmt.Sprintf("%s%s", m.encodeString(fmt.Sprintf(`%+v`, key.Interface())), is)); err != nil {
@@ -212,6 +233,15 @@ func (m *marshal) handleKey(key reflect.Value) error {
 }
 
 func (m *marshal) handleValue(object reflect.Value) error {
+
+	handled, err := m.handleMarshalJSON(object)
+	if err != nil {
+		return err
+	}
+
+	if handled {
+		return nil
+	}
 
 	switch object.Kind() {
 	case reflect.String:
@@ -232,6 +262,22 @@ func (m *marshal) handleValue(object reflect.Value) error {
 	}
 
 	return nil
+}
+
+func (m *marshal) handleMarshalJSON(object reflect.Value) (bool, error) {
+	val, ok := object.Interface().(imarshal)
+	if ok {
+		byts, err := val.MarshalJSON()
+		if err != nil {
+			return true, err
+		}
+
+		if _, err := m.result.WriteString(fmt.Sprintf(`%s`, string(byts))); err != nil {
+			return true, err
+		}
+	}
+
+	return ok, nil
 }
 
 func (m *marshal) loadTag(object reflect.Value, typ reflect.StructField) (exists bool, tag string, err error) {
