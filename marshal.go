@@ -68,13 +68,19 @@ func (m *marshal) do(object reflect.Value) error {
 			nextValue := object.Field(i)
 			nextType := types.Field(i)
 
+			if addComma {
+				if _, err := m.result.WriteString(comma); err != nil {
+					return err
+				}
+			}
+
 			handled, err := m.handleMarshalJSON(nextValue)
 			if err != nil {
 				return err
 			}
 
 			if handled {
-				return nil
+				continue
 			}
 
 			if nextValue.Kind() == reflect.Ptr && !nextValue.IsNil() {
@@ -85,6 +91,7 @@ func (m *marshal) do(object reflect.Value) error {
 				continue
 			}
 
+			fmt.Printf("%+v", nextValue)
 			exists, tag, err := m.loadTag(nextValue, nextType)
 			if err != nil {
 				return err
@@ -92,12 +99,6 @@ func (m *marshal) do(object reflect.Value) error {
 
 			if !exists {
 				continue
-			}
-
-			if addComma {
-				if _, err := m.result.WriteString(comma); err != nil {
-					return err
-				}
 			}
 
 			if _, err := m.result.WriteString(fmt.Sprintf(`%s%s%s%s`, stringStartEnd, tag, stringStartEnd, is)); err != nil {
@@ -128,6 +129,13 @@ func (m *marshal) do(object reflect.Value) error {
 
 		addComma := false
 		for i := 0; i < object.Len(); i++ {
+
+			if addComma {
+				if _, err := m.result.WriteString(comma); err != nil {
+					return err
+				}
+			}
+
 			nextValue := object.Index(i)
 
 			handled, err := m.handleMarshalJSON(nextValue)
@@ -136,28 +144,25 @@ func (m *marshal) do(object reflect.Value) error {
 			}
 
 			if handled {
-				return nil
+				continue
 			}
 
 			if !nextValue.CanInterface() {
 				continue
 			}
 
-			if addComma {
-				if _, err := m.result.WriteString(comma); err != nil {
-					return err
-				}
-			}
-
+			fmt.Println(m.result.String())
 			if err := m.do(nextValue); err != nil {
 				return err
 			}
+			fmt.Println(m.result.String())
 			addComma = true
 		}
 
 		if _, err := m.result.WriteString(arrayEnd); err != nil {
 			return err
 		}
+		fmt.Println(m.result.String())
 
 	case reflect.Map:
 		if object.IsNil() {
@@ -173,16 +178,16 @@ func (m *marshal) do(object reflect.Value) error {
 
 		addComma := false
 		for _, key := range object.MapKeys() {
-			nextValue := object.MapIndex(key)
-
-			if !nextValue.CanInterface() {
-				continue
-			}
-
 			if addComma {
 				if _, err := m.result.WriteString(comma); err != nil {
 					return err
 				}
+			}
+
+			nextValue := object.MapIndex(key)
+
+			if !nextValue.CanInterface() {
+				continue
 			}
 
 			if err := m.handleKey(key); err != nil {

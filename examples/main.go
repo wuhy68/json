@@ -25,6 +25,7 @@ type person struct {
 type contents []content
 
 type content struct {
+	Name string        `db:"name"`
 	Data *j.RawMessage `db:"data"`
 }
 
@@ -97,6 +98,24 @@ func marshal_example_2() {
 	// with tags "db" and "db.write"
 	// marshal
 	bytes, err := json.Marshal(example, "db", "db.write")
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(string(bytes))
+}
+
+func marshal_example_3() {
+	data := j.RawMessage([]byte(`"data":{"test": "one", "test": "two"}`))
+	example := []content{
+		{
+			Name: "joao",
+			Data: &data,
+		},
+	}
+
+	// with tags "db" and "db.read"
+	// marshal
+	bytes, err := json.Marshal(example, "db", "db.read")
 	if err != nil {
 		panic(err)
 	}
@@ -278,7 +297,7 @@ func unmarshal_example_6() {
 }
 
 func unmarshal_example_7() {
-	bytes := []byte(`[{"data":{"test": "one", "test": "two"}}]`)
+	bytes := []byte(`[{"name": "joao", "data":{"test": "one", "test": "two"}}]`)
 
 	// unmarshal
 	var newExample contents
