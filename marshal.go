@@ -91,7 +91,6 @@ func (m *marshal) do(object reflect.Value) error {
 				continue
 			}
 
-			fmt.Printf("%+v", nextValue)
 			exists, tag, err := m.loadTag(nextValue, nextType)
 			if err != nil {
 				return err
@@ -151,18 +150,15 @@ func (m *marshal) do(object reflect.Value) error {
 				continue
 			}
 
-			fmt.Println(m.result.String())
 			if err := m.do(nextValue); err != nil {
 				return err
 			}
-			fmt.Println(m.result.String())
 			addComma = true
 		}
 
 		if _, err := m.result.WriteString(arrayEnd); err != nil {
 			return err
 		}
-		fmt.Println(m.result.String())
 
 	case reflect.Map:
 		if object.IsNil() {

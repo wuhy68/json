@@ -361,6 +361,14 @@ func (u *unmarshal) getField(object reflect.Value, name string) (bool, reflect.V
 }
 
 func (u *unmarshal) setField(object reflect.Value, value string) error {
+	if object.Kind() == reflect.Ptr {
+		if !object.IsNil() {
+			object = object.Elem()
+		} else {
+			object = reflectAlloc(object.Type()).Elem()
+		}
+	}
+
 	switch object.Kind() {
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
 		tmpValue, err := strconv.ParseInt(value, 10, 64)
