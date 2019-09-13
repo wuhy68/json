@@ -9,7 +9,7 @@ import (
 type address struct {
 	Ports  []int             `db.read:"ports"`
 	Street string            `db.read:"street"`
-	Number float64           `db.write:"number"`
+	Number float64           `db:"number" db.write:"number"`
 	Map    map[string]string `db:"map"`
 }
 
@@ -52,6 +52,7 @@ func unmarshal() {
 	unmarshal_example_5()
 	unmarshal_example_6()
 	unmarshal_example_7()
+	unmarshal_example_8()
 }
 
 func marshal_example_1() {
@@ -308,4 +309,18 @@ func unmarshal_example_7() {
 
 	fmt.Printf("\n:: LEN: %d", len(newExample))
 	fmt.Printf("\n:: Example: %+v", newExample[0].Data)
+}
+
+func unmarshal_example_8() {
+	bytes := []byte(`{"name":"joao","age":30,"address":{"street":"one","number":7}}`)
+
+	// unmarshal
+	var person person
+	err := json.Unmarshal(bytes, &person, "db", "db.read")
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Printf("\n:: Person: %+v", person)
+	fmt.Printf("\n:: Address: %+v", person.Address)
 }

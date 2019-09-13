@@ -2,6 +2,7 @@ package json
 
 import (
 	"bytes"
+	"fmt"
 	"reflect"
 	"strconv"
 	"strings"
@@ -79,6 +80,9 @@ func (u *unmarshal) handle(object reflect.Value, byts []byte, iteration int) err
 		if err != nil {
 			return err
 		}
+	case jsonStart:
+		byts = byts[1 : len(byts)-1]
+		fallthrough
 	default:
 		fieldName, byts, err = u.getJsonName(byts)
 		if err != nil {
@@ -98,6 +102,8 @@ func (u *unmarshal) handle(object reflect.Value, byts []byte, iteration int) err
 			}
 		default:
 			fieldValue, nextValue, err = u.getJsonValue(byts)
+			fmt.Println("fieldValue: " + string(fieldValue))
+			fmt.Println("nextValue: " + string(nextValue))
 			if err != nil {
 				return err
 			}
