@@ -344,7 +344,7 @@ func (u *unmarshal) getField(object reflect.Value, name string) (bool, reflect.V
 				continue
 			}
 
-			exists, tag, err := u.loadTag(nextValue, nextType)
+			exists, tag, err := u.loadTag(nextType)
 			if err != nil {
 				return false, object, err
 			}
@@ -590,7 +590,7 @@ func (u *unmarshal) getJsonMapValues(byts []byte) (_ map[string][]byte, err erro
 	return values, nil
 }
 
-func (u *unmarshal) loadTag(value reflect.Value, typ reflect.StructField) (exists bool, tag string, err error) {
+func (u *unmarshal) loadTag(typ reflect.StructField) (exists bool, tag string, err error) {
 	for _, searchTag := range u.tags {
 		tag, exists = typ.Tag.Lookup(searchTag)
 

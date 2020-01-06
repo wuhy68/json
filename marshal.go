@@ -91,7 +91,7 @@ func (m *marshal) do(object reflect.Value) error {
 				continue
 			}
 
-			exists, tag, err := m.loadTag(nextValue, nextType)
+			exists, tag, err := m.loadTag(nextType)
 			if err != nil {
 				return err
 			}
@@ -281,7 +281,7 @@ func (m *marshal) handleMarshalJSON(object reflect.Value) (bool, error) {
 	return ok, nil
 }
 
-func (m *marshal) loadTag(object reflect.Value, typ reflect.StructField) (exists bool, tag string, err error) {
+func (m *marshal) loadTag(typ reflect.StructField) (exists bool, tag string, err error) {
 	for _, searchTag := range m.tags {
 		tag, exists = typ.Tag.Lookup(searchTag)
 
