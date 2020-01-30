@@ -2,7 +2,6 @@ package json
 
 import (
 	"bytes"
-	"fmt"
 	"reflect"
 	"strconv"
 	"strings"
@@ -102,8 +101,6 @@ func (u *unmarshal) handle(object reflect.Value, byts []byte, iteration int) err
 			}
 		default:
 			fieldValue, nextValue, err = u.getJsonValue(byts)
-			fmt.Println("fieldValue: " + string(fieldValue))
-			fmt.Println("nextValue: " + string(nextValue))
 			if err != nil {
 				return err
 			}
