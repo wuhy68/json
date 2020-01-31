@@ -79,6 +79,10 @@ func (m *marshal) do(object reflect.Value) error {
 				}
 			}
 
+			if !nextValue.CanInterface() {
+				continue
+			}
+
 			handled, err := m.handleMarshalJSON(nextValue)
 			if err != nil {
 				return err
@@ -90,10 +94,6 @@ func (m *marshal) do(object reflect.Value) error {
 
 			if nextValue.Kind() == reflect.Ptr && !nextValue.IsNil() {
 				nextValue = nextValue.Elem()
-			}
-
-			if !nextValue.CanInterface() {
-				continue
 			}
 
 			exists, tag, err := m.loadTag(nextType)
@@ -142,16 +142,16 @@ func (m *marshal) do(object reflect.Value) error {
 
 			nextValue := object.Index(i)
 
+			if !nextValue.CanInterface() {
+				continue
+			}
+
 			handled, err := m.handleMarshalJSON(nextValue)
 			if err != nil {
 				return err
 			}
 
 			if handled {
-				continue
-			}
-
-			if !nextValue.CanInterface() {
 				continue
 			}
 
