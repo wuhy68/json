@@ -31,6 +31,17 @@ func (m *marshal) execute() ([]byte, error) {
 	return m.result.Bytes(), err
 }
 
+func (m *marshal) getValue(value reflect.Value) (reflect.Value, reflect.Type, error) {
+again:
+	valueType := value.Type()
+	if (value.Kind() == reflect.Ptr || value.Kind() == reflect.Interface) && !value.IsNil() {
+		value = value.Elem()
+		goto again
+	}
+
+	return value, valueType, nil
+}
+
 func (m *marshal) do(object reflect.Value) error {
 	types := reflect.TypeOf(object.Interface())
 
@@ -47,14 +58,8 @@ func (m *marshal) do(object reflect.Value) error {
 		return nil
 	}
 
-	if object.Kind() == reflect.Ptr && !object.IsNil() {
-		object = object.Elem()
-
-		if object.IsValid() {
-			types = object.Type()
-		} else {
-			return nil
-		}
+	if object, types, err = m.getValue(object); err != nil {
+		return err
 	}
 
 	switch object.Kind() {

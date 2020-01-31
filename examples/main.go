@@ -4,6 +4,7 @@ import (
 	j "encoding/json"
 	"fmt"
 	"json"
+	"reflect"
 )
 
 type address struct {
@@ -29,6 +30,22 @@ type content struct {
 	Data *j.RawMessage `db:"data"`
 }
 
+type operationType string
+
+type operation struct {
+	Operation operationType `db:"operation"`
+	Name      *string       `db:"name"`
+	Contacts  *contacts     `db:"contacts"`
+}
+
+type contacts struct {
+	Country      string                 `db:"country"`
+	Addresses    map[string]string      `db:"addresses"`
+	PhoneNumbers map[string]interface{} `db:"phone_numbers"`
+}
+
+type operationList []*operation
+
 func main() {
 	marshal()
 	unmarshal()
@@ -53,6 +70,7 @@ func unmarshal() {
 	unmarshal_example_6()
 	unmarshal_example_7()
 	unmarshal_example_8()
+	unmarshal_example_9()
 }
 
 func marshal_example_1() {
@@ -323,4 +341,44 @@ func unmarshal_example_8() {
 
 	fmt.Printf("\n:: Person: %+v", person)
 	fmt.Printf("\n:: Address: %+v", person.Address)
+}
+
+func unmarshal_example_9() {
+	name := "joao"
+	operList1 := operationList{
+		&operation{
+			Operation: "test",
+			Name:      &name,
+			Contacts: &contacts{
+				Country:      "portugal",
+				Addresses:    map[string]string{"casa": "1111111", "trabalho": "2222222"},
+				PhoneNumbers: map[string]interface{}{"float64": 1, "boolean": false, "string": "ola", "object": contacts{Country: "test"}},
+			},
+		},
+	}
+
+	// marshal
+	fmt.Println("MARSHAL")
+	bytes, err := json.Marshal(operList1, "db", "db.read")
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(string(bytes))
+
+	// unmarshal
+	fmt.Println("UNMARSHAL")
+	var operList2 operationList
+	err = json.Unmarshal(bytes, &operList2, "db", "db.read")
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Printf("\n:: Operation: %+v, Addresses: %+v, Phone Numbers: %+v, Type string:%s, Type boolean: %s, Type float64: %s",
+		operList2[0].Operation,
+		operList2[0].Contacts.Addresses,
+		operList2[0].Contacts.PhoneNumbers,
+		reflect.TypeOf(operList2[0].Contacts.PhoneNumbers["string"]),
+		reflect.TypeOf(operList2[0].Contacts.PhoneNumbers["boolean"]),
+		reflect.TypeOf(operList2[0].Contacts.PhoneNumbers["float64"]),
+	)
 }
