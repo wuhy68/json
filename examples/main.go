@@ -9,11 +9,15 @@ import (
 )
 
 type address struct {
-	Ports     []int             `db.read:"ports"`
-	Street    string            `db.read:"street"`
-	Number    float64           `db:"number" db.write:"number"`
-	Timestamp time.Time         `db:"timestamp"`
-	Map       map[string]string `db:"map"`
+	Ports  []int             `db.read:"ports"`
+	Street string            `db.read:"street"`
+	Number float64           `db:"number" db.write:"number"`
+	Map    map[string]string `db:"map"`
+}
+
+type date struct {
+	Timestamp  time.Time   `db:"timestamp"`
+	Timestamp2 interface{} `db:"timestamp2"`
 }
 
 type person struct {
@@ -49,6 +53,7 @@ type contacts struct {
 type operationList []*operation
 
 func main() {
+	marshal_example_4()
 	marshal()
 	unmarshal()
 }
@@ -58,6 +63,8 @@ func marshal() {
 
 	marshal_example_1()
 	marshal_example_2()
+	marshal_example_3()
+	marshal_example_4()
 
 }
 
@@ -102,10 +109,9 @@ func marshal_example_1() {
 
 func marshal_example_2() {
 	addr := &address{
-		Street:    "street one",
-		Number:    1.2,
-		Timestamp: time.Now(),
-		Map:       map[string]string{`"ola" "joao"`: `"adeus" "joao"`, "c": "d"},
+		Street: "street one",
+		Number: 1.2,
+		Map:    map[string]string{`"ola" "joao"`: `"adeus" "joao"`, "c": "d"},
 	}
 
 	example := person{
@@ -138,6 +144,21 @@ func marshal_example_3() {
 	// with tags "db" and "db.read"
 	// marshal
 	bytes, err := json.Marshal(example, "db", "db.read")
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(string(bytes))
+}
+
+func marshal_example_4() {
+	date := &date{
+		Timestamp:  time.Now(),
+		Timestamp2: time.Now(),
+	}
+
+	// with tags "db" and "db.write"
+	// marshal
+	bytes, err := json.Marshal(date, "db", "db.write")
 	if err != nil {
 		panic(err)
 	}

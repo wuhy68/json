@@ -49,9 +49,16 @@ func (m *marshal) do(object reflect.Value) error {
 		return nil
 	}
 
-	object, err := m.handleMarshalJSON(object)
+	wasMarshal, marshalByts, err := m.handleMarshalJSON(object)
 	if err != nil {
 		return err
+	}
+
+	if wasMarshal {
+		if _, err := m.result.WriteString(fmt.Sprintf(`%s`, string(marshalByts))); err != nil {
+			return err
+		}
+		return nil
 	}
 
 	if object, types, err = m.getValue(object); err != nil {
@@ -79,15 +86,6 @@ func (m *marshal) do(object reflect.Value) error {
 				continue
 			}
 
-			nextValue, err := m.handleMarshalJSON(nextValue)
-			if err != nil {
-				return err
-			}
-
-			if nextValue.Kind() == reflect.Ptr && !nextValue.IsNil() {
-				nextValue = nextValue.Elem()
-			}
-
 			exists, tag, err := m.loadTag(nextType)
 			if err != nil {
 				return err
@@ -97,13 +95,29 @@ func (m *marshal) do(object reflect.Value) error {
 				continue
 			}
 
+			wasMarshal, marshalByts, err := m.handleMarshalJSON(nextValue)
+			if err != nil {
+				return err
+			}
+
+			if nextValue.Kind() == reflect.Ptr && !nextValue.IsNil() {
+				nextValue = nextValue.Elem()
+			}
+
 			if _, err := m.result.WriteString(fmt.Sprintf(`%s%s%s%s`, stringStartEnd, tag, stringStartEnd, is)); err != nil {
 				return err
 			}
 			addComma = true
 
-			if err := m.do(nextValue); err != nil {
-				return err
+			if wasMarshal {
+				if _, err := m.result.WriteString(fmt.Sprintf(`%s`, string(marshalByts))); err != nil {
+					return err
+				}
+				continue
+			} else {
+				if err := m.do(nextValue); err != nil {
+					return err
+				}
 			}
 		}
 
@@ -138,13 +152,20 @@ func (m *marshal) do(object reflect.Value) error {
 				continue
 			}
 
-			nextValue, err := m.handleMarshalJSON(nextValue)
+			wasMarshal, marshalByts, err := m.handleMarshalJSON(nextValue)
 			if err != nil {
 				return err
 			}
 
-			if err := m.do(nextValue); err != nil {
-				return err
+			if wasMarshal {
+				if _, err := m.result.WriteString(fmt.Sprintf(`%s`, string(marshalByts))); err != nil {
+					return err
+				}
+				continue
+			} else {
+				if err := m.do(nextValue); err != nil {
+					return err
+				}
 			}
 			addComma = true
 		}
@@ -203,9 +224,16 @@ func (m *marshal) do(object reflect.Value) error {
 
 func (m *marshal) handleKey(key reflect.Value) error {
 
-	key, err := m.handleMarshalJSON(key)
+	wasMarshal, keyMarshal, err := m.handleMarshalJSON(key)
 	if err != nil {
 		return err
+	}
+
+	if wasMarshal {
+		if _, err := m.result.WriteString(fmt.Sprintf("%s%s", m.encodeString(fmt.Sprintf(`%+v`, keyMarshal)), is)); err != nil {
+			return err
+		}
+		return nil
 	}
 
 	switch key.Kind() {
@@ -224,9 +252,16 @@ func (m *marshal) handleKey(key reflect.Value) error {
 
 func (m *marshal) handleValue(object reflect.Value) error {
 
-	object, err := m.handleMarshalJSON(object)
+	wasMarshal, value, err := m.handleMarshalJSON(object)
 	if err != nil {
 		return err
+	}
+
+	if wasMarshal {
+		if _, err := m.result.WriteString(fmt.Sprintf("%s%s", m.encodeString(fmt.Sprintf(`%+v`, value)), is)); err != nil {
+			return err
+		}
+		return nil
 	}
 
 	switch object.Kind() {
@@ -256,18 +291,18 @@ func (m *marshal) handleValue(object reflect.Value) error {
 	return nil
 }
 
-func (m *marshal) handleMarshalJSON(object reflect.Value) (reflect.Value, error) {
+func (m *marshal) handleMarshalJSON(object reflect.Value) (bool, []byte, error) {
 	val, ok := object.Interface().(imarshal)
 	if ok {
 		byts, err := val.MarshalJSON()
 		if err != nil {
-			return object, err
+			return false, nil, err
 		}
 
-		return reflect.ValueOf(string(byts)), nil
+		return true, byts, nil
 	}
 
-	return object, nil
+	return false, nil, nil
 }
 
 func (m *marshal) loadTag(typ reflect.StructField) (exists bool, tag string, err error) {
