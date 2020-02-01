@@ -262,8 +262,14 @@ func (m *marshal) handleValue(object reflect.Value) error {
 			return nil
 		}
 
-		if _, err := m.result.WriteString(fmt.Sprintf(`%+v`, object.Interface())); err != nil {
-			return err
+		if value, ok := object.Interface().(fmt.Stringer); ok && object.CanInterface() {
+			if _, err := m.result.WriteString(fmt.Sprintf(`%s`, value.String())); err != nil {
+				return err
+			}
+		} else {
+			if _, err := m.result.WriteString(fmt.Sprintf(`%+v`, object.Interface())); err != nil {
+				return err
+			}
 		}
 	}
 
