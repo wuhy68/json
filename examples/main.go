@@ -53,9 +53,7 @@ type contacts struct {
 type operationList []*operation
 
 func main() {
-	marshal_example_4()
-	marshal()
-	unmarshal()
+	unmarshal_example_9()
 }
 
 func marshal() {
@@ -374,9 +372,18 @@ func unmarshal_example_9() {
 			Operation: "test",
 			Name:      &name,
 			Contacts: &contacts{
-				Country:      "portugal",
-				Addresses:    map[string]string{"casa": "1111111", "trabalho": "2222222"},
-				PhoneNumbers: map[string]interface{}{"float64": 1, "boolean": false, "string": "ola", "object": contacts{Country: "test"}},
+				Country: "portugal",
+				Addresses: map[string]string{
+					"casa":     "1111111",
+					"trabalho": "2222222",
+				},
+				PhoneNumbers: map[string]interface{}{
+					"float64":   1,
+					"boolean":   false,
+					"string":    "ola",
+					"object":    contacts{Country: "test"},
+					"timestamp": time.Now(),
+				},
 			},
 		},
 	}
@@ -396,13 +403,13 @@ func unmarshal_example_9() {
 	if err != nil {
 		panic(err)
 	}
-
-	fmt.Printf("\n:: Operation: %+v, Addresses: %+v, Phone Numbers: %+v, Type string:%s, Type boolean: %s, Type float64: %s",
+	fmt.Printf("\n:: Operation: %+v, Addresses: %+v, Phone Numbers: %+v, Type string:%s, Type boolean: %s, Type float64: %s, Timestamp %+v",
 		operList2[0].Operation,
 		operList2[0].Contacts.Addresses,
 		operList2[0].Contacts.PhoneNumbers,
 		reflect.TypeOf(operList2[0].Contacts.PhoneNumbers["string"]),
 		reflect.TypeOf(operList2[0].Contacts.PhoneNumbers["boolean"]),
 		reflect.TypeOf(operList2[0].Contacts.PhoneNumbers["float64"]),
+		operList2[0].Contacts.PhoneNumbers["timestamp"],
 	)
 }

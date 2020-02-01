@@ -1,6 +1,9 @@
 package json
 
-import "reflect"
+import (
+	"reflect"
+	"time"
+)
 
 const (
 	jsonTag              = "json"
@@ -19,7 +22,9 @@ const (
 )
 
 var (
-	TypeString = reflect.TypeOf("")
-	TypeFloat64 = reflect.TypeOf(0.0)
-	TypeBoolean = reflect.TypeOf(true)
+	TypeString    = reflect.TypeOf("")
+	TypeFloat64   = reflect.TypeOf(0.0)
+	TypeBoolean   = reflect.TypeOf(true)
+	t             = time.Now()
+	TypeTimestamp = reflect.TypeOf(&t)
 )

@@ -7,8 +7,6 @@ import (
 	"strings"
 )
 
-var typeMarshal = reflect.TypeOf((*imarshal)(nil)).Elem()
-
 type imarshal interface {
 	MarshalJSON() ([]byte, error)
 }

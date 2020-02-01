@@ -5,6 +5,7 @@ import (
 	"reflect"
 	"strconv"
 	"strings"
+	"time"
 )
 
 var typeUnmarshal = reflect.TypeOf((*iunmarshal)(nil)).Elem()
@@ -108,7 +109,6 @@ func (u *unmarshal) handle(object reflect.Value, byts []byte, iteration int) err
 	}
 
 	exists, field, err := u.getField(object, string(fieldName))
-	originField := field
 	if err != nil {
 		return err
 	}
@@ -124,6 +124,16 @@ func (u *unmarshal) handle(object reflect.Value, byts []byte, iteration int) err
 				return err
 			}
 		} else {
+			newUnmarshalField, handled, err := u.handleUnmarshalJSON(field, fieldValue)
+			if err != nil {
+				return err
+			}
+
+			if handled {
+				field.Set(newUnmarshalField)
+				goto next
+			}
+
 			if !bytes.HasPrefix(fieldValue, []byte(null)) {
 				if field.Kind() == reflect.Ptr && field.IsNil() {
 					field.Set(reflectAlloc(field.Type()))
@@ -140,15 +150,6 @@ func (u *unmarshal) handle(object reflect.Value, byts []byte, iteration int) err
 				lenField := len(sliceValues)
 				field.Set(reflect.MakeSlice(field.Type(), 0, lenField))
 
-				handled, err := u.handleUnmarshalJSON(originField, fieldValue)
-				if err != nil {
-					return err
-				}
-
-				if handled {
-					goto next
-				}
-
 				for _, item := range sliceValues {
 
 					newValue := reflectAlloc(field.Type().Elem())
@@ -158,12 +159,13 @@ func (u *unmarshal) handle(object reflect.Value, byts []byte, iteration int) err
 						return err
 					}
 
-					handled, err := u.handleUnmarshalJSON(newValue, item)
+					newUnmarshalValue, handled, err := u.handleUnmarshalJSON(newValue, item)
 					if err != nil {
 						return err
 					}
 
 					if handled {
+						newValue.Set(newUnmarshalValue)
 						continue
 					}
 
@@ -188,15 +190,6 @@ func (u *unmarshal) handle(object reflect.Value, byts []byte, iteration int) err
 					nextValue = []byte{}
 				}
 
-				handled, err := u.handleUnmarshalJSON(originField, byts)
-				if err != nil {
-					return err
-				}
-
-				if handled {
-					goto next
-				}
-
 				mapValues, keysType, valuesType, err := u.getJsonMapValues(byts)
 				if err != nil {
 					return err
@@ -215,20 +208,22 @@ func (u *unmarshal) handle(object reflect.Value, byts []byte, iteration int) err
 						return err
 					}
 
-					handled, err := u.handleUnmarshalJSON(newKey, []byte(key))
+					newUnmarshalField, handled, err := u.handleUnmarshalJSON(newKey, []byte(key))
 					if err != nil {
 						return err
 					}
 
-					if !handled {
-						if isPrimitive {
-							if err = u.setField(newKey, key); err != nil {
-								return err
-							}
-						} else {
-							if err = u.do(newKey, []byte(key), iteration); err != nil {
-								return err
-							}
+					if handled {
+						newKey.Set(newUnmarshalField)
+						continue
+					}
+					if isPrimitive {
+						if err = u.setField(newKey, key); err != nil {
+							return err
+						}
+					} else {
+						if err = u.do(newKey, []byte(key), iteration); err != nil {
+							return err
 						}
 					}
 
@@ -244,36 +239,28 @@ func (u *unmarshal) handle(object reflect.Value, byts []byte, iteration int) err
 						return err
 					}
 
-					handled, err = u.handleUnmarshalJSON(newValue, value)
+					newValue, handled, err = u.handleUnmarshalJSON(newValue, value)
 					if err != nil {
 						return err
 					}
 
-					if handled {
-						continue
+					if !handled {
+						if isPrimitive {
+							if err = u.setField(newValue, string(value)); err != nil {
+								return err
+							}
+						} else {
+							if err = u.do(newValue, []byte(value), iteration); err != nil {
+								return err
+							}
+						}
 					}
 
-					if isPrimitive {
-						if err = u.setField(newValue, string(value)); err != nil {
-							return err
-						}
-					} else {
-						if err = u.do(newValue, []byte(value), iteration); err != nil {
-							return err
-						}
-					}
 					field.SetMapIndex(newKey, newValue)
 				}
 			default:
-				handled, err := u.handleUnmarshalJSON(originField, fieldValue)
-				if err != nil {
+				if err = u.do(field, fieldValue, iteration); err != nil {
 					return err
-				}
-
-				if !handled {
-					if err = u.do(field, fieldValue, iteration); err != nil {
-						return err
-					}
 				}
 			}
 		}
@@ -288,15 +275,16 @@ next:
 	return nil
 }
 
-func (u *unmarshal) handleUnmarshalJSON(object reflect.Value, byts []byte) (bool, error) {
+func (u *unmarshal) handleUnmarshalJSON(object reflect.Value, byts []byte) (reflect.Value, bool, error) {
 	val, ok := object.Interface().(iunmarshal)
 	if ok {
-		if err := val.UnmarshalJSON(byts); err != nil {
-			return true, err
+		if err := val.UnmarshalJSON([]byte(`"2020-02-01T09:59:32.634417Z"`)); err != nil {
+			return object, true, err
 		}
+		return reflect.ValueOf(val), true, nil
 	}
 
-	return ok, nil
+	return object, ok, nil
 }
 
 func (u *unmarshal) getField(object reflect.Value, name string) (bool, reflect.Value, error) {
@@ -438,7 +426,6 @@ func (u *unmarshal) getJsonValue(byts []byte) (value []byte, valueType reflect.T
 	end := 0
 	open := false
 	exit := false
-	valueTypeIsSet := false
 
 	for i, field := range byts {
 		switch string(field) {
@@ -451,7 +438,6 @@ func (u *unmarshal) getJsonValue(byts []byte) (value []byte, valueType reflect.T
 
 		case stringStartEnd:
 			valueType = TypeString
-			valueTypeIsSet = true
 			if i > 0 {
 				if byts[i-1] == []byte(`\`)[0] {
 					continue
@@ -520,12 +506,17 @@ func (u *unmarshal) getJsonValue(byts []byte) (value []byte, valueType reflect.T
 
 	item := bytes.TrimSpace(byts[start:end])
 
-	if !valueTypeIsSet {
+	switch valueType {
+	case TypeString:
+		if _, err = time.Parse(time.RFC3339Nano, string(item)); err == nil {
+			valueType = TypeTimestamp
+		}
+	default:
 		switch string(item) {
 		case booleanTrue, booleanFalse:
 			valueType = TypeBoolean
 		default:
-			if _, err = strconv.ParseInt(string(item), 10, 64); err != nil {
+			if _, err = strconv.ParseInt(string(item), 10, 64); err == nil {
 				valueType = TypeFloat64
 			} else if _, err = strconv.ParseFloat(string(item), 64); err == nil {
 				valueType = TypeFloat64
