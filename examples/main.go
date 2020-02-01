@@ -5,13 +5,15 @@ import (
 	"fmt"
 	"json"
 	"reflect"
+	"time"
 )
 
 type address struct {
-	Ports  []int             `db.read:"ports"`
-	Street string            `db.read:"street"`
-	Number float64           `db:"number" db.write:"number"`
-	Map    map[string]string `db:"map"`
+	Ports     []int             `db.read:"ports"`
+	Street    string            `db.read:"street"`
+	Number    float64           `db:"number" db.write:"number"`
+	Timestamp time.Time         `db:"timestamp"`
+	Map       map[string]string `db:"map"`
 }
 
 type person struct {
@@ -100,9 +102,10 @@ func marshal_example_1() {
 
 func marshal_example_2() {
 	addr := &address{
-		Street: "street one",
-		Number: 1.2,
-		Map:    map[string]string{`"ola" "joao"`: `"adeus" "joao"`, "c": "d"},
+		Street:    "street one",
+		Number:    1.2,
+		Timestamp: time.Now(),
+		Map:       map[string]string{`"ola" "joao"`: `"adeus" "joao"`, "c": "d"},
 	}
 
 	example := person{
