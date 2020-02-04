@@ -53,7 +53,8 @@ type contacts struct {
 type operationList []*operation
 
 func main() {
-	unmarshal_example_9()
+	marshal()
+	unmarshal()
 }
 
 func marshal() {
@@ -78,6 +79,7 @@ func unmarshal() {
 	unmarshal_example_7()
 	unmarshal_example_8()
 	unmarshal_example_9()
+	unmarshal_example_10()
 }
 
 func marshal_example_1() {
@@ -412,4 +414,31 @@ func unmarshal_example_9() {
 		reflect.TypeOf(operList2[0].Contacts.PhoneNumbers["float64"]),
 		operList2[0].Contacts.PhoneNumbers["timestamp"],
 	)
+}
+
+func unmarshal_example_10() {
+	type Details struct {
+		Table      string                 `json:"table"`
+		Values     map[string]interface{} `json:"values"`
+		Conditions map[string]interface{} `json:"conditions"`
+	}
+
+	type Operation struct {
+		Operation string   `json:"operation"`
+		Query     *string  `json:"query"`
+		Details   *Details `json:"details"`
+	}
+
+	type OperationList []*Operation
+
+	bytes := []byte(`[{"operation":"DELETE","query":null,"details":{"table":"example","values":{"id_example":"037be466-ef12-47ed-af05-808a43b5ce29","name":"second","description":"my second test","active":true,"created_at":"2020-02-01T22:49:31.582759Z","updated_at":"2020-02-01T22:49:31.58276Z"},"conditions":null}}]`)
+
+	// unmarshal
+	var person OperationList
+	err := json.Unmarshal(bytes, &person, "json")
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Printf("\n:: Person: %+v", person)
 }
